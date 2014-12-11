@@ -15,7 +15,12 @@ public final class TypedSubscriptionTest {
         public boolean matches(String message) {
             return true;
         }
-        
+
+        @Override
+        public Void getMetadata() {
+            return null;
+        }
+
     }
 
     private static class RawTypedSubscription extends TypedSubscription {
@@ -23,6 +28,11 @@ public final class TypedSubscriptionTest {
         @Override
         public boolean matches(Object message) {
             return false;
+        }
+
+        @Override
+        public Object getMetadata() {
+            return null;
         }
 
     }
