@@ -1,11 +1,11 @@
 package de.zalando.circuit;
 
-public interface Subscription<E, M> {
+import com.google.common.base.Predicate;
+
+public interface Subscription<E, M> extends Predicate<E> {
 
     Class<E> getType();
     
-    boolean matches(E message);
-
     M getMetadata();
 
 }

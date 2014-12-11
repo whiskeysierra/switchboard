@@ -12,7 +12,7 @@ public final class TypedSubscriptionTest {
     private static final class GenericlyTypedSubscription extends TypedSubscription<String, Void> {
 
         @Override
-        public boolean matches(String message) {
+        public boolean apply(String message) {
             return true;
         }
 
@@ -26,7 +26,7 @@ public final class TypedSubscriptionTest {
     private static class RawTypedSubscription extends TypedSubscription {
         
         @Override
-        public boolean matches(Object message) {
+        public boolean apply(Object message) {
             return false;
         }
 

@@ -17,6 +17,6 @@ public interface Circuit {
     
     <E, M> List<M> inspect(Class<E> eventType, Class<M> metadataType);
 
-    <E> void send(E event, Distribution distribution);
+    <E> void send(E event, Distributor distributor);
     
 }

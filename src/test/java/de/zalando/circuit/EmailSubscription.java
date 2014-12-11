@@ -9,7 +9,7 @@ final class EmailSubscription extends TypedSubscription<Email, String> {
     }
 
     @Override
-    public boolean matches(Email email) {
+    public boolean apply(Email email) {
         return email.getSubject().contains("Urgent") &&
                 email.getAddress().equals(address);
     }

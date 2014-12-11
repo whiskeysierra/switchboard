@@ -2,5 +2,14 @@ language: java
 
 sudo: false
 
+jdk:
+  - openjdk7
+  - oraclejdk7
+  - oraclejdk8
+
 after_success:
   - mvn cobertura:cobertura coveralls:report
+
+notifications:
+  email:
+    on_failure: change

@@ -17,7 +17,7 @@ final class DefaultCircuit implements Circuit {
             // TODO better exception
             throw new IllegalStateException(e);
         } catch (ExecutionException e) {
-            throw new IllegalStateException(e);
+            throw new IllegalStateException(e.getCause());
         }
     }
 
@@ -32,7 +32,7 @@ final class DefaultCircuit implements Circuit {
     }
 
     @Override
-    public <E> void send(E event, Distribution distribution) {
+    public <E> void send(E event, Distributor distributor) {
         throw new UnsupportedOperationException();
     }
 

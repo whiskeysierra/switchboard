@@ -15,14 +15,16 @@ final class EmailWorker implements Runnable {
     @Override
     public void run() {
         final List<String> addresses = circuit.inspect(Email.class, String.class);
-        
-        // call external service/system/component using the list of addresses
-        final List<Map<String, String>> messages = Collections.emptyList();
+        final List<Map<String, String>> messages = findMessagesBy(addresses);
 
         for (Map<String, String> message : messages) {
             final Email email = new Email(message.get("address"), message.get("subject"));
-            circuit.send(email, Distributions.DIRECT);
+            circuit.send(email, Distributor.DIRECT);
         }
+    }
+
+    private List<Map<String, String>> findMessagesBy(List<String> addresses) {
+        return Collections.emptyList();
     }
 
 }
