@@ -1,4 +1,4 @@
-package de.zalando.circuit;
+package de.zalando.circuit.example;
 
 public class Email {
 

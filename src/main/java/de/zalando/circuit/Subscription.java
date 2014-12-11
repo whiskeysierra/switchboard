@@ -2,10 +2,19 @@ package de.zalando.circuit;
 
 import com.google.common.base.Predicate;
 
-public interface Subscription<E, M> extends Predicate<E> {
+import javax.annotation.Nonnull;
 
-    Class<E> getType();
-    
-    M getMetadata();
+public interface Subscription<E, H> extends Predicate<E> {
+
+    Class<E> getEventType();
+
+    Class<H> getHintType();
+
+    @Override
+    @SuppressWarnings("NullableProblems")
+    boolean apply(@Nonnull E event);
+
+    // TODO should be optional
+    H getHint();
 
 }

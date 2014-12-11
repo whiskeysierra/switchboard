@@ -11,12 +11,16 @@ import java.util.concurrent.TimeoutException;
  */
 public interface Circuit {
 
+    <E, H> List<H> inspect(Class<E> eventType, Class<H> hintType);
+
+    <E> void send(E event, Distribution distribution);
+
     <E> E receive(Subscription<E, ?> subscription, long timeout, TimeUnit timeoutUnit) throws TimeoutException;
 
-    <E> Future<E> subscribe(Subscription<E, ?> subscription);
-    
-    <E, M> List<M> inspect(Class<E> eventType, Class<M> metadataType);
+    <E> List<E> receive(Subscription<E, ?> subscription, final int count, long timeout, TimeUnit timeoutUnit) throws TimeoutException;
 
-    <E> void send(E event, Distributor distributor);
+    <E> Future<E> subscribe(Subscription<E, ?> subscription);
+
+    <E> Future<List<E>> subscribe(Subscription<E, ?> subscription, final int count);
     
 }

@@ -1,4 +1,7 @@
-package de.zalando.circuit;
+package de.zalando.circuit.example;
+
+import de.zalando.circuit.Circuit;
+import de.zalando.circuit.Distribution;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +22,7 @@ final class EmailWorker implements Runnable {
 
         for (Map<String, String> message : messages) {
             final Email email = new Email(message.get("address"), message.get("subject"));
-            circuit.send(email, Distributor.DIRECT);
+            circuit.send(email, Distribution.DIRECT);
         }
     }
 

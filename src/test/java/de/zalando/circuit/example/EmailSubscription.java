@@ -1,6 +1,10 @@
-package de.zalando.circuit;
+package de.zalando.circuit.example;
 
-final class EmailSubscription extends TypedSubscription<Email, String> {
+import de.zalando.circuit.BaseSubscription;
+
+import javax.annotation.Nullable;
+
+final class EmailSubscription extends BaseSubscription<Email, String> {
 
     private final String address;
 
@@ -15,7 +19,7 @@ final class EmailSubscription extends TypedSubscription<Email, String> {
     }
 
     @Override
-    public String getMetadata() {
+    public String getHint() {
         return address;
     }
 
