@@ -6,14 +6,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * publish/subscribe, asnyc, hand-over
+ * publish/subscribe, asnyc, hand-over/broadcast
  * deliver previously received events
  */
 public interface Circuit {
-
-    <E, H> List<H> inspect(Class<E> eventType, Class<H> hintType);
-
-    <E> void send(E event, Distribution distribution);
 
     <E> E receive(Subscription<E, ?> subscription, long timeout, TimeUnit timeoutUnit) throws TimeoutException;
 
@@ -22,5 +18,9 @@ public interface Circuit {
     <E> Future<E> subscribe(Subscription<E, ?> subscription);
 
     <E> Future<List<E>> subscribe(Subscription<E, ?> subscription, final int count);
+
+    <E, H> List<H> inspect(Class<E> eventType, Class<H> hintType);
+
+    <E> void send(E event, Distribution distribution);
     
 }

@@ -8,22 +8,24 @@ import org.junit.Test;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class Example {
     
-    final Circuit circuit = Circuits.create();
+    private final Circuit circuit = Circuits.create();
     
     @Test
     public void test() throws TimeoutException {
-        // trigger process that sends email...
+        // start process that triggers export in the end...
         
-        final Email email = circuit.receive(emailTo("info@example.com"), 5, MINUTES);
+        final ParcelExport export = circuit.receive(exportedParcel("738235167"), 5, MINUTES);
 
-        // use email
+        assertThat(export.getPriority(), is("HIGH"));
     }
 
-    private Subscription<Email, String> emailTo(final String address) {
-        return new EmailSubscription(address);
+    private Subscription<ParcelExport, String> exportedParcel(final String address) {
+        return new ParcelExportSubscription(address);
     }
 
 }
