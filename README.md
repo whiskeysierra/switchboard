@@ -1,5 +1,7 @@
 # Circuit
 
+[![Circuit Board](docs/circuit.jpg)](http://pixabay.com/en/board-electronics-computer-453758/)
+
 [![Build Status](https://travis-ci.org/whiskeysierra/circuit.svg)](https://travis-ci.org/whiskeysierra/circuit)
 [![Coverage Status](https://coveralls.io/repos/whiskeysierra/circuit/badge.png)](https://coveralls.io/r/whiskeysierra/circuit)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.zalando/zalando-circuit/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.zalando/zalando-circuit)
