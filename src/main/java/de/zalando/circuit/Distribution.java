@@ -6,12 +6,12 @@ import static com.google.common.base.Preconditions.checkState;
 
 public enum Distribution {
 
-    DIRECT {
+    SINGLE {
 
         @Override
         <E> List<Delivery<E, ?>> distribute(List<Delivery<E, ?>> deliveries) {
             checkState(deliveries.size() == 1, "Too many subcriptions for event, expected one");
-            return deliveries.subList(0, 1);
+            return deliveries;
         }
 
     },

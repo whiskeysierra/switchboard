@@ -8,3 +8,5 @@
 
 ### Maven ###
 target/
+
+.java-version

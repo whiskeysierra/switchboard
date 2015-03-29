@@ -1,8 +1,11 @@
 package de.zalando.circuit.example;
 
-import de.zalando.circuit.BaseSubscription;
+import de.zalando.circuit.Subscription;
 
-final class ParcelExportSubscription extends BaseSubscription<ParcelExport, String> {
+import javax.annotation.Nonnull;
+import java.util.Optional;
+
+final class ParcelExportSubscription implements Subscription<ParcelExport,String> {
 
     private final String parcelId;
 
@@ -11,13 +14,13 @@ final class ParcelExportSubscription extends BaseSubscription<ParcelExport, Stri
     }
 
     @Override
-    public boolean apply(ParcelExport export) {
+    public boolean test(@Nonnull ParcelExport export) {
         return export.getParcelId().equals(parcelId);
     }
 
     @Override
-    public String getHint() {
-        return parcelId;
+    public Optional<String> getHint() {
+        return Optional.of(parcelId);
     }
 
 }

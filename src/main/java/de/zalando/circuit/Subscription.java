@@ -1,20 +1,23 @@
 package de.zalando.circuit;
 
-import com.google.common.base.Predicate;
-
 import javax.annotation.Nonnull;
+import java.util.Optional;
+import java.util.function.Predicate;
 
+import static de.zalando.circuit.TypeResolver.resolve;
+
+@FunctionalInterface
 public interface Subscription<E, H> extends Predicate<E> {
 
-    Class<E> getEventType();
-
-    Class<H> getHintType();
+    default Class<E> getEventType() {
+        return resolve(this, Subscription.class, 0);
+    }
 
     @Override
-    @SuppressWarnings("NullableProblems")
-    boolean apply(@Nonnull E event);
-
-    // TODO should be optional
-    H getHint();
+    boolean test(@Nonnull E e);
+    
+    default Optional<H> getHint() {
+        return Optional.empty();
+    }
 
 }

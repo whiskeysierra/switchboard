@@ -46,7 +46,7 @@ public class DefaultCircuitTest {
     @Parameterized.Parameters(name = "{0}")
     public static List<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {Distribution.DIRECT},
+                {Distribution.SINGLE},
                 {Distribution.FIRST},
                 {Distribution.BROADCAST}
         });
@@ -156,7 +156,7 @@ public class DefaultCircuitTest {
 
     @Test(expected = IllegalStateException.class, timeout = 250)
     public void shouldThrowWhenDeliveringEventsToMatchers() {
-        assumeThat(distribution, is(Distribution.DIRECT));
+        assumeThat(distribution, is(Distribution.SINGLE));
 
         unit.subscribe(matcher1);
         unit.subscribe(matcher2);

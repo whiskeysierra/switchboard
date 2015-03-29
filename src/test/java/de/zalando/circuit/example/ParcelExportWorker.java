@@ -1,13 +1,12 @@
 package de.zalando.circuit.example;
 
 import de.zalando.circuit.Circuit;
-import de.zalando.circuit.Distribution;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static de.zalando.circuit.Distribution.DIRECT;
+import static de.zalando.circuit.Distribution.SINGLE;
 
 final class ParcelExportWorker implements Runnable {
 
@@ -23,7 +22,7 @@ final class ParcelExportWorker implements Runnable {
         final List<Map<String, String>> exports = findExportsByParcelId(parcelIds);
 
         for (Map<String, String> export : exports) {
-            circuit.send(new ParcelExport(export.get("address"), export.get("priority")), DIRECT);
+            circuit.send(new ParcelExport(export.get("address"), export.get("priority")), SINGLE);
         }
     }
 

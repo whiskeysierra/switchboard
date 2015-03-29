@@ -1,9 +1,10 @@
 package de.zalando.circuit;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.Optional;
 
 @Immutable
-class EventSubscription extends BaseSubscription<Event, String> {
+class EventSubscription implements Subscription<Event, String> {
 
     private final String identifier;
 
@@ -12,12 +13,12 @@ class EventSubscription extends BaseSubscription<Event, String> {
     }
 
     @Override
-    public String getHint() {
-        return identifier;
+    public Optional<String> getHint() {
+        return Optional.of(identifier);
     }
 
     @Override
-    public boolean apply(final Event input) {
+    public boolean test(final Event input) {
         return identifier.equals(input.getIdentifier());
     }
 

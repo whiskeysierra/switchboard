@@ -1,27 +1,21 @@
 package de.zalando.circuit;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.util.concurrent.Futures;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Predicates.compose;
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.ImmutableList.copyOf;
-import static de.zalando.circuit.Locking.transactional;
+import static java.util.stream.Collectors.toList;
 
 final class DefaultCircuit implements Circuit {
 
@@ -30,27 +24,31 @@ final class DefaultCircuit implements Circuit {
     private final Queue<QueuedEvent> pending = new ConcurrentLinkedQueue<>();
     private final Queue<Delivery> deliveries = new ConcurrentLinkedQueue<>();
 
-    private Lock lock = new ReentrantLock();
+    private final LockSupport lock = new LockSupport();
 
     @Override
     public <E, H> List<H> inspect(Class<E> eventType, Class<H> hintType) {
-        return from(copyOf(deliveries))
-                .filter(compose(isSubtypeOf(eventType), Delivery::getEventType))
-                .filter(compose(isSubtypeOf(hintType), Delivery::getHintType))
-                .transform(Delivery::getMetadata)
-                .filter(hintType)
-                .toList();
+        return copyOf(deliveries)
+                .stream()
+                .filter(delivery -> eventType.isAssignableFrom(delivery.getEventType()))
+                .map(delivery -> this.<H>cast(delivery.getHint()))
+                .map(hint -> hint.filter(hintType::isInstance).orElse(null))
+                .collect(toList());
     }
-
-    private <E> Predicate<Class> isSubtypeOf(final Class<E> type) {
-        return type::isAssignableFrom;
+    
+    @SuppressWarnings("unchecked")
+    private <H> Optional<H> cast(Optional hint) {
+        return hint;
     }
 
     @Override
     public <E> void send(E event, Distribution distribution) {
-        transactional(lock, () -> {
-            @SuppressWarnings("unchecked")
-            final List<Delivery<E, ?>> matches = (List) from(deliveries).filter(appliesTo(event)).toList();
+        lock.transactional(() -> {
+
+            final List<Delivery<E, ?>> matches = deliveries.stream()
+                    .filter(input -> input.test(event))
+                    .map(this::<E>cast)
+                    .collect(toList());
 
             if (matches.isEmpty()) {
                 pending.add(new QueuedEvent<>(event, distribution));
@@ -59,9 +57,10 @@ final class DefaultCircuit implements Circuit {
             }
         });
     }
-
-    private <E> Predicate<Delivery> appliesTo(final E event) {
-        return input -> input.apply(event);
+    
+    @SuppressWarnings("unchecked")
+    private <E> Delivery<E, ?> cast(Delivery delivery) {
+        return delivery;
     }
 
     private <E> void deliverTo(final List<Delivery<E, ?>> list, final E event) {
@@ -98,11 +97,11 @@ final class DefaultCircuit implements Circuit {
 
     @Override
     public <E> Future<E> subscribe(Subscription<E, ?> subscription) {
-        return Futures.lazyTransform(subscribe(subscription, 1), elementAt(0));
+        return Futures.lazyTransform(subscribe(subscription, 1), this::first);
     }
 
-    private <T> Function<List<T>, T> elementAt(final int index) {
-        return input -> index >= input.size() ? null : input.get(index);
+    private <T> T first(List<T> input) {
+        return input.isEmpty() ? null : input.get(0);
     }
 
     @Override
@@ -116,7 +115,7 @@ final class DefaultCircuit implements Circuit {
     }
 
     private <E> void registerForFutureEvents(final Delivery<E, ?> subscription) {
-        transactional(lock, () -> {
+        lock.transactional(() -> {
             checkState(!deliveries.contains(subscription), "[%s] is already registered", subscription);
             deliveries.add(subscription);
             LOG.trace("Registered [{}]", subscription);
@@ -138,10 +137,11 @@ final class DefaultCircuit implements Circuit {
     }
 
     private <E> Optional<QueuedEvent<E>> findAndRemove(final Delivery<E, ?> delivery) {
-        return transactional(lock, () -> {
-            @SuppressWarnings("unchecked")
-            final Optional<QueuedEvent<E>> first = (Optional) from(pending)
-                    .firstMatch((compose(delivery, QueuedEvent::getOriginal)));
+        return lock.transactional(() -> {
+            final Optional<QueuedEvent<E>> first = pending.stream()
+                    .filter(event -> delivery.test(event.getOriginal()))
+                    .map(this::<E>cast)
+                    .findFirst();
 
             if (first.isPresent()) {
                 pending.remove(first.get());
@@ -149,6 +149,11 @@ final class DefaultCircuit implements Circuit {
 
             return first;
         });
+    }
+    
+    @SuppressWarnings("unchecked")
+    private <E> QueuedEvent<E> cast(QueuedEvent event) {
+        return event;
     }
 
 }

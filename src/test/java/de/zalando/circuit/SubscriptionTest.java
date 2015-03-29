@@ -2,36 +2,38 @@ package de.zalando.circuit;
 
 import org.junit.Test;
 
+import java.util.Optional;
+
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public final class BaseSubscriptionTest {
+public final class SubscriptionTest {
     
-    private static final class GenericlyTypedSubscription extends BaseSubscription<String, Void> {
+    private static final class GenericlyTypedSubscription implements Subscription<String, Void> {
 
         @Override
-        public boolean apply(String message) {
+        public boolean test(String message) {
             return true;
         }
 
         @Override
-        public Void getHint() {
-            return null;
+        public Optional<Void> getHint() {
+            return Optional.empty();
         }
 
     }
 
-    private static class RawTypedSubscription extends BaseSubscription {
+    private static class RawTypedSubscription implements Subscription {
         
         @Override
-        public boolean apply(Object message) {
+        public boolean test(Object message) {
             return false;
         }
 
         @Override
-        public Object getHint() {
-            return null;
+        public Optional<Object> getHint() {
+            return Optional.empty();
         }
 
     }
@@ -39,13 +41,11 @@ public final class BaseSubscriptionTest {
     @Test
     public void shouldExtractTypeFromGenericTypeArgument() {
         assertThat(new GenericlyTypedSubscription().getEventType(), is(equalTo(String.class)));
-        assertThat(new GenericlyTypedSubscription().getHintType(), is(equalTo(Void.class)));
     }
 
     @Test
     public void unspecificTypeWillFail() {
         assertThat(new RawTypedSubscription().getEventType(), is(equalTo(Object.class)));
-        assertThat(new RawTypedSubscription().getHintType(), is(equalTo(Object.class)));
     }
     
 }

@@ -1,6 +1,5 @@
 package de.zalando.circuit;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 
@@ -8,6 +7,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -16,11 +16,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
-import static de.zalando.circuit.Locking.transactional;
 import static java.lang.String.format;
 
 final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
@@ -38,7 +36,7 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
     private final BlockingQueue<E> queue;
     private final AtomicInteger pushed = new AtomicInteger();
 
-    private final Lock lock = new ReentrantLock();
+    private final LockSupport lock = new LockSupport();
 
     public Delivery(Subscription<E, H> subscription, int count, Consumer<Delivery<E, H>> deregistration) {
         this.subscription = subscription;
@@ -51,23 +49,23 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
         return subscription.getEventType();
     }
 
-    public Class<H> getHintType() {
-        return subscription.getHintType();
-    }
-
-    public H getMetadata() {
+    public Optional<H> getHint() {
         return subscription.getHint();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public boolean apply(@Nullable Object input) {
+    public boolean test(@Nullable Object input) {
         return subscription.getEventType().isInstance(input)
-                && subscription.apply((E) input);
+                && subscription.test(cast(input));
     }
-    
+
+    @SuppressWarnings("unchecked")
+    private E cast(Object input) {
+        return (E) input;
+    }
+
     void deliver(E event) {
-        transactional(lock, () -> {
+        lock.transactional(() -> {
             queue.add(event);
 
             final boolean isSatisfied = pushed.incrementAndGet() == count;
@@ -114,7 +112,6 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
     @Override
     public List<E> get() throws InterruptedException, ExecutionException {
         try {
-
             // I consider that "forever"
             return get(Long.MAX_VALUE, TimeUnit.DAYS);
         } catch (TimeoutException e) {
@@ -124,6 +121,7 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
 
     @Override
     public List<E> get(final long timeout, final TimeUnit timeoutUnit) throws InterruptedException, TimeoutException {
+        // TODO finally deregister!
         final List<E> results = Lists.newArrayListWithExpectedSize(count);
         final int drained = Queues.drain(queue, results, count, timeout, timeoutUnit);
 
@@ -145,38 +143,11 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
             message = format("No [%s] event matching [%s] occurred in [%s] [%s]", typeName, subscription, timeout,
                     timeoutUnitName);
         } else {
-            message = format("[%d%s] [%s] event matching [%s] didn't occur in [%s] [%s]", index, ordinal(index),
-                    typeName, subscription, timeout, timeoutUnitName);
+            message = format("[%d%s] [%s] event matching [%s] didn't occur in [%s] [%s]", index, 
+                    Ordinals.valueOf(index), typeName, subscription, timeout, timeoutUnitName);
         }
 
         throw new TimeoutException(message);
-    }
-
-    // TODO move to own class
-    private static String ordinal(final int i) {
-        switch (i % 100) {
-
-            case 11 :
-            case 12 :
-            case 13 :
-                return "th";
-
-            default :
-                switch (i % 10) {
-
-                    case 1 :
-                        return "st";
-
-                    case 2 :
-                        return "nd";
-
-                    case 3 :
-                        return "rd";
-
-                    default :
-                        return "th";
-                }
-        }
     }
 
     @Override
