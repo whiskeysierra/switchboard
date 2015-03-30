@@ -75,8 +75,12 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
     }
 
     private boolean finish(final State endState) {
-        unregister.accept(this);
+        unregister();
         return state.compareAndSet(State.WAITING, endState);
+    }
+
+    private void unregister() {
+        unregister.accept(this);
     }
 
     @Override
@@ -118,34 +122,37 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
     }
 
     @Override
-    public List<E> get(final long timeout, final TimeUnit timeoutUnit) throws InterruptedException, ExecutionException,
-            TimeoutException {
-        // TODO finally deregister!
-        final List<E> results = Lists.newArrayListWithExpectedSize(count);
+    public List<E> get(final long timeout, final TimeUnit timeoutUnit) 
+            throws InterruptedException, ExecutionException, TimeoutException {
+        try {
+            final List<E> results = Lists.newArrayListWithExpectedSize(count);
 
-        final long deadline = System.nanoTime() + timeoutUnit.toNanos(timeout);
-        int drained = 0;
-        
-        while (drained < count) {
-            Deliverable<E> deliverable = queue.poll(deadline - System.nanoTime(), NANOSECONDS);
-            if (deliverable == null) {
-                break;
+            final long deadline = System.nanoTime() + timeoutUnit.toNanos(timeout);
+            int drained = 0;
+
+            while (drained < count) {
+                final Deliverable<E> deliverable = queue.poll(deadline - System.nanoTime(), NANOSECONDS);
+                if (deliverable == null) {
+                    break;
+                }
+    
+                try {
+                    deliverable.deliverTo(results);
+                } catch (RuntimeException e) {
+                    throw new ExecutionException(e);
+                }
+                
+                drained++;
             }
 
-            try {
-                deliverable.deliverTo(results);
-            } catch (RuntimeException e) {
-                throw new ExecutionException(e);
+            if (drained < count) {
+                throw failure(timeout, timeoutUnit, drained + 1);
             }
-            
-            drained++;
-        }
 
-        if (drained < count) {
-            throw failure(timeout, timeoutUnit, drained + 1);
+            return results;
+        } finally {
+            unregister();
         }
-
-        return results;
     }
 
     private TimeoutException failure(final long timeout, final TimeUnit timeoutUnit, final int index)
