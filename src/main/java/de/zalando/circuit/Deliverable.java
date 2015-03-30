@@ -10,5 +10,5 @@ interface Deliverable<E> {
 
     E getEvent();
 
-    Distribution getDistribution();
+    DeliveryMode getDeliveryMode();
 }

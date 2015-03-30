@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static de.zalando.circuit.Distribution.SINGLE;
+import static de.zalando.circuit.DeliveryMode.SINGLE;
 
 final class ParcelExportWorker implements Runnable {
 

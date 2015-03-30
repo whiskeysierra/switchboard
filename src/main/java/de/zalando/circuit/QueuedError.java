@@ -5,18 +5,18 @@ import java.util.Collection;
 final class QueuedError<T> implements Deliverable<T> {
 
     private final T event;
-    private final Distribution distribution;
+    private final DeliveryMode deliveryMode;
     private final RuntimeException exception;
 
-    QueuedError(T event, Distribution distribution, RuntimeException exception) {
+    QueuedError(T event, DeliveryMode deliveryMode, RuntimeException exception) {
         this.event = event;
-        this.distribution = distribution;
+        this.deliveryMode = deliveryMode;
         this.exception = exception;
     }
 
     @Override
     public void sendTo(Circuit circuit) {
-        circuit.fail(event, distribution, exception);
+        circuit.fail(event, deliveryMode, exception);
     }
 
     @Override
@@ -30,8 +30,8 @@ final class QueuedError<T> implements Deliverable<T> {
     }
 
     @Override
-    public Distribution getDistribution() {
-        return distribution;
+    public DeliveryMode getDeliveryMode() {
+        return deliveryMode;
     }
 
 }

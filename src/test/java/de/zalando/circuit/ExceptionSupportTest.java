@@ -15,7 +15,7 @@ public final class ExceptionSupportTest {
     
     @Test(expected = SpecialException.class)
     public void shouldThrowException() throws TimeoutException {
-        circuit.fail("foo", Distribution.SINGLE, new SpecialException());
+        circuit.fail("foo", DeliveryMode.SINGLE, new SpecialException());
         circuit.receive("foo"::equals, 1, TimeUnit.SECONDS);
     }
 

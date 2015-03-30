@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeoutException;
 
-import static de.zalando.circuit.Distribution.SINGLE;
+import static de.zalando.circuit.DeliveryMode.SINGLE;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

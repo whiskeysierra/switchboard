@@ -26,7 +26,7 @@ import static org.junit.Assume.assumeThat;
 @RunWith(Parameterized.class)
 public class DefaultCircuitTest {
 
-    private final Distribution distribution;
+    private final DeliveryMode deliveryMode;
     private final Event event1 = new Event("A");
     private final Event event2 = new Event("A");
     private final Subscription<Event, String> matcher1 = new EventSubscription("A");
@@ -38,17 +38,17 @@ public class DefaultCircuitTest {
     @Rule
     public final ExpectedException exception = ExpectedException.none();
 
-    public DefaultCircuitTest(final Distribution distribution) {
-        this.distribution = distribution;
+    public DefaultCircuitTest(final DeliveryMode deliveryMode) {
+        this.deliveryMode = deliveryMode;
     }
 
     //J-
     @Parameterized.Parameters(name = "{0}")
     public static List<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {Distribution.SINGLE},
-                {Distribution.FIRST},
-                {Distribution.BROADCAST}
+                {DeliveryMode.SINGLE},
+                {DeliveryMode.FIRST},
+                {DeliveryMode.BROADCAST}
         });
     }
     //J+
@@ -56,8 +56,8 @@ public class DefaultCircuitTest {
     @Test(timeout = 250)
     public void shouldDeliverUnhandledEventsPairwiseToMatchers() throws TimeoutException, InterruptedException,
             ExecutionException {
-        unit.send(event1, distribution);
-        unit.send(event2, distribution);
+        unit.send(event1, deliveryMode);
+        unit.send(event2, deliveryMode);
 
         final Future<Event> firstResult = unit.subscribe(matcher1);
         final Event first = firstResult.get();
@@ -72,8 +72,8 @@ public class DefaultCircuitTest {
     @Test(timeout = 250)
     public void shouldDeliverUnhandledEventsPairwiseToConcurrentMatchers() throws TimeoutException,
             InterruptedException, ExecutionException {
-        unit.send(event1, distribution);
-        unit.send(event2, distribution);
+        unit.send(event1, deliveryMode);
+        unit.send(event2, deliveryMode);
 
         final Future<Event> firstResult = unit.subscribe(matcher1);
         final Future<Event> secondResult = unit.subscribe(matcher2);
@@ -88,12 +88,12 @@ public class DefaultCircuitTest {
     @Test(timeout = 250)
     public void shouldDeliverUnhandledEventsPairwiseToMatchersOneAtATime() throws InterruptedException,
             ExecutionException {
-        unit.send(event1, distribution);
+        unit.send(event1, deliveryMode);
 
         final Future<Event> firstResult = unit.subscribe(matcher1);
         final Event first = firstResult.get();
 
-        unit.send(event2, distribution);
+        unit.send(event2, deliveryMode);
 
         final Future<Event> secondResult = unit.subscribe(matcher2);
         final Event second = secondResult.get();
@@ -105,14 +105,14 @@ public class DefaultCircuitTest {
     @Test(timeout = 250)
     public void shouldDeliverPartlyUnhandledEventsPairwiseToMatchersOneAtATime() throws InterruptedException,
             ExecutionException {
-        unit.send(event1, distribution);
+        unit.send(event1, deliveryMode);
 
         final Future<Event> firstResult = unit.subscribe(matcher1);
         final Event first = firstResult.get();
 
         final Future<Event> secondResult = unit.subscribe(matcher2);
 
-        unit.send(event2, distribution);
+        unit.send(event2, deliveryMode);
 
         final Event second = secondResult.get();
 
@@ -123,12 +123,12 @@ public class DefaultCircuitTest {
     @Test(timeout = 250)
     public void shouldDeliverPartlyUnhandledEventsPairwiseToConcurrentMatchers() throws InterruptedException,
             ExecutionException {
-        unit.send(event1, distribution);
+        unit.send(event1, deliveryMode);
 
         final Future<Event> firstResult = unit.subscribe(matcher1);
         final Future<Event> secondResult = unit.subscribe(matcher2);
 
-        unit.send(event2, distribution);
+        unit.send(event2, deliveryMode);
 
         final Event first = firstResult.get();
         final Event second = secondResult.get();
@@ -139,11 +139,11 @@ public class DefaultCircuitTest {
 
     @Test(timeout = 250)
     public void shouldDeliverEventsPairwiseToMatchers() throws InterruptedException, ExecutionException {
-        unit.send(event1, distribution);
+        unit.send(event1, deliveryMode);
 
         final Future<Event> firstResult = unit.subscribe(matcher1);
 
-        unit.send(event2, distribution);
+        unit.send(event2, deliveryMode);
 
         final Future<Event> secondResult = unit.subscribe(matcher2);
 
@@ -156,24 +156,24 @@ public class DefaultCircuitTest {
 
     @Test(expected = IllegalStateException.class, timeout = 250)
     public void shouldThrowWhenDeliveringEventsToMatchers() {
-        assumeThat(distribution, is(Distribution.SINGLE));
+        assumeThat(deliveryMode, is(DeliveryMode.SINGLE));
 
         unit.subscribe(matcher1);
         unit.subscribe(matcher2);
 
-        unit.send(event1, distribution);
-        unit.send(event2, distribution);
+        unit.send(event1, deliveryMode);
+        unit.send(event2, deliveryMode);
     }
 
     @Test(timeout = 250)
     public void shouldDeliverEventsToMatchers() throws ExecutionException, InterruptedException {
-        assumeThat(distribution, is(Distribution.FIRST));
+        assumeThat(deliveryMode, is(DeliveryMode.FIRST));
 
         final Future<Event> firstResult = unit.subscribe(matcher1);
         final Future<Event> secondResult = unit.subscribe(matcher2);
 
-        unit.send(event1, distribution);
-        unit.send(event2, distribution);
+        unit.send(event1, deliveryMode);
+        unit.send(event2, deliveryMode);
 
         final Event first = firstResult.get();
         final Event second = secondResult.get();
@@ -184,13 +184,13 @@ public class DefaultCircuitTest {
 
     @Test(timeout = 250)
     public void shouldDeliverFirstEventToAllMatchers() throws ExecutionException, InterruptedException {
-        assumeThat(distribution, is(Distribution.BROADCAST));
+        assumeThat(deliveryMode, is(DeliveryMode.BROADCAST));
 
         final Future<Event> firstResult = unit.subscribe(matcher1);
         final Future<Event> secondResult = unit.subscribe(matcher2);
 
-        unit.send(event1, distribution);
-        unit.send(event2, distribution);
+        unit.send(event1, deliveryMode);
+        unit.send(event2, deliveryMode);
 
         final Event first = firstResult.get();
         final Event second = secondResult.get();
@@ -201,8 +201,8 @@ public class DefaultCircuitTest {
 
     @Test(expected = TimeoutException.class, timeout = 250)
     public void shouldTimeoutWhenThereAreNomatchingEvents() throws TimeoutException {
-        unit.send(event1, distribution);
-        unit.send(event2, distribution);
+        unit.send(event1, deliveryMode);
+        unit.send(event2, deliveryMode);
 
         unit.receive(matcher3, 10, MILLISECONDS);
     }
@@ -224,7 +224,7 @@ public class DefaultCircuitTest {
         final int count = 5;
 
         for (int i = 0; i < 5; i++) {
-            unit.send(event1, distribution);
+            unit.send(event1, deliveryMode);
         }
 
         final List<Event> events = unit.receive(matcher1, count, 100, MILLISECONDS);
@@ -240,7 +240,7 @@ public class DefaultCircuitTest {
         final Future<List<Event>> future = unit.subscribe(matcher1, count);
 
         for (int i = 0; i < 5; i++) {
-            unit.send(event1, distribution);
+            unit.send(event1, deliveryMode);
         }
 
         final List<Event> events = future.get();
@@ -257,7 +257,7 @@ public class DefaultCircuitTest {
         final Future<List<Event>> future = unit.subscribe(matcher1, count);
 
         for (int i = 0; i < 5; i++) {
-            unit.send(event1, distribution);
+            unit.send(event1, deliveryMode);
         }
 
         final List<Event> events = future.get(50L, MILLISECONDS);
@@ -268,8 +268,8 @@ public class DefaultCircuitTest {
 
     @Test(timeout = 250)
     public void shouldTellThatSecondEventDidNotOccur() throws TimeoutException {
-        unit.send(event1, distribution);
-        unit.send(event2, distribution);
+        unit.send(event1, deliveryMode);
+        unit.send(event2, deliveryMode);
 
         exception.expect(TimeoutException.class);
         exception.expectMessage(containsString("3rd"));
@@ -281,8 +281,8 @@ public class DefaultCircuitTest {
     public void shouldTellThatSecondEventDidNotOccurWhenPollingAsync() throws TimeoutException, ExecutionException,
             InterruptedException {
 
-        unit.send(event1, distribution);
-        unit.send(event2, distribution);
+        unit.send(event1, deliveryMode);
+        unit.send(event2, deliveryMode);
 
         exception.expect(TimeoutException.class);
         exception.expectMessage(containsString("3rd"));
@@ -303,14 +303,14 @@ public class DefaultCircuitTest {
         final Future<Event> future = unit.subscribe(matcher1);
         future.cancel(false);
 
-        unit.send(event1, distribution);
+        unit.send(event1, deliveryMode);
         future.get(100, MILLISECONDS);
     }
 
     @Test
     public void successfulFutureShoudBeDone() {
         final Future<Event> future = unit.subscribe(matcher1);
-        unit.send(event1, distribution);
+        unit.send(event1, deliveryMode);
 
         assertThat(future.isDone(), is(true));
     }
@@ -318,7 +318,7 @@ public class DefaultCircuitTest {
     @Test
     public void successfulFutureShoudNotBeCancelled() {
         final Future<Event> future = unit.subscribe(matcher1);
-        unit.send(event1, distribution);
+        unit.send(event1, deliveryMode);
 
         assertThat(future.isCancelled(), is(false));
     }
@@ -348,7 +348,7 @@ public class DefaultCircuitTest {
     @Test
     public void cancellingDoneFutureShouldNotSucceed() {
         final Future<Event> future = unit.subscribe(matcher1);
-        unit.send(event1, distribution);
+        unit.send(event1, deliveryMode);
 
         assertThat(future.cancel(true), is(false));
     }

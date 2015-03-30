@@ -4,7 +4,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public enum Distribution {
+public enum DeliveryMode {
 
     SINGLE {
 

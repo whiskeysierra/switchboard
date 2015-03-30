@@ -14,14 +14,8 @@ public final class AlwaysUnregisterTest {
 
     @Test
     public void shouldUnregister() throws TimeoutException {
-        // TODO replace with "waitUnless"
-        try {
-            circuit.receive("foo"::equals, 1, TimeUnit.NANOSECONDS);
-        } catch (TimeoutException e) {
-            // expected
-        }
-        
-        circuit.send("foo", Distribution.SINGLE);
+        circuit.unless("foo"::equals, 1, TimeUnit.NANOSECONDS);
+        circuit.send("foo", DeliveryMode.SINGLE);
         final String actual = circuit.receive("foo"::equals, 1, TimeUnit.SECONDS);
         assertThat(actual, is("foo"));
     }

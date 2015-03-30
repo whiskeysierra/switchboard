@@ -5,16 +5,16 @@ import java.util.Collection;
 final class QueuedEvent<T> implements Deliverable<T> {
 
     private final T event;
-    private final Distribution distribution;
+    private final DeliveryMode deliveryMode;
 
-    QueuedEvent(T event, Distribution distribution) {
+    QueuedEvent(T event, DeliveryMode deliveryMode) {
         this.event = event;
-        this.distribution = distribution;
+        this.deliveryMode = deliveryMode;
     }
 
     @Override
     public void sendTo(Circuit circuit) {
-        circuit.send(event, distribution);
+        circuit.send(event, deliveryMode);
     }
 
     @Override
@@ -28,8 +28,8 @@ final class QueuedEvent<T> implements Deliverable<T> {
     }
 
     @Override
-    public Distribution getDistribution() {
-        return distribution;
+    public DeliveryMode getDeliveryMode() {
+        return deliveryMode;
     }
     
 }
