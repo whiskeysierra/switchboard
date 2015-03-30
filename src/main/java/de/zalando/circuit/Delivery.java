@@ -1,7 +1,6 @@
 package de.zalando.circuit;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Queues;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -20,29 +19,29 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
 
     enum State {
         WAITING, DONE, CANCELLED
     }
-    
+
     private final AtomicReference<State> state = new AtomicReference<>(State.WAITING);
 
     private final Subscription<E, H> subscription;
     private final int count;
-    private final Consumer<Delivery<E, H>> deregistration;
+    private final Consumer<Delivery<E, H>> unregister;
 
-    private final BlockingQueue<E> queue;
-    private final AtomicInteger pushed = new AtomicInteger();
+    private final BlockingQueue<Deliverable<E>> queue = new LinkedBlockingQueue<>();
+    private final AtomicInteger delivered = new AtomicInteger();
 
     private final LockSupport lock = new LockSupport();
 
-    public Delivery(Subscription<E, H> subscription, int count, Consumer<Delivery<E, H>> deregistration) {
+    public Delivery(Subscription<E, H> subscription, int count, Consumer<Delivery<E, H>> unregister) {
         this.subscription = subscription;
         this.count = count;
-        this.deregistration = deregistration;
-        this.queue = new LinkedBlockingQueue<>(count);
+        this.unregister = unregister;
     }
 
     public Class<E> getEventType() {
@@ -55,8 +54,7 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
 
     @Override
     public boolean test(@Nullable Object input) {
-        return subscription.getEventType().isInstance(input)
-                && subscription.test(cast(input));
+        return subscription.getEventType().isInstance(input) && subscription.test(cast(input));
     }
 
     @SuppressWarnings("unchecked")
@@ -64,11 +62,11 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
         return (E) input;
     }
 
-    void deliver(E event) {
+    void deliver(Deliverable<E> deliverable) {
         lock.transactional(() -> {
-            queue.add(event);
+            queue.add(deliverable);
 
-            final boolean isSatisfied = pushed.incrementAndGet() == count;
+            final boolean isSatisfied = delivered.incrementAndGet() == count;
 
             if (isSatisfied) {
                 finish(State.DONE);
@@ -77,7 +75,7 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
     }
 
     private boolean finish(final State endState) {
-        deregistration.accept(this);
+        unregister.accept(this);
         return state.compareAndSet(State.WAITING, endState);
     }
 
@@ -85,16 +83,16 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
     public boolean cancel(final boolean mayInterruptIfRunning) {
         switch (state.get()) {
 
-            case WAITING :
+            case WAITING:
                 return finish(State.CANCELLED);
 
-            case DONE :
+            case DONE:
                 return false;
 
-            case CANCELLED :
+            case CANCELLED:
                 return true;
 
-            default :
+            default:
                 throw new AssertionError("Unknown state: " + state);
         }
     }
@@ -120,10 +118,28 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
     }
 
     @Override
-    public List<E> get(final long timeout, final TimeUnit timeoutUnit) throws InterruptedException, TimeoutException {
+    public List<E> get(final long timeout, final TimeUnit timeoutUnit) throws InterruptedException, ExecutionException,
+            TimeoutException {
         // TODO finally deregister!
         final List<E> results = Lists.newArrayListWithExpectedSize(count);
-        final int drained = Queues.drain(queue, results, count, timeout, timeoutUnit);
+
+        final long deadline = System.nanoTime() + timeoutUnit.toNanos(timeout);
+        int drained = 0;
+        
+        while (drained < count) {
+            Deliverable<E> deliverable = queue.poll(deadline - System.nanoTime(), NANOSECONDS);
+            if (deliverable == null) {
+                break;
+            }
+
+            try {
+                deliverable.deliverTo(results);
+            } catch (RuntimeException e) {
+                throw new ExecutionException(e);
+            }
+            
+            drained++;
+        }
 
         if (drained < count) {
             throw failure(timeout, timeoutUnit, drained + 1);
@@ -133,7 +149,7 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
     }
 
     private TimeoutException failure(final long timeout, final TimeUnit timeoutUnit, final int index)
-        throws TimeoutException {
+            throws TimeoutException {
         final String typeName = subscription.getEventType().getSimpleName();
         final String timeoutUnitName = timeoutUnit.name().toLowerCase(Locale.ENGLISH);
 
@@ -143,7 +159,7 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
             message = format("No [%s] event matching [%s] occurred in [%s] [%s]", typeName, subscription, timeout,
                     timeoutUnitName);
         } else {
-            message = format("[%d%s] [%s] event matching [%s] didn't occur in [%s] [%s]", index, 
+            message = format("[%d%s] [%s] event matching [%s] didn't occur in [%s] [%s]", index,
                     Ordinals.valueOf(index), typeName, subscription, timeout, timeoutUnitName);
         }
 
@@ -171,5 +187,5 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
     public String toString() {
         return subscription.toString();
     }
-    
+
 }

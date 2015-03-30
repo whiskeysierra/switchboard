@@ -23,4 +23,6 @@ public interface Circuit {
 
     <E> void send(E event, Distribution distribution);
     
+    <E> void fail(E event, Distribution distribution, RuntimeException exception);
+    
 }

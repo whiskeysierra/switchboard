@@ -16,7 +16,22 @@ public final class LambdaSupportTest {
     @Test
     public void shouldSupportLambdas() throws TimeoutException {
         circuit.send("foo", SINGLE);
-        assertThat(circuit.receive(this::anyString, 1, SECONDS), is("foo"));
+        final String actual = circuit.receive((String e) -> true, 1, SECONDS);
+        assertThat(actual, is("foo"));
+    }
+    
+    @Test
+    public void shouldSupporMethodReference() throws TimeoutException {
+        circuit.send("foo", SINGLE);
+        final String actual = circuit.receive(this::anyString, 1, SECONDS);
+        assertThat(actual, is("foo"));
+    }
+    
+    @Test
+    public void shouldSupportInstanceMethodReference() throws TimeoutException {
+        circuit.send("foo", SINGLE);
+        final String actual = circuit.receive("foo"::equals, 1, SECONDS);
+        assertThat(actual, is("foo"));
     }
 
     private boolean anyString(String s) {

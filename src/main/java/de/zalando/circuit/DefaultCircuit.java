@@ -1,5 +1,6 @@
 package de.zalando.circuit;
 
+import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.Futures;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,7 @@ final class DefaultCircuit implements Circuit {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultCircuit.class);
 
-    private final Queue<QueuedEvent> pending = new ConcurrentLinkedQueue<>();
+    private final Queue<Deliverable> pending = new ConcurrentLinkedQueue<>();
     private final Queue<Delivery> deliveries = new ConcurrentLinkedQueue<>();
 
     private final LockSupport lock = new LockSupport();
@@ -41,32 +42,45 @@ final class DefaultCircuit implements Circuit {
         return hint;
     }
 
+    private <E> List<Delivery<E, ?>> find(Deliverable<E> deliverable) {
+        return deliveries.stream()
+                .filter(input -> input.test(deliverable.getEvent()))
+                .map(this::<E>cast)
+                .collect(toList());
+    }
+
     @Override
     public <E> void send(E event, Distribution distribution) {
+        deliver(new QueuedEvent<>(event, distribution));
+    }
+
+    @Override
+    public <E> void fail(E event, Distribution distribution, RuntimeException exception) {
+        deliver(new QueuedError<>(event, distribution, exception));
+    }
+
+    private <E> void deliver(Deliverable<E> deliverable) {
         lock.transactional(() -> {
-
-            final List<Delivery<E, ?>> matches = deliveries.stream()
-                    .filter(input -> input.test(event))
-                    .map(this::<E>cast)
-                    .collect(toList());
-
+            final List<Delivery<E, ?>> matches = find(deliverable);
+            
             if (matches.isEmpty()) {
-                pending.add(new QueuedEvent<>(event, distribution));
+                pending.add(deliverable);
             } else {
-                deliverTo(distribution.distribute(matches), event);
+                final Distribution distribution = deliverable.getDistribution();
+                deliverTo(distribution.distribute(matches), deliverable);
             }
         });
     }
-    
+
     @SuppressWarnings("unchecked")
     private <E> Delivery<E, ?> cast(Delivery delivery) {
         return delivery;
     }
 
-    private <E> void deliverTo(final List<Delivery<E, ?>> list, final E event) {
+    private <E> void deliverTo(final List<Delivery<E, ?>> list, final Deliverable<E> deliverable) {
         for (Delivery<E, ?> delivery : list) {
-            delivery.deliver(event);
-            LOG.info("Successfully matched event [{}] to [{}]", event, delivery);
+            delivery.deliver(deliverable);
+            LOG.info("Successfully matched event [{}] to [{}]", deliverable.getEvent(), delivery);
         }
     }
 
@@ -82,7 +96,8 @@ final class DefaultCircuit implements Circuit {
     }
 
     @Override
-    public <E> List<E> receive(Subscription<E, ?> subscription, int count, long timeout, TimeUnit timeoutUnit) throws TimeoutException {
+    public <E> List<E> receive(Subscription<E, ?> subscription, int count, long timeout, TimeUnit timeoutUnit) 
+            throws TimeoutException {
         try {
             return subscribe(subscription, count).get(timeout, timeoutUnit);
         } catch (InterruptedException e) {
@@ -90,8 +105,8 @@ final class DefaultCircuit implements Circuit {
             // TODO is throwing an exception here the right thing?
             throw new RuntimeException("Thread has been interrupted while waiting");
         } catch (ExecutionException e) {
-            // this can't happen since we never throw it
-            throw new AssertionError(e);
+            Throwables.propagateIfPossible(e.getCause());
+            throw new IllegalStateException(e.getCause());
         }
     }
 
@@ -124,11 +139,12 @@ final class DefaultCircuit implements Circuit {
 
     private <E> void tryDeliverUnhandledEvents(final Delivery<E, ?> delivery) {
         while (!delivery.isDone()) {
-            final Optional<QueuedEvent<E>> match = findAndRemove(delivery);
+            final Optional<Deliverable<E>> match = findAndRemove(delivery);
 
             if (match.isPresent()) {
-                final QueuedEvent<E> event = match.get();
-                event.deliverTo(this);
+                final Deliverable<E> deliverable = match.get();
+                deliverable.sendTo(this);
+                final E event = deliverable.getEvent();
                 LOG.info("Successfully matched previously unhandled event [{}] to [{}]", event, delivery);
             } else {
                 break;
@@ -136,10 +152,10 @@ final class DefaultCircuit implements Circuit {
         }
     }
 
-    private <E> Optional<QueuedEvent<E>> findAndRemove(final Delivery<E, ?> delivery) {
+    private <E> Optional<Deliverable<E>> findAndRemove(final Delivery<E, ?> delivery) {
         return lock.transactional(() -> {
-            final Optional<QueuedEvent<E>> first = pending.stream()
-                    .filter(event -> delivery.test(event.getOriginal()))
+            final Optional<Deliverable<E>> first = pending.stream()
+                    .filter(event -> delivery.test(event.getEvent()))
                     .map(this::<E>cast)
                     .findFirst();
 
@@ -152,7 +168,7 @@ final class DefaultCircuit implements Circuit {
     }
     
     @SuppressWarnings("unchecked")
-    private <E> QueuedEvent<E> cast(QueuedEvent event) {
+    private <E> Deliverable<E> cast(Deliverable event) {
         return event;
     }
 
