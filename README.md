@@ -2,8 +2,8 @@
 
 [![Circuit Board](docs/circuit.jpg)](http://pixabay.com/en/board-electronics-computer-453758/)
 
-[![Build Status](https://travis-ci.org/whiskeysierra/circuit.svg)](https://travis-ci.org/whiskeysierra/circuit)
-[![Coverage Status](https://coveralls.io/repos/whiskeysierra/circuit/badge.png)](https://coveralls.io/r/whiskeysierra/circuit)
+[![Build Status](https://travis-ci.org/zalando/circuit.svg)](https://travis-ci.org/zalando/circuit)
+[![Coverage Status](https://coveralls.io/repos/zalando/circuit/badge.png)](https://coveralls.io/r/zalando/circuit)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.zalando/zalando-circuit/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.zalando/zalando-circuit)
     
 An in-process, publish/subscribe-style event router that helps to write simple, asynchronous, state-based and collaboration tests. 
