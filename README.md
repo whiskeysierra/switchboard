@@ -42,7 +42,7 @@ The test case from above may no longer work, since we may get the response back 
 The idea of *Circuit* is to encapsulate the necessary polling/retry mechanism behind a small API that allows to write synchronous-style assertions for asynchronous events.
 
 ```java
-Circuit circuit = new DefaultCircuit();
+Circuit circuit = Circuit.create();
 User user = circuit.receive(user("bob"), 10, SECONDS);
 ```
 
@@ -99,7 +99,7 @@ class UserWorker implements Runnable {
 }
 ```
 
-The worker requires the  `circuit` instance which is usually shared via some kind of dependency injection context, e.g. Spring. It also requires some scheduling, e.g. Quartz or just a single-threaded [`ScheduledExecutorService`](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executors.html#newSingleThreadScheduledExecutor\(\)).
+The worker requires the `circuit` instance which is usually shared via some kind of dependency injection context, e.g. Spring. It also requires some scheduling, e.g. Quartz or just a single-threaded [`ScheduledExecutorService`](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executors.html#newSingleThreadScheduledExecutor\(\)).
 
 The worker's task then is to inspect the circuit to find all subscriptions for `User`s and fetch their hints, i.e. their names. The worker may then use some optimized way to fetch multiple users at once and sends the results back to the circuit. 
 
