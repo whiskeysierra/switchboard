@@ -1,8 +1,9 @@
-package org.zalando.circuit;
+@ParametersAreNonnullByDefault
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -20,23 +21,4 @@ package org.zalando.circuit;
  * ​⁣
  */
 
-import com.google.common.reflect.TypeToken;
-
-final class TypeResolver {
-    
-    TypeResolver() {
-        // package private so we can trick code coverage
-    }
-
-    static <T> Class<T> resolve(final Object instance, final Class<?> type, int index) {
-        final TypeToken<?> token = TypeToken.of(instance.getClass());
-        final TypeToken<?> resolved = token.resolveType(type.getTypeParameters()[index]);
-        return cast(resolved.getRawType());
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> Class<T> cast(final Class<?> type) {
-        return (Class<T>) type;
-    }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

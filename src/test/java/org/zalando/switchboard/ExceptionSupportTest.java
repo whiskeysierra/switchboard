@@ -1,8 +1,8 @@
-package org.zalando.circuit;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -35,7 +35,7 @@ public final class ExceptionSupportTest {
     @Rule
     public final ExpectedException exception = ExpectedException.none();
     
-    private final Circuit circuit = Circuit.create();
+    private final Switchboard board = Switchboard.create();
     
     private static final class SpecialException extends RuntimeException {
         
@@ -45,8 +45,8 @@ public final class ExceptionSupportTest {
     public void shouldThrowException() throws TimeoutException {
         exception.expect(SpecialException.class);
         
-        circuit.fail("foo", DeliveryMode.SINGLE, new SpecialException());
-        circuit.receive("foo"::equals, 1, TimeUnit.SECONDS);
+        board.fail("foo", DeliveryMode.SINGLE, new SpecialException());
+        board.receive("foo"::equals, 1, TimeUnit.SECONDS);
     }
     
     @Test
@@ -54,8 +54,8 @@ public final class ExceptionSupportTest {
         exception.expect(ExecutionException.class);
         exception.expectCause(instanceOf(SpecialException.class));
         
-        circuit.fail("foo", DeliveryMode.SINGLE, new SpecialException());
-        circuit.subscribe("foo"::equals).get(1, TimeUnit.SECONDS);
+        board.fail("foo", DeliveryMode.SINGLE, new SpecialException());
+        board.subscribe("foo"::equals).get(1, TimeUnit.SECONDS);
     }
     
     @Test
@@ -63,8 +63,8 @@ public final class ExceptionSupportTest {
         exception.expect(ExecutionException.class);
         exception.expectCause(instanceOf(SpecialException.class));
         
-        circuit.fail("foo", DeliveryMode.SINGLE, new SpecialException());
-        circuit.subscribe("foo"::equals).get();
+        board.fail("foo", DeliveryMode.SINGLE, new SpecialException());
+        board.subscribe("foo"::equals).get();
     }
 
 }

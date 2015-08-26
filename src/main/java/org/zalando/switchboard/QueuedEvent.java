@@ -1,8 +1,8 @@
-package org.zalando.circuit;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -33,8 +33,8 @@ final class QueuedEvent<T> implements Deliverable<T> {
     }
 
     @Override
-    public void sendTo(Circuit circuit) {
-        circuit.send(event, deliveryMode);
+    public void sendTo(Switchboard board) {
+        board.send(event, deliveryMode);
     }
 
     @Override

@@ -1,8 +1,8 @@
-package org.zalando.circuit;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -20,26 +20,15 @@ package org.zalando.circuit;
  * ​⁣
  */
 
-import javax.annotation.concurrent.Immutable;
-import java.util.Optional;
+import java.util.Collection;
 
-@Immutable
-class EventSubscription implements Subscription<Event, String> {
+interface Deliverable<E> {
 
-    private final String identifier;
+    void sendTo(Switchboard board);
+    
+    void deliverTo(Collection<? super E> target);
 
-    EventSubscription(final String identifier) {
-        this.identifier = identifier;
-    }
+    E getEvent();
 
-    @Override
-    public Optional<String> getHint() {
-        return Optional.of(identifier);
-    }
-
-    @Override
-    public boolean test(final Event input) {
-        return identifier.equals(input.getIdentifier());
-    }
-
+    DeliveryMode getDeliveryMode();
 }

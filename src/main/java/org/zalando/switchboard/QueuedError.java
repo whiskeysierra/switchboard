@@ -1,8 +1,8 @@
-package org.zalando.circuit;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -35,8 +35,8 @@ final class QueuedError<T> implements Deliverable<T> {
     }
 
     @Override
-    public void sendTo(Circuit circuit) {
-        circuit.fail(event, deliveryMode, exception);
+    public void sendTo(Switchboard board) {
+        board.fail(event, deliveryMode, exception);
     }
 
     @Override

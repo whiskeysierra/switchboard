@@ -1,8 +1,8 @@
-package org.zalando.circuit;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -20,30 +20,19 @@ package org.zalando.circuit;
  * ​⁣
  */
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Supplier;
+import javax.annotation.concurrent.Immutable;
 
-final class LockSupport {
+@Immutable
+class Event {
 
-    private final Lock lock = new ReentrantLock();
-    
-    void transactional(Runnable task) {
-        lock.lock();
-        try {
-            task.run();
-        } finally {
-            lock.unlock();
-        }
+    private final String identifier;
+
+    Event(final String identifier) {
+        this.identifier = identifier;
     }
 
-    <T> T transactional(Supplier<T> task) {
-        lock.lock();
-        try {
-            return task.get();
-        } finally {
-            lock.unlock();
-        }
+    String getIdentifier() {
+        return identifier;
     }
 
 }

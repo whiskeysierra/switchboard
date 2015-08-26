@@ -1,8 +1,8 @@
-package org.zalando.circuit;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -24,33 +24,33 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeoutException;
 
-import static org.zalando.circuit.DeliveryMode.SINGLE;
+import static org.zalando.switchboard.DeliveryMode.SINGLE;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public final class LambdaSupportTest {
     
-    private final Circuit circuit = Circuit.create();
+    private final Switchboard board = Switchboard.create();
     
     @Test
     public void shouldSupportLambdas() throws TimeoutException {
-        circuit.send("foo", SINGLE);
-        final String actual = circuit.receive((String e) -> true, 1, SECONDS);
+        board.send("foo", SINGLE);
+        final String actual = board.receive((String e) -> true, 1, SECONDS);
         assertThat(actual, is("foo"));
     }
     
     @Test
     public void shouldSupporMethodReference() throws TimeoutException {
-        circuit.send("foo", SINGLE);
-        final String actual = circuit.receive(this::anyString, 1, SECONDS);
+        board.send("foo", SINGLE);
+        final String actual = board.receive(this::anyString, 1, SECONDS);
         assertThat(actual, is("foo"));
     }
     
     @Test
     public void shouldSupportInstanceMethodReference() throws TimeoutException {
-        circuit.send("foo", SINGLE);
-        final String actual = circuit.receive("foo"::equals, 1, SECONDS);
+        board.send("foo", SINGLE);
+        final String actual = board.receive("foo"::equals, 1, SECONDS);
         assertThat(actual, is("foo"));
     }
 

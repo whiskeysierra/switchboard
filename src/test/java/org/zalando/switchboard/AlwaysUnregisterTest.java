@@ -1,8 +1,8 @@
-package org.zalando.circuit;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -20,15 +20,24 @@ package org.zalando.circuit;
  * ​⁣
  */
 
-import java.util.Collection;
+import org.junit.Test;
 
-interface Deliverable<E> {
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-    void sendTo(Circuit circuit);
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
+public final class AlwaysUnregisterTest {
     
-    void deliverTo(Collection<? super E> target);
+    private final Switchboard board = Switchboard.create();
 
-    E getEvent();
+    @Test
+    public void shouldUnregister() throws TimeoutException {
+        board.unless("foo"::equals, 1, TimeUnit.NANOSECONDS);
+        board.send("foo", DeliveryMode.SINGLE);
+        final String actual = board.receive("foo"::equals, 1, TimeUnit.SECONDS);
+        assertThat(actual, is("foo"));
+    }
 
-    DeliveryMode getDeliveryMode();
 }

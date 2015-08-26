@@ -1,8 +1,8 @@
-package org.zalando.circuit;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -20,24 +20,26 @@ package org.zalando.circuit;
  * ​⁣
  */
 
-import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 import java.util.Optional;
-import java.util.function.Predicate;
 
-import static org.zalando.circuit.TypeResolver.resolve;
+@Immutable
+class EventSubscription implements Subscription<Event, String> {
 
-@FunctionalInterface
-public interface Subscription<E, H> extends Predicate<E> {
+    private final String identifier;
 
-    default Class<E> getEventType() {
-        return resolve(this, Subscription.class, 0);
+    EventSubscription(final String identifier) {
+        this.identifier = identifier;
     }
 
     @Override
-    boolean test(@Nonnull E e);
-    
-    default Optional<H> getHint() {
-        return Optional.empty();
+    public Optional<String> getHint() {
+        return Optional.of(identifier);
+    }
+
+    @Override
+    public boolean test(final Event input) {
+        return identifier.equals(input.getIdentifier());
     }
 
 }

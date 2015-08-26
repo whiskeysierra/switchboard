@@ -1,8 +1,8 @@
-package org.zalando.circuit;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -44,7 +44,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
 
 @RunWith(Parameterized.class)
-public class DefaultCircuitTest {
+public class DefaultSwitchboardTest {
 
     private final DeliveryMode deliveryMode;
     private final Event event1 = new Event("A");
@@ -53,12 +53,12 @@ public class DefaultCircuitTest {
     private final Subscription<Event, String> matcher2 = new EventSubscription("A");
     private final Subscription<Event, String> matcher3 = new EventSubscription("B");
 
-    private final Circuit unit = Circuit.create();
+    private final Switchboard unit = Switchboard.create();
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();
 
-    public DefaultCircuitTest(final DeliveryMode deliveryMode) {
+    public DefaultSwitchboardTest(final DeliveryMode deliveryMode) {
         this.deliveryMode = deliveryMode;
     }
 

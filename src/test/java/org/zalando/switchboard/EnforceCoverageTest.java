@@ -1,8 +1,8 @@
-package org.zalando.circuit;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -20,19 +20,22 @@ package org.zalando.circuit;
  * ​⁣
  */
 
-import javax.annotation.concurrent.Immutable;
+import com.google.gag.annotation.remark.Hack;
+import com.google.gag.annotation.remark.OhNoYouDidnt;
+import org.junit.Test;
 
-@Immutable
-class Event {
+@Hack
+@OhNoYouDidnt
+public final class EnforceCoverageTest {
 
-    private final String identifier;
-
-    Event(final String identifier) {
-        this.identifier = identifier;
+    @Test
+    public void shouldUseOrdinalsConstructor() {
+        new Ordinals();
     }
-
-    String getIdentifier() {
-        return identifier;
+    
+    @Test
+    public void shouldUseTypeResolverConstructor() {
+        new TypeResolver();
     }
 
 }

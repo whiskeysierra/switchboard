@@ -9,15 +9,15 @@
     </prerequisites>
 
     <groupId>org.zalando</groupId>
-    <artifactId>circuit</artifactId>
+    <artifactId>switchboard</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 
-    <name>Circuit</name>
+    <name>Switchboard</name>
     <description>
         An in-process, publish/subscribe-style event router that helps to write simple, asynchronous,
         state-based and collaboration tests.
     </description>
-    <url>https://github.com/zalando/circuit</url>
+    <url>https://github.com/zalando/switchboard</url>
 
     <organization>
         <name>Zalando SE</name>

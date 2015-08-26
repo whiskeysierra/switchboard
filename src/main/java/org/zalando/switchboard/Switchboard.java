@@ -1,8 +1,8 @@
-package org.zalando.circuit;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -36,10 +36,10 @@ import static java.lang.String.format;
  * publish/subscribe, asnyc, hand-over/broadcast
  * deliver previously received events
  */
-public interface Circuit {
+public interface Switchboard {
 
-    static Circuit create() {
-        return new DefaultCircuit();
+    static Switchboard create() {
+        return new DefaultSwitchboard();
     }
 
     default <E> E receive(Subscription<E, ?> subscription, long timeout, TimeUnit timeoutUnit) throws TimeoutException {
@@ -85,6 +85,7 @@ public interface Circuit {
 
     <E, H> List<H> inspect(Class<E> eventType, Class<H> hintType);
 
+    // TODO call?
     <E> void send(E event, DeliveryMode deliveryMode);
 
     <E> void fail(E event, DeliveryMode deliveryMode, RuntimeException exception);

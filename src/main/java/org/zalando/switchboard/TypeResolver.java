@@ -1,8 +1,8 @@
-package org.zalando.circuit;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -20,18 +20,23 @@ package org.zalando.circuit;
  * ​⁣
  */
 
-import org.junit.Test;
+import com.google.common.reflect.TypeToken;
 
-import java.util.concurrent.TimeUnit;
-
-public final class UnlessTest {
+final class TypeResolver {
     
-    private final Circuit circuit = Circuit.create();
+    TypeResolver() {
+        // package private so we can trick code coverage
+    }
 
-    @Test(expected = IllegalStateException.class)
-    public void shouldFailIfMatched() {
-        circuit.send("foo", DeliveryMode.SINGLE);
-        circuit.unless("foo"::equals, 1, TimeUnit.SECONDS);
+    static <T> Class<T> resolve(final Object instance, final Class<?> type, int index) {
+        final TypeToken<?> token = TypeToken.of(instance.getClass());
+        final TypeToken<?> resolved = token.resolveType(type.getTypeParameters()[index]);
+        return cast(resolved.getRawType());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Class<T> cast(final Class<?> type) {
+        return (Class<T>) type;
     }
 
 }

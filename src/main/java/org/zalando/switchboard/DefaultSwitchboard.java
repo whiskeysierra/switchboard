@@ -1,8 +1,8 @@
-package org.zalando.circuit;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -34,9 +34,9 @@ import static com.google.common.collect.ImmutableList.copyOf;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
-final class DefaultCircuit implements Circuit {
+final class DefaultSwitchboard implements Switchboard {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultCircuit.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultSwitchboard.class);
 
     private final Queue<Deliverable> pending = new ConcurrentLinkedQueue<>();
     private final Queue<Delivery> deliveries = new ConcurrentLinkedQueue<>();

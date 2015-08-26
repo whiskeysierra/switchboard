@@ -1,8 +1,8 @@
-package org.zalando.circuit;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -20,22 +20,24 @@ package org.zalando.circuit;
  * ​⁣
  */
 
-import com.google.gag.annotation.remark.Hack;
-import com.google.gag.annotation.remark.OhNoYouDidnt;
-import org.junit.Test;
+import javax.annotation.Nonnull;
+import java.util.Optional;
+import java.util.function.Predicate;
 
-@Hack
-@OhNoYouDidnt
-public final class EnforceCoverageTest {
+import static org.zalando.switchboard.TypeResolver.resolve;
 
-    @Test
-    public void shouldUseOrdinalsConstructor() {
-        new Ordinals();
+@FunctionalInterface
+public interface Subscription<E, H> extends Predicate<E> {
+
+    default Class<E> getEventType() {
+        return resolve(this, Subscription.class, 0);
     }
+
+    @Override
+    boolean test(@Nonnull E e);
     
-    @Test
-    public void shouldUseTypeResolverConstructor() {
-        new TypeResolver();
+    default Optional<H> getHint() {
+        return Optional.empty();
     }
 
 }

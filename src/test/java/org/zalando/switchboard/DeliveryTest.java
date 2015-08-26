@@ -1,8 +1,8 @@
-package org.zalando.circuit;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
- * Circuit
+ * Switchboard
  * ⁣⁣
  * Copyright (C) 2015 Zalando SE
  * ⁣⁣
@@ -33,12 +33,12 @@ import static org.junit.Assert.assertThat;
 
 public final class DeliveryTest {
     
-    private final Circuit circuit = Circuit.create();
+    private final Switchboard board = Switchboard.create();
     
     @Test
     public void shouldCreateHashCode() {
         final Subscription<String, Object> subscription = "foo"::equals;
-        final Future<List<String>> future = circuit.subscribe(subscription, 1);
+        final Future<List<String>> future = board.subscribe(subscription, 1);
         
         assertThat(future.hashCode(), is(hash(subscription)));
     }
@@ -46,7 +46,7 @@ public final class DeliveryTest {
     @Test
     public void shouldNotBeEqualToDifferentType() {
         final Subscription<String, Object> subscription = "foo"::equals;
-        final Future<List<String>> future = circuit.subscribe(subscription, 1);
+        final Future<List<String>> future = board.subscribe(subscription, 1);
         
         assertThat(future, not(equalTo(subscription)));
     }
