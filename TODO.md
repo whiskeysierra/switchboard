@@ -1,0 +1,14 @@
+- enhance readme
+    - use telephone switchboard metaphor throughout the readme
+    - consider renames
+        - send -> call
+        - Delivery -> Answer
+        - subscribe -> ?
+    - modes of operation
+        - direct: pair of two
+        - conference: one speaker, many listeners (aka *broadcast*)
+    - builtin answering machine
+        - every unanswered call will be recorded
+    - busy waiting for call vs. waiting in the background
+        - Call Forwarding? (does it really match?)
+        - receive vs. subscribe
