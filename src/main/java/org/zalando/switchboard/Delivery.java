@@ -58,17 +58,17 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
 
     private final LockSupport lock = new LockSupport();
 
-    public Delivery(Subscription<E, H> subscription, int count, Consumer<Delivery<E, H>> unregister) {
+    Delivery(Subscription<E, H> subscription, int count, Consumer<Delivery<E, H>> unregister) {
         this.subscription = subscription;
         this.count = count;
         this.unregister = unregister;
     }
 
-    public Class<E> getEventType() {
+    Class<E> getEventType() {
         return subscription.getEventType();
     }
 
-    public Optional<H> getHint() {
+    Optional<H> getHint() {
         return subscription.getHint();
     }
 

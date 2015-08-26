@@ -20,28 +20,23 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import javax.annotation.Nonnull;
-import java.util.Optional;
-import java.util.function.Predicate;
+import org.junit.Test;
 
-import static org.zalando.switchboard.TypeResolver.resolve;
+import java.util.concurrent.TimeoutException;
 
-@FunctionalInterface
-public interface Subscription<E, H> extends Predicate<E> {
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertThat;
+import static org.zalando.switchboard.Subscription.on;
 
-    default Class<E> getEventType() {
-        return resolve(this, Subscription.class, 0);
-    }
+public final class HintTest {
 
-    @Override
-    boolean test(@Nonnull E e);
+    private final Switchboard board = Switchboard.create();
 
-    default Optional<H> getHint() {
-        return Optional.empty();
-    }
+    @Test
+    public void shouldProvideHint() throws TimeoutException, InterruptedException {
+        board.subscribe(on(String.class, "foo"::equals, "bar"));
 
-    static <E, H> Subscription<E, H> on(final Class<E> eventType, final Predicate<E> predicate, final H hint) {
-        return new SimpleSubscription<>(eventType, predicate, hint);
+        assertThat(board.inspect(String.class, String.class), contains("bar"));
     }
 
 }

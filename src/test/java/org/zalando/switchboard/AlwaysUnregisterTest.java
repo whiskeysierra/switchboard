@@ -35,7 +35,7 @@ public final class AlwaysUnregisterTest {
     @Test
     public void shouldUnregister() throws TimeoutException {
         board.unless("foo"::equals, 1, TimeUnit.NANOSECONDS);
-        board.send("foo", DeliveryMode.SINGLE);
+        board.send("foo", DeliveryMode.DIRECT);
         final String actual = board.receive("foo"::equals, 1, TimeUnit.SECONDS);
         assertThat(actual, is("foo"));
     }

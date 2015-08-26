@@ -45,7 +45,7 @@ public final class ExceptionSupportTest {
     public void shouldThrowException() throws TimeoutException {
         exception.expect(SpecialException.class);
         
-        board.fail("foo", DeliveryMode.SINGLE, new SpecialException());
+        board.fail("foo", DeliveryMode.DIRECT, new SpecialException());
         board.receive("foo"::equals, 1, TimeUnit.SECONDS);
     }
     
@@ -54,7 +54,7 @@ public final class ExceptionSupportTest {
         exception.expect(ExecutionException.class);
         exception.expectCause(instanceOf(SpecialException.class));
         
-        board.fail("foo", DeliveryMode.SINGLE, new SpecialException());
+        board.fail("foo", DeliveryMode.DIRECT, new SpecialException());
         board.subscribe("foo"::equals).get(1, TimeUnit.SECONDS);
     }
     
@@ -63,7 +63,7 @@ public final class ExceptionSupportTest {
         exception.expect(ExecutionException.class);
         exception.expectCause(instanceOf(SpecialException.class));
         
-        board.fail("foo", DeliveryMode.SINGLE, new SpecialException());
+        board.fail("foo", DeliveryMode.DIRECT, new SpecialException());
         board.subscribe("foo"::equals).get();
     }
 

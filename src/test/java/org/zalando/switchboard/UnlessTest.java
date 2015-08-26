@@ -30,7 +30,7 @@ public final class UnlessTest {
 
     @Test(expected = IllegalStateException.class)
     public void shouldFailIfMatched() {
-        board.send("foo", DeliveryMode.SINGLE);
+        board.send("foo", DeliveryMode.DIRECT);
         board.unless("foo"::equals, 1, TimeUnit.SECONDS);
     }
 

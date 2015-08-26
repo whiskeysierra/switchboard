@@ -26,7 +26,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 public enum DeliveryMode {
 
-    SINGLE {
+    DIRECT {
 
         @Override
         <E> List<Delivery<E, ?>> distribute(List<Delivery<E, ?>> deliveries) {
@@ -45,7 +45,7 @@ public enum DeliveryMode {
 
     },
 
-    BROADCAST {
+    CONFERENCE {
 
         @Override
         <E> List<Delivery<E, ?>> distribute(List<Delivery<E, ?>> deliveries) {

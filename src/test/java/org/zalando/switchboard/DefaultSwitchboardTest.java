@@ -66,9 +66,9 @@ public class DefaultSwitchboardTest {
     @Parameterized.Parameters(name = "{0}")
     public static List<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {DeliveryMode.SINGLE},
+                {DeliveryMode.DIRECT},
                 {DeliveryMode.FIRST},
-                {DeliveryMode.BROADCAST}
+                {DeliveryMode.CONFERENCE}
         });
     }
     //J+
@@ -176,7 +176,7 @@ public class DefaultSwitchboardTest {
 
     @Test(expected = IllegalStateException.class, timeout = 250)
     public void shouldThrowWhenDeliveringEventsToMatchers() {
-        assumeThat(deliveryMode, is(DeliveryMode.SINGLE));
+        assumeThat(deliveryMode, is(DeliveryMode.DIRECT));
 
         unit.subscribe(matcher1);
         unit.subscribe(matcher2);
@@ -204,7 +204,7 @@ public class DefaultSwitchboardTest {
 
     @Test(timeout = 250)
     public void shouldDeliverFirstEventToAllMatchers() throws ExecutionException, InterruptedException {
-        assumeThat(deliveryMode, is(DeliveryMode.BROADCAST));
+        assumeThat(deliveryMode, is(DeliveryMode.CONFERENCE));
 
         final Future<Event> firstResult = unit.subscribe(matcher1);
         final Future<Event> secondResult = unit.subscribe(matcher2);

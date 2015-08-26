@@ -30,31 +30,13 @@ import static org.junit.Assert.assertThat;
 
 public final class SubscriptionTest {
 
-    private static final class GenericlyTypedSubscription implements Subscription<String, Void> {
-
-        @Override
-        public boolean test(String message) {
-            return true;
-        }
-
-    }
-
-    private static class RawTypedSubscription implements Subscription {
-
-        @Override
-        public boolean test(Object message) {
-            return false;
-        }
-
-    }
-
     @Test
     public void shouldExtractTypeFromGenericTypeArgument() {
         assertThat(new GenericlyTypedSubscription().getEventType(), is(equalTo(String.class)));
     }
 
     @Test
-    public void unspecificTypeWillFail() {
+    public void shouldExtractObjectFromRawTypeArgument() {
         assertThat(new RawTypedSubscription().getEventType(), is(equalTo(Object.class)));
     }
 

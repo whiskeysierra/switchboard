@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeoutException;
 
-import static org.zalando.switchboard.DeliveryMode.SINGLE;
+import static org.zalando.switchboard.DeliveryMode.DIRECT;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -35,21 +35,21 @@ public final class LambdaSupportTest {
     
     @Test
     public void shouldSupportLambdas() throws TimeoutException {
-        board.send("foo", SINGLE);
+        board.send("foo", DIRECT);
         final String actual = board.receive((String e) -> true, 1, SECONDS);
         assertThat(actual, is("foo"));
     }
     
     @Test
     public void shouldSupporMethodReference() throws TimeoutException {
-        board.send("foo", SINGLE);
+        board.send("foo", DIRECT);
         final String actual = board.receive(this::anyString, 1, SECONDS);
         assertThat(actual, is("foo"));
     }
     
     @Test
     public void shouldSupportInstanceMethodReference() throws TimeoutException {
-        board.send("foo", SINGLE);
+        board.send("foo", DIRECT);
         final String actual = board.receive("foo"::equals, 1, SECONDS);
         assertThat(actual, is("foo"));
     }

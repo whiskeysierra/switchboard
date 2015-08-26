@@ -23,7 +23,7 @@ package org.zalando.switchboard;
 import com.google.common.reflect.TypeToken;
 
 final class TypeResolver {
-    
+
     TypeResolver() {
         // package private so we can trick code coverage
     }

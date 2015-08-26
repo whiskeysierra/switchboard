@@ -24,24 +24,31 @@ import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import static org.zalando.switchboard.TypeResolver.resolve;
+final class SimpleSubscription<E, H> implements Subscription<E, H> {
 
-@FunctionalInterface
-public interface Subscription<E, H> extends Predicate<E> {
+    private final Class<E> eventType;
+    private final Predicate<E> predicate;
+    private final Optional<H> hint;
 
-    default Class<E> getEventType() {
-        return resolve(this, Subscription.class, 0);
+    public SimpleSubscription(Class<E> eventType, Predicate<E> predicate, H hint) {
+        this.eventType = eventType;
+        this.predicate = predicate;
+        this.hint = Optional.of(hint);
     }
 
     @Override
-    boolean test(@Nonnull E e);
-
-    default Optional<H> getHint() {
-        return Optional.empty();
+    public Class<E> getEventType() {
+        return eventType;
     }
 
-    static <E, H> Subscription<E, H> on(final Class<E> eventType, final Predicate<E> predicate, final H hint) {
-        return new SimpleSubscription<>(eventType, predicate, hint);
+    @Override
+    public boolean test(@Nonnull E e) {
+        return predicate.test(e);
+    }
+
+    @Override
+    public Optional<H> getHint() {
+        return hint;
     }
 
 }

@@ -20,28 +20,11 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import javax.annotation.Nonnull;
-import java.util.Optional;
-import java.util.function.Predicate;
-
-import static org.zalando.switchboard.TypeResolver.resolve;
-
-@FunctionalInterface
-public interface Subscription<E, H> extends Predicate<E> {
-
-    default Class<E> getEventType() {
-        return resolve(this, Subscription.class, 0);
-    }
+class RawTypedSubscription implements Subscription {
 
     @Override
-    boolean test(@Nonnull E e);
-
-    default Optional<H> getHint() {
-        return Optional.empty();
-    }
-
-    static <E, H> Subscription<E, H> on(final Class<E> eventType, final Predicate<E> predicate, final H hint) {
-        return new SimpleSubscription<>(eventType, predicate, hint);
+    public boolean test(Object message) {
+        return false;
     }
 
 }
