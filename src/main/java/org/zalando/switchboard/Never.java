@@ -26,8 +26,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static java.lang.String.format;
-
 final class Never<S> implements SubscriptionMode<S, Void, RuntimeException> {
 
     @Override
@@ -35,8 +33,7 @@ final class Never<S> implements SubscriptionMode<S, Void, RuntimeException> {
             throws RuntimeException, InterruptedException, ExecutionException {
         try {
             return future.get(timeout, timeoutUnit);
-        } catch (final TimeoutException e) {
-            // expected
+        } catch (final TimeoutException ignored) {
             return null;
         }
     }
@@ -52,13 +49,13 @@ final class Never<S> implements SubscriptionMode<S, Void, RuntimeException> {
     }
 
     @Override
-    public String message(final String eventName, final int received, final long timeout, final String timeoutUnit) {
-        return format("Expected no %s event, but got %d in %d %s", eventName, received, timeout, timeoutUnit);
+    public Void collect(final List<S> results) {
+        return null;
     }
 
     @Override
-    public Void collect(final List<S> results) {
-        return null;
+    public String toString() {
+        return "no";
     }
 
 }

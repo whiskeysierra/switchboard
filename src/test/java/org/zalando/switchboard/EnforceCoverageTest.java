@@ -24,18 +24,45 @@ import com.google.gag.annotation.remark.Hack;
 import com.google.gag.annotation.remark.OhNoYouDidnt;
 import org.junit.Test;
 
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 @Hack
 @OhNoYouDidnt
 public final class EnforceCoverageTest {
 
     @Test
-    public void shouldUseOrdinalsConstructor() {
-        new Ordinals();
-    }
-    
-    @Test
     public void shouldUseTypeResolverConstructor() {
         new TypeResolver();
+    }
+
+    @Test
+    public void shouldVisitDeadCatchClauseInAtMost() throws ExecutionException, TimeoutException, InterruptedException {
+        @SuppressWarnings("unchecked")
+        final Future<List<String>> future = mock(Future.class);
+        when(future.get(anyLong(), any())).thenThrow(new TimeoutException());
+
+        final AtMost<String> mode = new AtMost<>(1);
+        mode.block(future, 1, TimeUnit.NANOSECONDS);
+    }
+
+    @Test
+    public void shouldVisitDeadCatchClauseInNever() throws ExecutionException, TimeoutException, InterruptedException {
+        @SuppressWarnings("unchecked")
+        final Future<Void> future = mock(Future.class);
+        when(future.get(anyLong(), any())).thenThrow(new TimeoutException());
+
+        final Never<String> mode = new Never<>();
+        mode.block(future, 1, TimeUnit.NANOSECONDS);
+
     }
 
 }

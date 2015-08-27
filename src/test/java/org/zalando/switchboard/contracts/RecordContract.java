@@ -1,4 +1,4 @@
-package org.zalando.switchboard.traits;
+package org.zalando.switchboard.contracts;
 
 /*
  * ⁣​
@@ -22,6 +22,8 @@ package org.zalando.switchboard.traits;
 
 import org.junit.Test;
 import org.zalando.switchboard.Switchboard;
+import org.zalando.switchboard.traits.DeliveryTrait;
+import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -30,7 +32,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
-public interface RecordTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait {
+public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldDeliverRecordedEventsToSubscriptions() throws ExecutionException, InterruptedException {

@@ -20,10 +20,7 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import com.google.common.base.Throwables;
-
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
@@ -36,19 +33,8 @@ public interface Switchboard {
         return new DefaultSwitchboard();
     }
 
-    default <S, T, X extends Exception> T receive(final Subscription<S, ?> subscription, final SubscriptionMode<S, T, X> mode, final Timeout timeout) throws X {
-        try {
-            final Future<T> future = subscribe(subscription, mode);
-            return mode.block(future, timeout.getValue(), timeout.getUnit());
-        } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
-            // TODO is throwing an exception here the right thing?
-            throw new RuntimeException("Thread has been interrupted while waiting");
-        } catch (final ExecutionException e) {
-            Throwables.propagateIfPossible(e.getCause());
-            throw new IllegalStateException(e.getCause());
-        }
-    }
+    <S, T, X extends Exception> T receive(final Subscription<S, ?> subscription, final SubscriptionMode<S, T, X> mode, final Timeout timeout)
+            throws X, InterruptedException;
 
     <S, T, X extends Exception> Future<T> subscribe(final Subscription<S, ?> subscription, final SubscriptionMode<S, T, X> mode);
 

@@ -1,4 +1,5 @@
-package org.zalando.switchboard;
+@ParametersAreNonnullByDefault
+package org.zalando.switchboard.framework;
 
 /*
  * ⁣​
@@ -20,6 +21,4 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-final class UnexpectedEventException extends RuntimeException {
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

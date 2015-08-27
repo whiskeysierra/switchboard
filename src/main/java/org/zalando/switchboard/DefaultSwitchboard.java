@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Future;
+import java.util.concurrent.ExecutionException;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.copyOf;
@@ -51,7 +51,7 @@ final class DefaultSwitchboard implements Switchboard {
                 .map(hint -> hint.filter(hintType::isInstance).orElse(null))
                 .collect(toList());
     }
-    
+
     @SuppressWarnings("unchecked")
     private <H> Optional<H> cast(final Optional hint) {
         return hint;
@@ -77,7 +77,7 @@ final class DefaultSwitchboard implements Switchboard {
     private <S, T> void deliver(final Deliverable<S> deliverable) {
         lock.transactional(() -> {
             final List<Delivery<S, T, ?>> matches = find(deliverable);
-            
+
             if (matches.isEmpty()) {
                 pending.add(deliverable);
             } else {
@@ -106,7 +106,18 @@ final class DefaultSwitchboard implements Switchboard {
     }
 
     @Override
-    public <S, T, X extends Exception> Future<T> subscribe(final Subscription<S, ?> subscription, final SubscriptionMode<S, T, X> mode) {
+    public <S, T, X extends Exception> T receive(final Subscription<S, ?> subscription, final SubscriptionMode<S, T, X> mode, final Timeout timeout)
+            throws X, InterruptedException {
+        try {
+            final Delivery<S, T, ?> future = subscribe(subscription, mode);
+            return mode.block(future, timeout.getValue(), timeout.getUnit());
+        } catch (final ExecutionException e) {
+            throw (RuntimeException) e.getCause();
+        }
+    }
+
+    @Override
+    public <S, T, X extends Exception> Delivery<S, T, ?> subscribe(final Subscription<S, ?> subscription, final SubscriptionMode<S, T, X> mode) {
         final Delivery<S, T, ?> delivery = new Delivery<>(subscription, mode, this::unregister);
 
         registerForFutureEvents(delivery);
@@ -152,7 +163,7 @@ final class DefaultSwitchboard implements Switchboard {
             return first;
         });
     }
-    
+
     @SuppressWarnings("unchecked")
     private <E> Deliverable<E> cast(final Deliverable event) {
         return event;

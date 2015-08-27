@@ -48,7 +48,7 @@ public final class DeliveryTest {
         final Subscription<String, Object> subscription = "foo"::equals;
         final Future<List<String>> future = unit.subscribe(subscription, times(1));
         
-        assertThat(future.hashCode(), is(hash(subscription)));
+        assertThat(future, is(not(subscription)));
     }
 
 }

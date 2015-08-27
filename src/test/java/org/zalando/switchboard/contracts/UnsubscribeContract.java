@@ -1,4 +1,4 @@
-package org.zalando.switchboard.traits;
+package org.zalando.switchboard.contracts;
 
 /*
  * ⁣​
@@ -23,30 +23,31 @@ package org.zalando.switchboard.traits;
 import org.junit.Test;
 import org.zalando.switchboard.DeliveryMode;
 import org.zalando.switchboard.Switchboard;
+import org.zalando.switchboard.traits.DeliveryTrait;
+import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.zalando.switchboard.SubscriptionMode.never;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
+import static org.zalando.switchboard.SubscriptionMode.never;
 import static org.zalando.switchboard.Timeout.in;
 
-public interface UnsubscribeTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait {
+public interface UnsubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
-    default void shouldUnsubscribe() throws TimeoutException {
+    default void shouldUnsubscribe() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
         // expected to unsubscribe itself in 1 ns
-        unit.receive("foo"::equals, never(), in(1, TimeUnit.NANOSECONDS));
+        unit.receive("foo"::equals, never(), in(1, NANOSECONDS));
 
         unit.send("foo", DeliveryMode.DIRECT);
-        final String actual = unit.receive("foo"::equals, exactlyOnce(), in(1, TimeUnit.SECONDS));
+        final String actual = unit.receive("foo"::equals, exactlyOnce(), in(1, NANOSECONDS));
         assertThat(actual, is("foo"));
     }
 
@@ -58,7 +59,7 @@ public interface UnsubscribeTestTrait<S> extends SubscriptionTrait<S>, DeliveryT
         future.cancel(false);
 
         unit.send(eventA(), deliveryMode());
-        future.get(100, MILLISECONDS);
+        future.get(1, NANOSECONDS);
     }
 
 }

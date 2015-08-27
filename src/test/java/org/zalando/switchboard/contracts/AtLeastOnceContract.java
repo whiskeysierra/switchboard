@@ -1,4 +1,4 @@
-package org.zalando.switchboard.traits;
+package org.zalando.switchboard.contracts;
 
 /*
  * ⁣​
@@ -22,43 +22,45 @@ package org.zalando.switchboard.traits;
 
 import org.junit.Test;
 import org.zalando.switchboard.Switchboard;
+import org.zalando.switchboard.traits.DeliveryTrait;
+import org.zalando.switchboard.traits.ExpectedExceptionTrait;
+import org.zalando.switchboard.traits.SubscriptionTrait;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
-import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.Timeout.in;
 
-public interface AtLeastOnceTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
+public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
 
     @Test
-    default void shouldFailIfExpectedAtLeastOneButReceivedNone() throws TimeoutException {
+    default void shouldFailIfExpectedAtLeastOneButReceivedNone() throws TimeoutException, InterruptedException {
         exception().expect(TimeoutException.class);
-        exception().expectMessage("Expected at least one Object event, but got 0 in 10 milliseconds");
+        exception().expectMessage("Expected at least one Object event(s), but got 0 in 1 nanoseconds");
 
         final Switchboard unit = Switchboard.create();
 
-        unit.receive("foo"::equals, atLeastOnce(), in(10, TimeUnit.MILLISECONDS));
+        unit.receive("foo"::equals, atLeastOnce(), in(1, NANOSECONDS));
     }
 
     @Test
-    default void shouldNotFailIfExpectedAtLeastOneAndReceivedExactlyOne() throws TimeoutException {
+    default void shouldNotFailIfExpectedAtLeastOneAndReceivedExactlyOne() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
         unit.send("foo", deliveryMode());
 
-        unit.receive("foo"::equals, atLeastOnce(), in(10, TimeUnit.MILLISECONDS));
+        unit.receive("foo"::equals, atLeastOnce(), in(1, NANOSECONDS));
     }
 
     @Test
-    default void shouldNotFailIfExpectedAtLeastOneAndReceivedTwo() throws TimeoutException {
+    default void shouldNotFailIfExpectedAtLeastOneAndReceivedTwo() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
         unit.send("foo", deliveryMode());
         unit.send("foo", deliveryMode());
 
-        unit.receive("foo"::equals, atLeastOnce(), in(10, TimeUnit.MILLISECONDS));
+        unit.receive("foo"::equals, atLeastOnce(), in(1, NANOSECONDS));
     }
 
 }

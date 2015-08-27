@@ -1,4 +1,4 @@
-package org.zalando.switchboard.traits;
+package org.zalando.switchboard.contracts;
 
 /*
  * ⁣​
@@ -22,43 +22,57 @@ package org.zalando.switchboard.traits;
 
 import org.junit.Test;
 import org.zalando.switchboard.Switchboard;
+import org.zalando.switchboard.traits.DeliveryTrait;
+import org.zalando.switchboard.traits.ExpectedExceptionTrait;
+import org.zalando.switchboard.traits.SubscriptionTrait;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.zalando.switchboard.SubscriptionMode.times;
 import static org.zalando.switchboard.Timeout.in;
 
-public interface TimesTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
+public interface TimesContract<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
 
     @Test
-    default void shouldFailIfExpectedThreeButReceivedOnlyTwo() throws TimeoutException {
+    default void shouldFailIfExpectedThreeWithoutTimeout() throws ExecutionException, InterruptedException {
+        exception().expect(IllegalArgumentException.class);
+        exception().expectMessage("Mode Times requires a timeout");
+
+        final Switchboard unit = Switchboard.create();
+
+        unit.subscribe("foo"::equals, times(3)).get();
+    }
+
+    @Test
+    default void shouldFailIfExpectedThreeButReceivedOnlyTwo() throws TimeoutException, InterruptedException {
         exception().expect(TimeoutException.class);
-        exception().expectMessage("Expected exactly 3 Object events, but got 2 in 10 milliseconds");
+        exception().expectMessage("Expected exactly 3 Object event(s), but got 2 in 1 nanoseconds");
 
         final Switchboard unit = Switchboard.create();
 
         unit.send("foo", deliveryMode());
         unit.send("foo", deliveryMode());
 
-        unit.receive("foo"::equals, times(3), in(10, TimeUnit.MILLISECONDS));
+        unit.receive("foo"::equals, times(3), in(1, NANOSECONDS));
     }
 
     @Test
-    default void shouldNotFailIfExpectedThreeAndReceivedExactlyThree() throws TimeoutException {
+    default void shouldNotFailIfExpectedThreeAndReceivedExactlyThree() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
         unit.send("foo", deliveryMode());
         unit.send("foo", deliveryMode());
         unit.send("foo", deliveryMode());
 
-        unit.receive("foo"::equals, times(3), in(10, TimeUnit.MILLISECONDS));
+        unit.receive("foo"::equals, times(3), in(1, NANOSECONDS));
     }
 
     @Test
-    default void shouldFailIfExpectedThreeButReceivedFour() throws TimeoutException {
+    default void shouldFailIfExpectedThreeButReceivedFour() throws TimeoutException, InterruptedException {
         exception().expect(IllegalStateException.class);
-        exception().expectMessage("Expected exactly 3 Object events, but got 4 in 10 milliseconds");
+        exception().expectMessage("Expected exactly 3 Object event(s), but got 4 in 1 nanoseconds");
 
         final Switchboard unit = Switchboard.create();
 
@@ -67,7 +81,7 @@ public interface TimesTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait, 
         unit.send("foo", deliveryMode());
         unit.send("foo", deliveryMode());
 
-        unit.receive("foo"::equals, times(3), in(10, TimeUnit.MILLISECONDS));
+        unit.receive("foo"::equals, times(3), in(1, NANOSECONDS));
     }
 
 }

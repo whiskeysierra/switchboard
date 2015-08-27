@@ -26,10 +26,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static java.lang.String.format;
-
 // TODO deny combination without timeouts
-public class AtLeast<S> implements SubscriptionMode<S, List<S>, TimeoutException> {
+final class AtLeast<S> implements SubscriptionMode<S, List<S>, TimeoutException> {
 
     private final int count;
 
@@ -39,7 +37,7 @@ public class AtLeast<S> implements SubscriptionMode<S, List<S>, TimeoutException
 
     @Override
     public List<S> block(final Future<List<S>> future, final long timeout, final TimeUnit timeoutUnit)
-            throws TimeoutException, InterruptedException, ExecutionException {
+            throws InterruptedException, ExecutionException, TimeoutException {
         return future.get(timeout, timeoutUnit);
     }
 
@@ -54,13 +52,12 @@ public class AtLeast<S> implements SubscriptionMode<S, List<S>, TimeoutException
     }
 
     @Override
-    public String message(final String eventName, final int received, final long timeout, final String timeoutUnit) {
-        return format("Expected at least %d %s events, but got %d in %d %s", count, eventName, received, timeout, timeoutUnit);
-    }
-
-    @Override
     public List<S> collect(final List<S> results) {
         return results;
     }
 
+    @Override
+    public String toString() {
+        return "at least " + count;
+    }
 }

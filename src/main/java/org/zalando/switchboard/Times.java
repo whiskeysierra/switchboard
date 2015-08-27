@@ -26,8 +26,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static java.lang.String.format;
-
 public class Times<S> implements SubscriptionMode<S, List<S>, TimeoutException> {
 
     private final int count;
@@ -37,8 +35,13 @@ public class Times<S> implements SubscriptionMode<S, List<S>, TimeoutException> 
     }
 
     @Override
+    public boolean requiresTimeout() {
+        return true;
+    }
+
+    @Override
     public List<S> block(final Future<List<S>> future, final long timeout, final TimeUnit timeoutUnit)
-            throws TimeoutException, InterruptedException, ExecutionException {
+            throws InterruptedException, ExecutionException, TimeoutException {
         return future.get(timeout, timeoutUnit);
     }
 
@@ -53,13 +56,13 @@ public class Times<S> implements SubscriptionMode<S, List<S>, TimeoutException> 
     }
 
     @Override
-    public String message(final String eventName, final int received, final long timeout, final String timeoutUnit) {
-        return format("Expected exactly %d %s events, but got %d in %d %s", count, eventName, received, timeout, timeoutUnit);
+    public List<S> collect(final List<S> results) {
+        return results;
     }
 
     @Override
-    public List<S> collect(final List<S> results) {
-        return results;
+    public String toString() {
+        return "exactly " + count;
     }
 
 }

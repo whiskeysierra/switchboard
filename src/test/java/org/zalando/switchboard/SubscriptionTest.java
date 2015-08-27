@@ -23,18 +23,20 @@ package org.zalando.switchboard;
 import org.junit.Test;
 
 import javax.annotation.concurrent.Immutable;
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.Optional.empty;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.hamcrest.Matchers.contains;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hobsoft.hamcrest.compose.ComposeMatchers.hasFeature;
 import static org.junit.Assert.assertThat;
+import static org.zalando.switchboard.DeliveryMode.BROADCAST;
 import static org.zalando.switchboard.DeliveryMode.DIRECT;
 import static org.zalando.switchboard.Subscription.on;
+import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.Timeout.in;
 
@@ -53,24 +55,24 @@ public final class SubscriptionTest {
     }
 
     @Test
-    public void shouldSupportLambdas() throws TimeoutException {
+    public void shouldSupportLambdas() throws TimeoutException, InterruptedException {
         unit.send("foo", DIRECT);
         final Subscription<String, ?> subscription = (String e) -> true;
-        final String actual = unit.receive(subscription, exactlyOnce(), in(1, SECONDS));
+        final String actual = unit.receive(subscription, exactlyOnce(), in(1, NANOSECONDS));
         assertThat(actual, is("foo"));
     }
 
     @Test
-    public void shouldSupportMethodReference() throws TimeoutException {
+    public void shouldSupportMethodReference() throws TimeoutException, InterruptedException {
         unit.send("foo", DIRECT);
-        final String actual = unit.receive(this::anyString, exactlyOnce(), in(1, SECONDS));
+        final String actual = unit.receive(this::anyString, exactlyOnce(), in(1, NANOSECONDS));
         assertThat(actual, is("foo"));
     }
 
     @Test
-    public void shouldSupportInstanceMethodReference() throws TimeoutException {
+    public void shouldSupportInstanceMethodReference() throws TimeoutException, InterruptedException {
         unit.send("foo", DIRECT);
-        final String actual = unit.receive("foo"::equals, exactlyOnce(), in(1, SECONDS));
+        final String actual = unit.receive("foo"::equals, exactlyOnce(), in(1, NANOSECONDS));
         assertThat(actual, is("foo"));
     }
 
@@ -95,6 +97,22 @@ public final class SubscriptionTest {
     public void shouldProvideHint() {
         final Subscription<String, String> subscription = on(String.class, "foo"::equals, "bar");
         assertThat(subscription, hasFeature("hint", Subscription::getHint, is(Optional.of("bar"))));
+    }
+
+    @Test
+    public void shouldDelegateToPredicate() throws TimeoutException, InterruptedException {
+        final Subscription<String, Object> subscription = on(String.class, "foo"::equals);
+
+        unit.send("foo", BROADCAST);
+        final String s = unit.receive(subscription, atLeastOnce(), in(1, NANOSECONDS));
+
+        assertThat(s, is("foo"));
+    }
+
+    @Test(expected = TimeoutException.class)
+    public void shouldNotMatchDifferentType() throws TimeoutException, InterruptedException {
+        unit.send(123, BROADCAST);
+        unit.receive(on(BigDecimal.class, Number.class::isInstance), atLeastOnce(), in(1, NANOSECONDS));
     }
 
     @Immutable

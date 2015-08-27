@@ -1,4 +1,4 @@
-package org.zalando.switchboard.traits;
+package org.zalando.switchboard.contracts;
 
 /*
  * ⁣​
@@ -22,28 +22,31 @@ package org.zalando.switchboard.traits;
 
 import org.junit.Test;
 import org.zalando.switchboard.Switchboard;
+import org.zalando.switchboard.traits.DeliveryTrait;
+import org.zalando.switchboard.traits.ExpectedExceptionTrait;
+import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.containsString;
 import static org.zalando.switchboard.SubscriptionMode.times;
 import static org.zalando.switchboard.Timeout.in;
 
-public interface TimeoutTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
+public interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
 
     @Test(timeout = 250)
-    default void shouldTellThatThirdEventDidNotOccur() throws TimeoutException {
+    default void shouldTellThatThirdEventDidNotOccur() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
         unit.send(eventA(), deliveryMode());
         unit.send(eventA(), deliveryMode());
 
         exception().expect(TimeoutException.class);
-        exception().expectMessage(containsString("Expected exactly 3 Event events, but got 2 in 100 milliseconds"));
+        exception().expectMessage(containsString("Expected exactly 3 Event event(s), but got 2 in 1 nanoseconds"));
 
-        unit.receive(matchA(), times(3), in(100, MILLISECONDS));
+        unit.receive(matchA(), times(3), in(1, NANOSECONDS));
     }
 
     @Test(timeout = 250)
@@ -54,9 +57,9 @@ public interface TimeoutTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait
         unit.send(eventA(), deliveryMode());
 
         exception().expect(TimeoutException.class);
-        exception().expectMessage(containsString("Expected exactly 3 Event events, but got 2 in 100 milliseconds"));
+        exception().expectMessage(containsString("Expected exactly 3 Event event(s), but got 2 in 1 nanoseconds"));
 
-        unit.subscribe(matchA(), times(3)).get(100, MILLISECONDS);
+        unit.subscribe(matchA(), times(3)).get(1, NANOSECONDS);
     }
 
 }

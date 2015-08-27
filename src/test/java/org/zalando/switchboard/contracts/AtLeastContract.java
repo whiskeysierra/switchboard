@@ -1,4 +1,4 @@
-package org.zalando.switchboard.traits;
+package org.zalando.switchboard.contracts;
 
 /*
  * ⁣​
@@ -22,40 +22,44 @@ package org.zalando.switchboard.traits;
 
 import org.junit.Test;
 import org.zalando.switchboard.Switchboard;
+import org.zalando.switchboard.traits.DeliveryTrait;
+import org.zalando.switchboard.traits.ExpectedExceptionTrait;
+import org.zalando.switchboard.traits.SubscriptionTrait;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-import static org.zalando.switchboard.SubscriptionMode.atMost;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static org.zalando.switchboard.SubscriptionMode.atLeast;
 import static org.zalando.switchboard.Timeout.in;
 
-public interface AtMostTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
+public interface AtLeastContract<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
 
     @Test
-    default void shouldNotFailIfExpectedAtMostThreeButReceivedOnlyTwo() {
+    default void shouldFailIfExpectedAtLeastThreeButReceivedOnlyTwo() throws TimeoutException, InterruptedException {
+        exception().expect(TimeoutException.class);
+        exception().expectMessage("Expected at least 3 Object event(s), but got 2 in 1 nanoseconds");
+
         final Switchboard unit = Switchboard.create();
 
         unit.send("foo", deliveryMode());
         unit.send("foo", deliveryMode());
 
-        unit.receive("foo"::equals, atMost(3), in(10, TimeUnit.MILLISECONDS));
+        unit.receive("foo"::equals, atLeast(3), in(1, NANOSECONDS));
     }
 
     @Test
-    default void shouldNotFailIfExpectedAtMostThreeAndReceivedExactlyThree() {
+    default void shouldNotFailIfExpectedAtLeastThreeAndReceivedExactlyThree() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
         unit.send("foo", deliveryMode());
         unit.send("foo", deliveryMode());
         unit.send("foo", deliveryMode());
 
-        unit.receive("foo"::equals, atMost(3), in(10, TimeUnit.MILLISECONDS));
+        unit.receive("foo"::equals, atLeast(3), in(1, NANOSECONDS));
     }
 
     @Test
-    default void shouldFailIfExpectedAtMostThreeButReceivedFour() {
-        exception().expect(IllegalStateException.class);
-        exception().expectMessage("Expected at most 3 Object events, but got 4 in 10 milliseconds");
-
+    default void shouldNotFailIfExpectedAtLeastThreeAndReceivedFour() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
         unit.send("foo", deliveryMode());
@@ -63,7 +67,7 @@ public interface AtMostTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait,
         unit.send("foo", deliveryMode());
         unit.send("foo", deliveryMode());
 
-        unit.receive("foo"::equals, atMost(3), in(10, TimeUnit.MILLISECONDS));
+        unit.receive("foo"::equals, atLeast(3), in(1, NANOSECONDS));
     }
 
 }

@@ -26,18 +26,16 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static java.lang.String.format;
-
-public class AtLeastOnce<S> implements SubscriptionMode<S, S, TimeoutException> {
+final class AtLeastOnce<S> implements SubscriptionMode<S, S, TimeoutException> {
 
     @Override
-    public S block(final Future<S> future, final long timeout, final TimeUnit timeoutUnit) throws TimeoutException, InterruptedException, ExecutionException {
+    public S block(final Future<S> future, final long timeout, final TimeUnit timeoutUnit) throws InterruptedException, ExecutionException, TimeoutException {
         return future.get(timeout, timeoutUnit);
     }
 
     @Override
     public boolean isDone(final int received) {
-        return received >= 1;
+        return received > 0;
     }
 
     @Override
@@ -46,12 +44,12 @@ public class AtLeastOnce<S> implements SubscriptionMode<S, S, TimeoutException> 
     }
 
     @Override
-    public String message(final String eventName, final int received, final long timeout, final String timeoutUnit) {
-        return format("Expected at least one %s event, but got %d in %d %s", eventName, received, timeout, timeoutUnit);
+    public S collect(final List<S> results) {
+        return results.get(0);
     }
 
     @Override
-    public S collect(final List<S> results) {
-        return results.get(0);
+    public String toString() {
+        return "at least one";
     }
 }

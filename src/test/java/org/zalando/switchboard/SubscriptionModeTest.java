@@ -29,49 +29,39 @@ import java.util.Arrays;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.zalando.switchboard.SubscriptionMode.atLeast;
+import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
+import static org.zalando.switchboard.SubscriptionMode.atMost;
+import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
+import static org.zalando.switchboard.SubscriptionMode.never;
+import static org.zalando.switchboard.SubscriptionMode.times;
 
 @RunWith(Parameterized.class)
-public final class OrdinalsTest {
-    
-    private final int value;
-    private final String ordinal;
+public final class SubscriptionModeTest {
 
-    public OrdinalsTest(final int value, final String ordinal) {
-        this.value = value;
-        this.ordinal = ordinal;
+    private final SubscriptionMode mode;
+    private final String expected;
+
+    public SubscriptionModeTest(final SubscriptionMode mode, final String expected) {
+        this.mode = mode;
+        this.expected = expected;
     }
 
-    @Parameters(name = "{0} -> {1}")
+    @Parameters(name = "{1}")
     public static Iterable<Object[]> data() {
-
         return Arrays.asList(new Object[][]{
-                {0, "th"},
-                {1, "st"},
-                {2, "nd"},
-                {3, "rd"},
-                {4, "th"},
-                {5, "th"},
-                {6, "th"},
-                {7, "th"},
-                {8, "th"},
-                {9, "th"},
-                {10, "th"},
-                {11, "th"},
-                {12, "th"},
-                {13, "th"},
-                {14, "th"},
-                {15, "th"},
-                {16, "th"},
-                {17, "th"},
-                {18, "th"},
-                {19, "th"},
-                {20, "th"},
+                {atLeast(17), "at least 17"},
+                {atLeastOnce(), "at least one"},
+                {atMost(17), "at most 17"},
+                {exactlyOnce(), "exactly one"},
+                {never(), "no"},
+                {times(17), "exactly 17"}
         });
     }
 
     @Test
-    public void test() {
-        assertThat(Ordinals.valueOf(value), is(ordinal));
+    public void shouldRenderName() throws Exception {
+        assertThat(mode.toString(), is(expected));
     }
 
 }

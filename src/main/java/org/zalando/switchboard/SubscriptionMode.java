@@ -32,13 +32,11 @@ public interface SubscriptionMode<S, T, X extends Exception> {
         return false;
     }
 
-    T block(final Future<T> future, final long timeout, final TimeUnit timeoutUnit) throws X, InterruptedException, ExecutionException;
+    T block(final Future<T> future, final long timeout, final TimeUnit timeoutUnit) throws X, ExecutionException, InterruptedException;
 
     boolean isDone(int received);
 
     boolean isSuccess(int received);
-
-    String message(final String eventName, final int received, final long timeout, final String timeoutUnit);
 
     T collect(List<S> results);
 

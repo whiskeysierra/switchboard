@@ -24,39 +24,41 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.zalando.switchboard.contracts.AtLeastContract;
+import org.zalando.switchboard.contracts.AtLeastOnceContract;
+import org.zalando.switchboard.contracts.AtMostContract;
+import org.zalando.switchboard.contracts.ExactlyOnceContract;
+import org.zalando.switchboard.contracts.FailContract;
+import org.zalando.switchboard.contracts.FutureContract;
+import org.zalando.switchboard.contracts.InspectContract;
+import org.zalando.switchboard.contracts.NeverContract;
+import org.zalando.switchboard.contracts.RecordContract;
+import org.zalando.switchboard.contracts.SubscribeContract;
+import org.zalando.switchboard.contracts.TimeoutContract;
+import org.zalando.switchboard.contracts.TimesContract;
+import org.zalando.switchboard.contracts.UnsubscribeContract;
 import org.zalando.switchboard.framework.Java8JunitClassRunner;
 import org.zalando.switchboard.model.Event;
-import org.zalando.switchboard.traits.AtLeastOnceTestTrait;
-import org.zalando.switchboard.traits.AtLeastTestTrait;
-import org.zalando.switchboard.traits.AtMostTestTrait;
 import org.zalando.switchboard.traits.DirectDeliveryTrait;
 import org.zalando.switchboard.traits.EventSubscriptionTrait;
-import org.zalando.switchboard.traits.FutureTestTrait;
-import org.zalando.switchboard.traits.InspectTestTrait;
-import org.zalando.switchboard.traits.NeverTestTrait;
-import org.zalando.switchboard.traits.ExactlyOnceTestTrait;
-import org.zalando.switchboard.traits.RecordTestTrait;
-import org.zalando.switchboard.traits.SubscribeTestTrait;
-import org.zalando.switchboard.traits.TimeoutTestTrait;
-import org.zalando.switchboard.traits.TimesTestTrait;
-import org.zalando.switchboard.traits.UnsubscribeTestTrait;
 
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 
 @RunWith(Java8JunitClassRunner.class)
 public final class DirectDeliveryTest implements DirectDeliveryTrait, EventSubscriptionTrait,
-        AtLeastOnceTestTrait<Event>,
-        AtLeastTestTrait<Event>,
-        AtMostTestTrait<Event>,
-        FutureTestTrait<Event>,
-        InspectTestTrait<Event>,
-        NeverTestTrait<Event>,
-        ExactlyOnceTestTrait<Event>,
-        RecordTestTrait<Event>,
-        SubscribeTestTrait<Event>,
-        TimeoutTestTrait<Event>,
-        TimesTestTrait<Event>,
-        UnsubscribeTestTrait<Event> {
+        AtLeastContract<Event>,
+        AtLeastOnceContract<Event>,
+        AtMostContract<Event>,
+        ExactlyOnceContract<Event>,
+        FailContract<Event>,
+        FutureContract<Event>,
+        InspectContract<Event>,
+        NeverContract<Event>,
+        RecordContract<Event>,
+        SubscribeContract<Event>,
+        TimeoutContract<Event>,
+        TimesContract<Event>,
+        UnsubscribeContract<Event> {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();

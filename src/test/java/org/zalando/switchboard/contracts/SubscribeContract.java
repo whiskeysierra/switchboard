@@ -1,4 +1,4 @@
-package org.zalando.switchboard.traits;
+package org.zalando.switchboard.contracts;
 
 /*
  * ⁣​
@@ -23,6 +23,8 @@ package org.zalando.switchboard.traits;
 import org.junit.Test;
 import org.zalando.switchboard.Subscription;
 import org.zalando.switchboard.Switchboard;
+import org.zalando.switchboard.traits.DeliveryTrait;
+import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -30,17 +32,17 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.Collections.frequency;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.zalando.switchboard.SubscriptionMode.atLeast;
-import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
+import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.SubscriptionMode.times;
 import static org.zalando.switchboard.Timeout.in;
 
-public interface SubscribeTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait {
+public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test(expected = IllegalStateException.class)
     default void shouldThrowWhenSubscribingTwice() {
@@ -69,17 +71,17 @@ public interface SubscribeTestTrait<S> extends SubscriptionTrait<S>, DeliveryTra
     }
 
     @Test(expected = TimeoutException.class, timeout = 250)
-    default void shouldTimeoutWhenThereAreNoMatchingEvents() throws TimeoutException {
+    default void shouldTimeoutWhenThereAreNoMatchingEvents() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
         unit.send(eventA(), deliveryMode());
         unit.send(eventA(), deliveryMode());
 
-        unit.receive(matchB(), exactlyOnce(), in(10, MILLISECONDS));
+        unit.receive(matchB(), exactlyOnce(), in(1, NANOSECONDS));
     }
 
     @Test(timeout = 250)
-    default void shouldPollMultipleTimesWhenCountGiven() throws TimeoutException {
+    default void shouldPollMultipleTimesWhenCountGiven() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
         
         final int count = 5;
@@ -88,7 +90,7 @@ public interface SubscribeTestTrait<S> extends SubscriptionTrait<S>, DeliveryTra
             unit.send(eventA(), deliveryMode());
         }
 
-        final List<S> events = unit.receive(matchA(), times(count), in(100, MILLISECONDS));
+        final List<S> events = unit.receive(matchA(), times(count), in(1, NANOSECONDS));
 
         assertThat(events, hasSize(count));
         assertThat(frequency(events, eventA()), is(count));
@@ -124,7 +126,7 @@ public interface SubscribeTestTrait<S> extends SubscriptionTrait<S>, DeliveryTra
             unit.send(eventA(), deliveryMode());
         }
 
-        final List<S> events = future.get(50L, MILLISECONDS);
+        final List<S> events = future.get(1, NANOSECONDS);
 
         assertThat(events, hasSize(count));
         assertThat(frequency(events, eventA()), is(count));

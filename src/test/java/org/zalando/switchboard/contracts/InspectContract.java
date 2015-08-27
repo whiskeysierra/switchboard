@@ -1,4 +1,4 @@
-package org.zalando.switchboard.traits;
+package org.zalando.switchboard.contracts;
 
 /*
  * ⁣​
@@ -23,6 +23,8 @@ package org.zalando.switchboard.traits;
 import org.junit.Test;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.model.Event;
+import org.zalando.switchboard.traits.DeliveryTrait;
+import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -33,7 +35,7 @@ import static org.junit.Assert.assertThat;
 import static org.zalando.switchboard.Subscription.on;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 
-public interface InspectTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait {
+public interface InspectContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test(timeout = 250)
     default void shouldAllowToInspectPendingEventHints() {

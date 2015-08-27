@@ -26,8 +26,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static java.lang.String.format;
-
 final class AtMost<S> implements SubscriptionMode<S, List<S>, RuntimeException> {
 
     private final int count;
@@ -41,8 +39,7 @@ final class AtMost<S> implements SubscriptionMode<S, List<S>, RuntimeException> 
             throws RuntimeException, InterruptedException, ExecutionException {
         try {
             return future.get(timeout, timeoutUnit);
-        } catch (final TimeoutException e) {
-            // expected
+        } catch (final TimeoutException ignored) {
             return null;
         }
     }
@@ -58,12 +55,13 @@ final class AtMost<S> implements SubscriptionMode<S, List<S>, RuntimeException> 
     }
 
     @Override
-    public String message(final String eventName, final int received, final long timeout, final String timeoutUnit) {
-        return format("Expected at most %d %s events, but got %d in %d %s", count, eventName, received, timeout, timeoutUnit);
-    }
-
-    @Override
     public List<S> collect(final List<S> results) {
         return results;
     }
+
+    @Override
+    public String toString() {
+        return "at most " + count;
+    }
+
 }

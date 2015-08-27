@@ -26,12 +26,15 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static java.lang.String.format;
-
 final class ExactlyOnce<S> implements SubscriptionMode<S, S, TimeoutException> {
 
     @Override
-    public S block(final Future<S> future, final long timeout, final TimeUnit timeoutUnit) throws TimeoutException, InterruptedException, ExecutionException {
+    public boolean requiresTimeout() {
+        return true;
+    }
+
+    @Override
+    public S block(final Future<S> future, final long timeout, final TimeUnit timeoutUnit) throws InterruptedException, ExecutionException, TimeoutException {
         return future.get(timeout, timeoutUnit);
     }
 
@@ -46,13 +49,13 @@ final class ExactlyOnce<S> implements SubscriptionMode<S, S, TimeoutException> {
     }
 
     @Override
-    public String message(final String eventName, final int received, final long timeout, final String timeoutUnit) {
-        return format("Expected exactly one %s event, but got %d in %d %s", eventName, received, timeout, timeoutUnit);
+    public S collect(final List<S> results) {
+        return results.get(0);
     }
 
     @Override
-    public S collect(final List<S> results) {
-        return results.get(0);
+    public String toString() {
+        return "exactly one";
     }
 
 }
