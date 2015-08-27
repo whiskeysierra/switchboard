@@ -34,7 +34,7 @@ public interface TimesTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait, 
     @Test
     default void shouldFailIfExpectedThreeButReceivedOnlyTwo() throws TimeoutException {
         exception().expect(TimeoutException.class);
-        // TODO expect message
+        exception().expectMessage("Expected exactly 3 Object events, but got 2 in 10 milliseconds");
 
         final Switchboard unit = Switchboard.create();
 
@@ -58,7 +58,7 @@ public interface TimesTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait, 
     @Test
     default void shouldFailIfExpectedThreeButReceivedFour() throws TimeoutException {
         exception().expect(IllegalStateException.class);
-        // TODO expect message
+        exception().expectMessage("Expected exactly 3 Object events, but got 4 in 10 milliseconds");
 
         final Switchboard unit = Switchboard.create();
 

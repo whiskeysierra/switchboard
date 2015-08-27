@@ -26,13 +26,15 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.zalando.switchboard.framework.Java8JunitClassRunner;
 import org.zalando.switchboard.model.Event;
+import org.zalando.switchboard.traits.AtLeastOnceTestTrait;
+import org.zalando.switchboard.traits.AtLeastTestTrait;
 import org.zalando.switchboard.traits.AtMostTestTrait;
 import org.zalando.switchboard.traits.EventSubscriptionTrait;
+import org.zalando.switchboard.traits.ExactlyOnceTestTrait;
 import org.zalando.switchboard.traits.FirstDeliveryTrait;
 import org.zalando.switchboard.traits.FutureTestTrait;
 import org.zalando.switchboard.traits.InspectTestTrait;
 import org.zalando.switchboard.traits.NeverTestTrait;
-import org.zalando.switchboard.traits.ExactlyOnceTestTrait;
 import org.zalando.switchboard.traits.RecordTestTrait;
 import org.zalando.switchboard.traits.SubscribeTestTrait;
 import org.zalando.switchboard.traits.TimeoutTestTrait;
@@ -44,10 +46,12 @@ import java.util.concurrent.Future;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
+import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
 @RunWith(Java8JunitClassRunner.class)
 public final class FirstDeliveryTest implements FirstDeliveryTrait, EventSubscriptionTrait,
+        AtLeastOnceTestTrait<Event>,
+        AtLeastTestTrait<Event>,
         AtMostTestTrait<Event>,
         FutureTestTrait<Event>,
         InspectTestTrait<Event>,
@@ -71,8 +75,8 @@ public final class FirstDeliveryTest implements FirstDeliveryTrait, EventSubscri
 
     @Test(timeout = 250)
     public void shouldDeliverEventsToFirstSubscriptions() throws ExecutionException, InterruptedException {
-        final Future<Event> firstResult = unit.subscribe(matchA(), exactlyOnce());
-        final Future<Event> secondResult = unit.subscribe(matchA(), exactlyOnce());
+        final Future<Event> firstResult = unit.subscribe(matchA(), atLeastOnce());
+        final Future<Event> secondResult = unit.subscribe(matchA(), atLeastOnce());
 
         unit.send(eventA(), DeliveryMode.FIRST);
         unit.send(eventA(), DeliveryMode.FIRST);

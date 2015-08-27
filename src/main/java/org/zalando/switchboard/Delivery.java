@@ -23,6 +23,7 @@ package org.zalando.switchboard;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -36,9 +37,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static org.zalando.switchboard.Errors.timedOut;
-import static org.zalando.switchboard.Errors.unexpected;
 
 final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
 
@@ -147,7 +147,7 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
             if (mode.isSuccess(drained)) {
                 return mode.collect(results);
             } else {
-                throw new IllegalStateException(unexpected(subscription));
+                throw new IllegalStateException(mode.message(getEventName(), drained, Long.MAX_VALUE, humanize(DAYS)));
             }
         } finally {
             unregister();
@@ -167,7 +167,7 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
                 final Deliverable<E> deliverable = queue.poll(deadline - System.nanoTime(), NANOSECONDS);
                 if (deliverable == null) {
                     if (!mode.isSuccess(drained)) {
-                        throw new TimeoutException(timedOut(subscription, drained + 1, timeout, timeoutUnit));
+                        throw new TimeoutException(mode.message(getEventName(), drained, timeout, humanize(timeoutUnit)));
                     }
 
                     break;
@@ -185,11 +185,19 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
             if (mode.isSuccess(drained)) {
                 return mode.collect(results);
             } else {
-                throw new IllegalStateException(unexpected(subscription, timeout, timeoutUnit));
+                throw new IllegalStateException(mode.message(getEventName(), drained, timeout, humanize(timeoutUnit)));
             }
         } finally {
             unregister();
         }
+    }
+
+    private String getEventName() {
+        return subscription.getEventType().getSimpleName();
+    }
+
+    private String humanize(final TimeUnit timeoutUnit) {
+        return timeoutUnit.name().toLowerCase(Locale.ENGLISH);
     }
 
     @Override

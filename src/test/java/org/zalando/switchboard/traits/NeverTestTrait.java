@@ -41,7 +41,7 @@ public interface NeverTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait, 
     @Test
     default void shouldFailIfExpectedNoneButReceivedOne() {
         exception().expect(IllegalStateException.class);
-        // TODO expect message
+        exception().expectMessage("Expected no Object event, but got 1 in 100 milliseconds");
 
         final Switchboard unit = Switchboard.create();
 

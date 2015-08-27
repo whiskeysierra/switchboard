@@ -38,6 +38,8 @@ public interface SubscriptionMode<S, T, X extends Exception> {
 
     boolean isSuccess(int received);
 
+    String message(final String eventName, final int received, final long timeout, final String timeoutUnit);
+
     T collect(List<S> results);
 
     // TODO non blocking, at most until end of timeout

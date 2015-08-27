@@ -53,6 +53,11 @@ public class Times<S> implements SubscriptionMode<S, List<S>, TimeoutException> 
     }
 
     @Override
+    public String message(final String eventName, final int received, final long timeout, final String timeoutUnit) {
+        return format("Expected exactly %d %s events, but got %d in %d %s", count, eventName, received, timeout, timeoutUnit);
+    }
+
+    @Override
     public List<S> collect(final List<S> results) {
         return results;
     }

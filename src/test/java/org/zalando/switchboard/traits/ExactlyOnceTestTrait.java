@@ -34,7 +34,7 @@ public interface ExactlyOnceTestTrait<S> extends SubscriptionTrait<S>, DeliveryT
     @Test
     default void shouldFailIfExpectedOneButReceivedNone() throws TimeoutException {
         exception().expect(TimeoutException.class);
-        // TODO expect message
+        exception().expectMessage("Expected exactly one Object event, but got 0 in 10 milliseconds");
 
         final Switchboard unit = Switchboard.create();
 
@@ -53,7 +53,7 @@ public interface ExactlyOnceTestTrait<S> extends SubscriptionTrait<S>, DeliveryT
     @Test
     default void shouldFailIfExpectedOneButReceivedTwo() throws TimeoutException {
         exception().expect(IllegalStateException.class);
-        // TODO expect message
+        exception().expectMessage("Expected exactly one Object event, but got 2 in 10 milliseconds");
 
         final Switchboard unit = Switchboard.create();
 

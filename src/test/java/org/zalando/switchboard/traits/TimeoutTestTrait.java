@@ -41,7 +41,7 @@ public interface TimeoutTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait
         unit.send(eventA(), deliveryMode());
 
         exception().expect(TimeoutException.class);
-        exception().expectMessage(containsString("3rd"));
+        exception().expectMessage(containsString("Expected exactly 3 Event events, but got 2 in 100 milliseconds"));
 
         unit.receive(matchA(), times(3), in(100, MILLISECONDS));
     }
@@ -54,7 +54,7 @@ public interface TimeoutTestTrait<S> extends SubscriptionTrait<S>, DeliveryTrait
         unit.send(eventA(), deliveryMode());
 
         exception().expect(TimeoutException.class);
-        exception().expectMessage(containsString("3rd"));
+        exception().expectMessage(containsString("Expected exactly 3 Event events, but got 2 in 100 milliseconds"));
 
         unit.subscribe(matchA(), times(3)).get(100, MILLISECONDS);
     }

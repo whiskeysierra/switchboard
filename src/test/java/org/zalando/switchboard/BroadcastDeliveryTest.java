@@ -26,6 +26,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.zalando.switchboard.framework.Java8JunitClassRunner;
 import org.zalando.switchboard.model.Event;
+import org.zalando.switchboard.traits.AtLeastOnceTestTrait;
+import org.zalando.switchboard.traits.AtLeastTestTrait;
 import org.zalando.switchboard.traits.AtMostTestTrait;
 import org.zalando.switchboard.traits.BroadcastDeliveryTrait;
 import org.zalando.switchboard.traits.EventSubscriptionTrait;
@@ -50,6 +52,8 @@ import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 
 @RunWith(Java8JunitClassRunner.class)
 public final class BroadcastDeliveryTest implements BroadcastDeliveryTrait, EventSubscriptionTrait,
+        AtLeastOnceTestTrait<Event>,
+        AtLeastTestTrait<Event>,
         AtMostTestTrait<Event>,
         FutureTestTrait<Event>,
         InspectTestTrait<Event>,

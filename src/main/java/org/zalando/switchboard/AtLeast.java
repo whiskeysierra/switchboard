@@ -26,6 +26,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static java.lang.String.format;
+
 // TODO deny combination without timeouts
 public class AtLeast<S> implements SubscriptionMode<S, List<S>, TimeoutException> {
 
@@ -51,9 +53,9 @@ public class AtLeast<S> implements SubscriptionMode<S, List<S>, TimeoutException
         return received >= count;
     }
 
-    // TODO remove
-    public String getMessage() {
-        return "Expected at least %d %s events, but only received %d in %d %s";
+    @Override
+    public String message(final String eventName, final int received, final long timeout, final String timeoutUnit) {
+        return format("Expected at least %d %s events, but got %d in %d %s", count, eventName, received, timeout, timeoutUnit);
     }
 
     @Override

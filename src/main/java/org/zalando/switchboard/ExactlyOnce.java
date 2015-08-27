@@ -26,6 +26,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static java.lang.String.format;
+
 final class ExactlyOnce<S> implements SubscriptionMode<S, S, TimeoutException> {
 
     @Override
@@ -41,6 +43,11 @@ final class ExactlyOnce<S> implements SubscriptionMode<S, S, TimeoutException> {
     @Override
     public boolean isSuccess(final int received) {
         return received == 1;
+    }
+
+    @Override
+    public String message(final String eventName, final int received, final long timeout, final String timeoutUnit) {
+        return format("Expected exactly one %s event, but got %d in %d %s", eventName, received, timeout, timeoutUnit);
     }
 
     @Override
