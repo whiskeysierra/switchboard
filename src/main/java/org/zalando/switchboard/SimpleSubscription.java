@@ -30,10 +30,10 @@ final class SimpleSubscription<E, H> implements Subscription<E, H> {
     private final Predicate<E> predicate;
     private final Optional<H> hint;
 
-    public SimpleSubscription(Class<E> eventType, Predicate<E> predicate, H hint) {
+    SimpleSubscription(final Class<E> eventType, final Predicate<E> predicate, final Optional<H> hint) {
         this.eventType = eventType;
         this.predicate = predicate;
-        this.hint = Optional.of(hint);
+        this.hint = hint;
     }
 
     @Override
@@ -42,7 +42,7 @@ final class SimpleSubscription<E, H> implements Subscription<E, H> {
     }
 
     @Override
-    public boolean test(@Nonnull E e) {
+    public boolean test(@Nonnull final E e) {
         return predicate.test(e);
     }
 

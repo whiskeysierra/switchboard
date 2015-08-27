@@ -26,19 +26,19 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import static java.util.Objects.hash;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.zalando.switchboard.SubscriptionMode.times;
 
 public final class DeliveryTest {
     
-    private final Switchboard board = Switchboard.create();
+    private final Switchboard unit = Switchboard.create();
     
     @Test
     public void shouldCreateHashCode() {
         final Subscription<String, Object> subscription = "foo"::equals;
-        final Future<List<String>> future = board.subscribe(subscription, 1);
+        final Future<List<String>> future = unit.subscribe(subscription, times(1));
         
         assertThat(future.hashCode(), is(hash(subscription)));
     }
@@ -46,9 +46,9 @@ public final class DeliveryTest {
     @Test
     public void shouldNotBeEqualToDifferentType() {
         final Subscription<String, Object> subscription = "foo"::equals;
-        final Future<List<String>> future = board.subscribe(subscription, 1);
+        final Future<List<String>> future = unit.subscribe(subscription, times(1));
         
-        assertThat(future, not(equalTo(subscription)));
+        assertThat(future.hashCode(), is(hash(subscription)));
     }
 
 }

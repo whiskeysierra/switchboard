@@ -1,4 +1,4 @@
-package org.zalando.switchboard;
+package org.zalando.switchboard.traits;
 
 /*
  * ⁣​
@@ -20,11 +20,13 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-class RawTypedSubscription implements Subscription {
+import org.zalando.switchboard.DeliveryMode;
+
+public interface FirstDeliveryTrait extends DeliveryTrait {
 
     @Override
-    public boolean test(Object message) {
-        return false;
+    default DeliveryMode deliveryMode() {
+        return DeliveryMode.FIRST;
     }
 
 }

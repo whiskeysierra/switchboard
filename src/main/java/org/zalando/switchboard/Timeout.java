@@ -20,23 +20,16 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import com.google.common.reflect.TypeToken;
+import java.util.concurrent.TimeUnit;
 
-final class TypeResolver {
+public interface Timeout {
 
-    TypeResolver() {
-        // package private so we can trick code coverage
-    }
+    long getValue();
 
-    static <T> Class<T> resolve(final Object instance, final Class<?> type, final int index) {
-        final TypeToken<?> token = TypeToken.of(instance.getClass());
-        final TypeToken<?> resolved = token.resolveType(type.getTypeParameters()[index]);
-        return cast(resolved.getRawType());
-    }
+    TimeUnit getUnit();
 
-    @SuppressWarnings("unchecked")
-    private static <T> Class<T> cast(final Class<?> type) {
-        return (Class<T>) type;
+    static Timeout in(final long timeout, final TimeUnit timeoutUnit) {
+        return new DefaultTimeout(timeout, timeoutUnit);
     }
 
 }

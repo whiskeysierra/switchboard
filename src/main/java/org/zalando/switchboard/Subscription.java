@@ -21,11 +21,13 @@ package org.zalando.switchboard;
  */
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 import java.util.Optional;
 import java.util.function.Predicate;
 
 import static org.zalando.switchboard.TypeResolver.resolve;
 
+@Immutable
 @FunctionalInterface
 public interface Subscription<E, H> extends Predicate<E> {
 
@@ -40,8 +42,12 @@ public interface Subscription<E, H> extends Predicate<E> {
         return Optional.empty();
     }
 
+    static <E, H> Subscription<E, H> on(final Class<E> eventType, final Predicate<E> predicate) {
+        return new SimpleSubscription<>(eventType, predicate, Optional.empty());
+    }
+
     static <E, H> Subscription<E, H> on(final Class<E> eventType, final Predicate<E> predicate, final H hint) {
-        return new SimpleSubscription<>(eventType, predicate, hint);
+        return new SimpleSubscription<>(eventType, predicate, Optional.of(hint));
     }
 
 }

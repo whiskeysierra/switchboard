@@ -1,4 +1,4 @@
-package org.zalando.switchboard;
+package org.zalando.switchboard.framework;
 
 /*
  * ⁣​
@@ -20,24 +20,19 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import org.junit.Test;
+import org.junit.runners.BlockJUnit4ClassRunner;
+import org.junit.runners.model.InitializationError;
+import org.junit.runners.model.TestClass;
 
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+public final class Java8JunitClassRunner extends BlockJUnit4ClassRunner {
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+    public Java8JunitClassRunner(final Class<?> type) throws InitializationError {
+        super(type);
+    }
 
-public final class AlwaysUnregisterTest {
-    
-    private final Switchboard board = Switchboard.create();
-
-    @Test
-    public void shouldUnregister() throws TimeoutException {
-        board.unless("foo"::equals, 1, TimeUnit.NANOSECONDS);
-        board.send("foo", DeliveryMode.DIRECT);
-        final String actual = board.receive("foo"::equals, 1, TimeUnit.SECONDS);
-        assertThat(actual, is("foo"));
+    @Override
+    protected TestClass createTestClass(final Class<?> testClass) {
+        return new Java8TestClass(testClass);
     }
 
 }

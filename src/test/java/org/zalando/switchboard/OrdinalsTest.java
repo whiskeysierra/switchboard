@@ -36,7 +36,7 @@ public final class OrdinalsTest {
     private final int value;
     private final String ordinal;
 
-    public OrdinalsTest(int value, String ordinal) {
+    public OrdinalsTest(final int value, final String ordinal) {
         this.value = value;
         this.ordinal = ordinal;
     }

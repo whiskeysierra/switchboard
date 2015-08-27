@@ -31,7 +31,6 @@ import java.util.concurrent.Future;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.copyOf;
-import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
 final class DefaultSwitchboard implements Switchboard {
@@ -44,7 +43,7 @@ final class DefaultSwitchboard implements Switchboard {
     private final LockSupport lock = new LockSupport();
 
     @Override
-    public <E, H> List<H> inspect(Class<E> eventType, Class<H> hintType) {
+    public <E, H> List<H> inspect(final Class<E> eventType, final Class<H> hintType) {
         return copyOf(deliveries)
                 .stream()
                 .filter(delivery -> eventType.isAssignableFrom(delivery.getEventType()))
@@ -54,30 +53,30 @@ final class DefaultSwitchboard implements Switchboard {
     }
     
     @SuppressWarnings("unchecked")
-    private <H> Optional<H> cast(Optional hint) {
+    private <H> Optional<H> cast(final Optional hint) {
         return hint;
     }
 
-    private <E> List<Delivery<E, ?>> find(Deliverable<E> deliverable) {
+    private <S, T> List<Delivery<S, T, ?>> find(final Deliverable<S> deliverable) {
         return deliveries.stream()
                 .filter(input -> input.test(deliverable.getEvent()))
-                .map(this::<E>cast)
+                .map(this::<S, T>cast)
                 .collect(toList());
     }
 
     @Override
-    public <E> void send(E event, DeliveryMode deliveryMode) {
+    public <E> void send(final E event, final DeliveryMode deliveryMode) {
         deliver(new QueuedEvent<>(event, deliveryMode));
     }
 
     @Override
-    public <E> void fail(E event, DeliveryMode deliveryMode, RuntimeException exception) {
+    public <E> void fail(final E event, final DeliveryMode deliveryMode, final RuntimeException exception) {
         deliver(new QueuedError<>(event, deliveryMode, exception));
     }
 
-    private <E> void deliver(Deliverable<E> deliverable) {
+    private <S, T> void deliver(final Deliverable<S> deliverable) {
         lock.transactional(() -> {
-            final List<Delivery<E, ?>> matches = find(deliverable);
+            final List<Delivery<S, T, ?>> matches = find(deliverable);
             
             if (matches.isEmpty()) {
                 pending.add(deliverable);
@@ -89,26 +88,26 @@ final class DefaultSwitchboard implements Switchboard {
     }
 
     @SuppressWarnings("unchecked")
-    private <E> Delivery<E, ?> cast(Delivery delivery) {
+    private <S, T> Delivery<S, T, ?> cast(final Delivery delivery) {
         return delivery;
     }
 
-    private <E> void deliverTo(final List<Delivery<E, ?>> list, final Deliverable<E> deliverable) {
-        for (Delivery<E, ?> delivery : list) {
+    private <S, T> void deliverTo(final List<Delivery<S, T, ?>> list, final Deliverable<S> deliverable) {
+        for (final Delivery<S, T, ?> delivery : list) {
             delivery.deliver(deliverable);
             LOG.info("Successfully matched event [{}] to [{}]", deliverable.getEvent(), delivery);
         }
     }
 
-    <E> void unregister(final Delivery<E, ?> delivery) {
+    <E, S> void unregister(final Delivery<E, S, ?> delivery) {
         if (deliveries.remove(delivery)) {
             LOG.trace("Unregistered [{}].", delivery);
         }
     }
 
     @Override
-    public <E> Future<List<E>> subscribe(Subscription<E, ?> subscription, int count) {
-        final Delivery<E, ?> delivery = new Delivery<>(subscription, count, this::unregister);
+    public <S, T, X extends Exception> Future<T> subscribe(final Subscription<S, ?> subscription, final SubscriptionMode<S, T, X> mode) {
+        final Delivery<S, T, ?> delivery = new Delivery<>(subscription, mode, this::unregister);
 
         registerForFutureEvents(delivery);
         tryDeliverUnhandledEvents(delivery);
@@ -116,7 +115,7 @@ final class DefaultSwitchboard implements Switchboard {
         return delivery;
     }
 
-    private <E> void registerForFutureEvents(final Delivery<E, ?> subscription) {
+    private <S, T> void registerForFutureEvents(final Delivery<S, T, ?> subscription) {
         lock.transactional(() -> {
             checkState(!deliveries.contains(subscription), "[%s] is already registered", subscription);
             deliveries.add(subscription);
@@ -124,14 +123,14 @@ final class DefaultSwitchboard implements Switchboard {
         });
     }
 
-    private <E> void tryDeliverUnhandledEvents(final Delivery<E, ?> delivery) {
+    private <S, T> void tryDeliverUnhandledEvents(final Delivery<S, T, ?> delivery) {
         while (!delivery.isDone()) {
-            final Optional<Deliverable<E>> match = findAndRemove(delivery);
+            final Optional<Deliverable<S>> match = findAndRemove(delivery);
 
             if (match.isPresent()) {
-                final Deliverable<E> deliverable = match.get();
-                deliverable.sendTo(this);
-                final E event = deliverable.getEvent();
+                final Deliverable<S> deliverable = match.get();
+                deliverable.redeliver(this);
+                final S event = deliverable.getEvent();
                 LOG.info("Successfully matched previously unhandled event [{}] to [{}]", event, delivery);
             } else {
                 break;
@@ -139,11 +138,11 @@ final class DefaultSwitchboard implements Switchboard {
         }
     }
 
-    private <E> Optional<Deliverable<E>> findAndRemove(final Delivery<E, ?> delivery) {
+    private <S, T> Optional<Deliverable<S>> findAndRemove(final Delivery<S, T, ?> delivery) {
         return lock.transactional(() -> {
-            final Optional<Deliverable<E>> first = pending.stream()
+            final Optional<Deliverable<S>> first = pending.stream()
                     .filter(event -> delivery.test(event.getEvent()))
-                    .map(this::<E>cast)
+                    .map(this::<S>cast)
                     .findFirst();
 
             if (first.isPresent()) {
@@ -155,7 +154,7 @@ final class DefaultSwitchboard implements Switchboard {
     }
     
     @SuppressWarnings("unchecked")
-    private <E> Deliverable<E> cast(Deliverable event) {
+    private <E> Deliverable<E> cast(final Deliverable event) {
         return event;
     }
 

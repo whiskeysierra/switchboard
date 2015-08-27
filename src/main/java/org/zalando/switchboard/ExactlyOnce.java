@@ -20,38 +20,32 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-final class QueuedError<T> implements Deliverable<T> {
+final class ExactlyOnce<S> implements SubscriptionMode<S, S, TimeoutException> {
 
-    private final T event;
-    private final DeliveryMode deliveryMode;
-    private final RuntimeException exception;
-
-    QueuedError(final T event, final DeliveryMode deliveryMode, final RuntimeException exception) {
-        this.event = event;
-        this.deliveryMode = deliveryMode;
-        this.exception = exception;
+    @Override
+    public S block(final Future<S> future, final long timeout, final TimeUnit timeoutUnit) throws TimeoutException, InterruptedException, ExecutionException {
+        return future.get(timeout, timeoutUnit);
     }
 
     @Override
-    public void redeliver(final Switchboard board) {
-        board.fail(event, deliveryMode, exception);
+    public boolean isDone(final int received) {
+        return false;
     }
 
     @Override
-    public void deliverTo(final Collection<? super T> target) {
-        throw exception;
+    public boolean isSuccess(final int received) {
+        return received == 1;
     }
 
     @Override
-    public T getEvent() {
-        return event;
-    }
-
-    @Override
-    public DeliveryMode getDeliveryMode() {
-        return deliveryMode;
+    public S collect(final List<S> results) {
+        return results.get(0);
     }
 
 }

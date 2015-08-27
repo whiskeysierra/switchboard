@@ -1,4 +1,4 @@
-package org.zalando.switchboard;
+package org.zalando.switchboard.traits;
 
 /*
  * ⁣​
@@ -20,23 +20,16 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import com.google.common.reflect.TypeToken;
+import org.zalando.switchboard.Subscription;
 
-final class TypeResolver {
+public interface SubscriptionTrait<S> {
 
-    TypeResolver() {
-        // package private so we can trick code coverage
+    Subscription<S, ?> matchA();
+
+    default Subscription<S, ?> matchB() {
+        return e -> false;
     }
 
-    static <T> Class<T> resolve(final Object instance, final Class<?> type, final int index) {
-        final TypeToken<?> token = TypeToken.of(instance.getClass());
-        final TypeToken<?> resolved = token.resolveType(type.getTypeParameters()[index]);
-        return cast(resolved.getRawType());
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> Class<T> cast(final Class<?> type) {
-        return (Class<T>) type;
-    }
+    S eventA();
 
 }

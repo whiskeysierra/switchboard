@@ -29,7 +29,7 @@ public enum DeliveryMode {
     DIRECT {
 
         @Override
-        <E> List<Delivery<E, ?>> distribute(List<Delivery<E, ?>> deliveries) {
+        <S, T> List<Delivery<S, T, ?>> distribute(final List<Delivery<S, T, ?>> deliveries) {
             checkState(deliveries.size() == 1, "Too many subcriptions for event, expected one");
             return deliveries;
         }
@@ -39,22 +39,22 @@ public enum DeliveryMode {
     FIRST {
 
         @Override
-        <E> List<Delivery<E, ?>> distribute(List<Delivery<E, ?>> deliveries) {
+        <S, T> List<Delivery<S, T, ?>> distribute(final List<Delivery<S, T, ?>> deliveries) {
             return deliveries.subList(0, 1);
         }
 
     },
 
-    CONFERENCE {
+    BROADCAST {
 
         @Override
-        <E> List<Delivery<E, ?>> distribute(List<Delivery<E, ?>> deliveries) {
+        <S, T> List<Delivery<S, T, ?>> distribute(final List<Delivery<S, T, ?>> deliveries) {
             return deliveries;
         }
 
     };
 
     // TODO is the order of given subscriptions defined?
-    abstract <E> List<Delivery<E, ?>> distribute(List<Delivery<E, ?>> deliveries);
+    abstract <S, T> List<Delivery<S, T, ?>> distribute(List<Delivery<S, T, ?>> deliveries);
 
 }

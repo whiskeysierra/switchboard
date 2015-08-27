@@ -20,26 +20,26 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import javax.annotation.concurrent.Immutable;
-import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
-@Immutable
-class EventSubscription implements Subscription<Event, String> {
+final class DefaultTimeout implements Timeout {
 
-    private final String identifier;
+    private final long timeout;
+    private final TimeUnit timeoutUnit;
 
-    EventSubscription(final String identifier) {
-        this.identifier = identifier;
+    public DefaultTimeout(final long timeout, final TimeUnit timeoutUnit) {
+        this.timeout = timeout;
+        this.timeoutUnit = timeoutUnit;
     }
 
     @Override
-    public Optional<String> getHint() {
-        return Optional.of(identifier);
+    public long getValue() {
+        return timeout;
     }
 
     @Override
-    public boolean test(final Event input) {
-        return identifier.equals(input.getIdentifier());
+    public TimeUnit getUnit() {
+        return timeoutUnit;
     }
 
 }

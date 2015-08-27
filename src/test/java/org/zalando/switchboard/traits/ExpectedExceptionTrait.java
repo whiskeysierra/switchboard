@@ -1,4 +1,4 @@
-package org.zalando.switchboard;
+package org.zalando.switchboard.traits;
 
 /*
  * ⁣​
@@ -20,11 +20,10 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-final class GenericlyTypedSubscription implements Subscription<String, Void> {
+import org.junit.rules.ExpectedException;
 
-    @Override
-    public boolean test(String message) {
-        return true;
-    }
+public interface ExpectedExceptionTrait {
+
+    ExpectedException exception();
 
 }

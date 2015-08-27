@@ -1,4 +1,4 @@
-package org.zalando.switchboard;
+package org.zalando.switchboard.model;
 
 /*
  * ⁣​
@@ -20,36 +20,37 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import java.util.Collection;
+import javax.annotation.concurrent.Immutable;
+import java.util.Objects;
 
-final class QueuedEvent<T> implements Deliverable<T> {
+@Immutable
+public final class Event {
 
-    private final T event;
-    private final DeliveryMode deliveryMode;
+    private final String identifier;
 
-    QueuedEvent(final T event, final DeliveryMode deliveryMode) {
-        this.event = event;
-        this.deliveryMode = deliveryMode;
+    public Event(final String identifier) {
+        this.identifier = identifier;
+    }
+
+    String getIdentifier() {
+        return identifier;
     }
 
     @Override
-    public void redeliver(final Switchboard board) {
-        board.send(event, deliveryMode);
+    public boolean equals(final Object that) {
+        if (this == that) {
+            return true;
+        } else if (that instanceof Event) {
+            final Event other = (Event) that;
+            return Objects.equals(identifier, other.identifier);
+        } else {
+            return false;
+        }
     }
 
     @Override
-    public void deliverTo(final Collection<? super T> target) {
-        target.add(event);
+    public int hashCode() {
+        return Objects.hash(identifier);
     }
 
-    @Override
-    public T getEvent() {
-        return event;
-    }
-
-    @Override
-    public DeliveryMode getDeliveryMode() {
-        return deliveryMode;
-    }
-    
 }

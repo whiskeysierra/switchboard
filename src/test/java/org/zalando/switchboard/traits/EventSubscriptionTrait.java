@@ -1,4 +1,4 @@
-package org.zalando.switchboard;
+package org.zalando.switchboard.traits;
 
 /*
  * ⁣​
@@ -20,23 +20,25 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import org.junit.Test;
+import org.zalando.switchboard.model.Event;
+import org.zalando.switchboard.model.EventSubscription;
+import org.zalando.switchboard.Subscription;
 
-import java.util.concurrent.TimeoutException;
+public interface EventSubscriptionTrait extends SubscriptionTrait<Event> {
 
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
-import static org.zalando.switchboard.Subscription.on;
+    @Override
+    default Subscription<Event, ?> matchA() {
+        return new EventSubscription("A");
+    }
 
-public final class HintTest {
+    @Override
+    default Subscription<Event, ?> matchB() {
+        return new EventSubscription("B");
+    }
 
-    private final Switchboard board = Switchboard.create();
-
-    @Test
-    public void shouldProvideHint() throws TimeoutException, InterruptedException {
-        board.subscribe(on(String.class, "foo"::equals, "bar"));
-
-        assertThat(board.inspect(String.class, String.class), contains("bar"));
+    @Override
+    default Event eventA() {
+        return new Event("A");
     }
 
 }

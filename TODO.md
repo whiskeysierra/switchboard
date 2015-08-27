@@ -1,3 +1,10 @@
+- receive("foo"::equals, atMost(5), in(5, MINUTES))
+- exceptions
+    - timeout vs. illegal state
+    - illegal state
+        - if unsatisfiable before end of timeout
+    - timeout
+        - unsatisfied at end of timeout
 - enhance readme
     - use telephone switchboard metaphor throughout the readme
     - consider renames

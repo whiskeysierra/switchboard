@@ -29,13 +29,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.Matchers.instanceOf;
+import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
+import static org.zalando.switchboard.Timeout.in;
 
 public final class ExceptionSupportTest {
     
     @Rule
     public final ExpectedException exception = ExpectedException.none();
     
-    private final Switchboard board = Switchboard.create();
+    private final Switchboard unit = Switchboard.create();
     
     private static final class SpecialException extends RuntimeException {
         
@@ -45,17 +47,17 @@ public final class ExceptionSupportTest {
     public void shouldThrowException() throws TimeoutException {
         exception.expect(SpecialException.class);
         
-        board.fail("foo", DeliveryMode.DIRECT, new SpecialException());
-        board.receive("foo"::equals, 1, TimeUnit.SECONDS);
+        unit.fail("foo", DeliveryMode.DIRECT, new SpecialException());
+        unit.receive("foo"::equals, exactlyOnce(), in(1, TimeUnit.SECONDS));
     }
     
     @Test
     public void shouldThrowExceptionWithTimeout() throws ExecutionException, InterruptedException, TimeoutException {
         exception.expect(ExecutionException.class);
         exception.expectCause(instanceOf(SpecialException.class));
-        
-        board.fail("foo", DeliveryMode.DIRECT, new SpecialException());
-        board.subscribe("foo"::equals).get(1, TimeUnit.SECONDS);
+
+        unit.fail("foo", DeliveryMode.DIRECT, new SpecialException());
+        unit.subscribe("foo"::equals, exactlyOnce()).get(1, TimeUnit.SECONDS);
     }
     
     @Test
@@ -63,8 +65,8 @@ public final class ExceptionSupportTest {
         exception.expect(ExecutionException.class);
         exception.expectCause(instanceOf(SpecialException.class));
         
-        board.fail("foo", DeliveryMode.DIRECT, new SpecialException());
-        board.subscribe("foo"::equals).get();
+        unit.fail("foo", DeliveryMode.DIRECT, new SpecialException());
+        unit.subscribe("foo"::equals, exactlyOnce()).get();
     }
 
 }

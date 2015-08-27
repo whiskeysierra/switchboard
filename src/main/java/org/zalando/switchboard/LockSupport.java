@@ -28,7 +28,7 @@ final class LockSupport {
 
     private final Lock lock = new ReentrantLock();
     
-    void transactional(Runnable task) {
+    void transactional(final Runnable task) {
         lock.lock();
         try {
             task.run();
@@ -37,7 +37,7 @@ final class LockSupport {
         }
     }
 
-    <T> T transactional(Supplier<T> task) {
+    <T> T transactional(final Supplier<T> task) {
         lock.lock();
         try {
             return task.get();

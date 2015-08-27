@@ -1,4 +1,4 @@
-package org.zalando.switchboard;
+package org.zalando.switchboard.model;
 
 /*
  * ⁣​
@@ -20,18 +20,28 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import org.junit.Test;
+import org.zalando.switchboard.Subscription;
 
-import java.util.concurrent.TimeUnit;
+import javax.annotation.concurrent.Immutable;
+import java.util.Optional;
 
-public final class UnlessTest {
-    
-    private final Switchboard board = Switchboard.create();
+@Immutable
+public final class EventSubscription implements Subscription<Event, String> {
 
-    @Test(expected = IllegalStateException.class)
-    public void shouldFailIfMatched() {
-        board.send("foo", DeliveryMode.DIRECT);
-        board.unless("foo"::equals, 1, TimeUnit.SECONDS);
+    private final String identifier;
+
+    public EventSubscription(final String identifier) {
+        this.identifier = identifier;
+    }
+
+    @Override
+    public Optional<String> getHint() {
+        return Optional.of(identifier);
+    }
+
+    @Override
+    public boolean test(final Event input) {
+        return identifier.equals(input.getIdentifier());
     }
 
 }

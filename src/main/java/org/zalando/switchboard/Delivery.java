@@ -20,11 +20,9 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import com.google.common.collect.Lists;
-
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -38,10 +36,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static org.zalando.switchboard.Errors.timedOut;
+import static org.zalando.switchboard.Errors.unexpected;
 
-final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
+final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
 
     enum State {
         WAITING, DONE, CANCELLED
@@ -50,17 +49,17 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
     private final AtomicReference<State> state = new AtomicReference<>(State.WAITING);
 
     private final Subscription<E, H> subscription;
-    private final int count;
-    private final Consumer<Delivery<E, H>> unregister;
+    private final SubscriptionMode<E, T, ?> mode;
+    private final Consumer<Delivery<E, T, H>> unregister;
 
     private final BlockingQueue<Deliverable<E>> queue = new LinkedBlockingQueue<>();
     private final AtomicInteger delivered = new AtomicInteger();
 
     private final LockSupport lock = new LockSupport();
 
-    Delivery(Subscription<E, H> subscription, int count, Consumer<Delivery<E, H>> unregister) {
+    Delivery(final Subscription<E, H> subscription, final SubscriptionMode<E, T, ?> mode, final Consumer<Delivery<E, T, H>> unregister) {
         this.subscription = subscription;
-        this.count = count;
+        this.mode = mode;
         this.unregister = unregister;
     }
 
@@ -73,22 +72,20 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
     }
 
     @Override
-    public boolean test(@Nullable Object input) {
+    public boolean test(@Nullable final Object input) {
         return subscription.getEventType().isInstance(input) && subscription.test(cast(input));
     }
 
     @SuppressWarnings("unchecked")
-    private E cast(Object input) {
+    private E cast(final Object input) {
         return (E) input;
     }
 
-    void deliver(Deliverable<E> deliverable) {
+    void deliver(final Deliverable<E> deliverable) {
         lock.transactional(() -> {
             queue.add(deliverable);
 
-            final boolean isSatisfied = delivered.incrementAndGet() == count;
-
-            if (isSatisfied) {
+            if (mode.isDone(delivered.incrementAndGet())) {
                 finish(State.DONE);
             }
         });
@@ -129,80 +126,70 @@ final class Delivery<E, H> implements Future<List<E>>, Predicate<Object> {
     }
 
     @Override
-    public List<E> get() throws InterruptedException, ExecutionException {
+    public T get() throws InterruptedException, ExecutionException {
         try {
-            final List<E> results = Lists.newArrayListWithExpectedSize(count);
+            final List<E> results = new ArrayList<>();
 
             int drained = 0;
 
-            while (drained < count) {
+            while (!mode.isDone(drained)) {
                 final Deliverable<E> deliverable = queue.take();
 
                 try {
                     deliverable.deliverTo(results);
-                } catch (RuntimeException e) {
+                } catch (final RuntimeException e) {
                     throw new ExecutionException(e);
                 }
 
                 drained++;
             }
 
-            return results;
+            if (mode.isSuccess(drained)) {
+                return mode.collect(results);
+            } else {
+                throw new IllegalStateException(unexpected(subscription));
+            }
         } finally {
             unregister();
         }
     }
 
     @Override
-    public List<E> get(final long timeout, final TimeUnit timeoutUnit)
+    public T get(final long timeout, final TimeUnit timeoutUnit)
             throws InterruptedException, ExecutionException, TimeoutException {
         try {
-            final List<E> results = Lists.newArrayListWithExpectedSize(count);
+            final List<E> results = new ArrayList<>();
 
             final long deadline = System.nanoTime() + timeoutUnit.toNanos(timeout);
             int drained = 0;
 
-            while (drained < count) {
+            while (!mode.isDone(drained)) {
                 final Deliverable<E> deliverable = queue.poll(deadline - System.nanoTime(), NANOSECONDS);
                 if (deliverable == null) {
+                    if (!mode.isSuccess(drained)) {
+                        throw new TimeoutException(timedOut(subscription, drained + 1, timeout, timeoutUnit));
+                    }
+
                     break;
                 }
 
                 try {
                     deliverable.deliverTo(results);
-                } catch (RuntimeException e) {
+                } catch (final RuntimeException e) {
                     throw new ExecutionException(e);
                 }
 
                 drained++;
             }
 
-            if (drained < count) {
-                throw failure(timeout, timeoutUnit, drained + 1);
+            if (mode.isSuccess(drained)) {
+                return mode.collect(results);
+            } else {
+                throw new IllegalStateException(unexpected(subscription, timeout, timeoutUnit));
             }
-
-            return results;
         } finally {
             unregister();
         }
-    }
-
-    private TimeoutException failure(final long timeout, final TimeUnit timeoutUnit, final int index)
-            throws TimeoutException {
-        final String typeName = subscription.getEventType().getSimpleName();
-        final String timeoutUnitName = timeoutUnit.name().toLowerCase(Locale.ENGLISH);
-
-        final String message;
-
-        if (count == 1) {
-            message = format("No [%s] event matching [%s] occurred in [%s] [%s]", typeName, subscription, timeout,
-                    timeoutUnitName);
-        } else {
-            message = format("[%d%s] [%s] event matching [%s] didn't occur in [%s] [%s]", index,
-                    Ordinals.valueOf(index), typeName, subscription, timeout, timeoutUnitName);
-        }
-
-        throw new TimeoutException(message);
     }
 
     @Override

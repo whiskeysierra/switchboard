@@ -24,7 +24,7 @@ import java.util.Collection;
 
 interface Deliverable<E> {
 
-    void sendTo(Switchboard board);
+    void redeliver(Switchboard board);
     
     void deliverTo(Collection<? super E> target);
 
