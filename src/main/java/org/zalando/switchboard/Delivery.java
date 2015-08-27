@@ -166,9 +166,7 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
             while (!mode.isDone(drained)) {
                 final Deliverable<E> deliverable = queue.poll(deadline - System.nanoTime(), NANOSECONDS);
                 if (deliverable == null) {
-                    if (!mode.isSuccess(drained)) {
-                        throw new TimeoutException(mode.message(getEventName(), drained, timeout, humanize(timeoutUnit)));
-                    }
+                    onTimeout(drained, timeout, timeoutUnit);
 
                     break;
                 }
@@ -189,6 +187,12 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
             }
         } finally {
             unregister();
+        }
+    }
+
+    private void onTimeout(final int drained, final long timeout, final TimeUnit timeoutUnit) throws TimeoutException {
+        if (!mode.isSuccess(drained)) {
+            throw new TimeoutException(mode.message(getEventName(), drained, timeout, humanize(timeoutUnit)));
         }
     }
 

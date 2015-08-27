@@ -44,7 +44,7 @@ public class Times<S> implements SubscriptionMode<S, List<S>, TimeoutException> 
 
     @Override
     public boolean isDone(final int received) {
-        return false;
+        return received > count;
     }
 
     @Override

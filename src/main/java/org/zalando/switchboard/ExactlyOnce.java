@@ -37,7 +37,7 @@ final class ExactlyOnce<S> implements SubscriptionMode<S, S, TimeoutException> {
 
     @Override
     public boolean isDone(final int received) {
-        return false;
+        return received > 1;
     }
 
     @Override
