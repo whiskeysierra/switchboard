@@ -100,8 +100,7 @@ private static class UserSubscription implements Subscription<User, Object> {
 Receiving messages in a blocking way is usually the easiest in terms of readability:
 
 ```java
-Switchboard board = Switchboard.create();
-User user = board.receive(user("bob"), atLeastOnce(), in(10, SECONDS));
+User user = switchboard.receive(user("bob"), atLeastOnce(), in(10, SECONDS));
 ```
 
 If a user called *Bob* is received within 10 seconds it will be returned otherwise a `TimeoutException` is thrown.
@@ -109,16 +108,29 @@ Additionally, since `receive` is a blocking operation, it is allowed to throw `I
 
 #### Non-blocking
 
+Receiving messages in a non-blocking way is usually required if you need to subscribe to multiple different events:
+
+```java
+Future<User> future = switchboard.subscribe(user("bob"), atLeastOnce());
+
+future.get(); // wait forever
+future.get(10, SECONDS); // wait at most 10 seconds
+```
+
 #### Modes
 
-| Mode            | Type         | Termination | Success  |
-|-----------------|--------------|-------------|----------|
-| `atLeast(n)`    | non-blocking | `m >= n`    | `m >= n` |
-| `atLeastOnce`   | non-blocking | `m >= 1`    | `m >= 1` |
-| `atMost(n)`     | non-blocking | `m > n`     | `m <= n` |
-| `exactlyOnce()` | blocking     | `m > 1`     | `m == 1` |
-| `never()`       | non-blocking | `m > 0`     | `m == 0` |
-| `times(n)`      | blocking     | `m > n`     | `m == n` |
+When subscribing to message you can specify one of the following modes. They have different characteristics in terms of termination and success conditions:
+
+| Mode            | Termination | Success  |
+|-----------------|-------------|----------|
+| `atLeast(n)`    | `m >= n`    | `m >= n` |
+| `atLeastOnce`   | `m >= 1`    | `m >= 1` |
+| `atMost(n)`     | `m > n`     | `m <= n` |
+| `exactlyOnce()` | `m > 1`     | `m == 1` |
+| `never()`       | `m > 0`     | `m == 0` |
+| `times(n)`      | `m > n`     | `m == n` |
+
+**Note**: Be ware that `exactlyOnce()` and `times(n)` have termination conditions that require to wait till the end of the timeout to ensure its success condition holds true, e.g. `switchboard.receive(user("Bob"), exactlyOnce(), in(2, MINUTES))` will wait full 2 minutes in case it received 0 or 1 user called *Bob*. In case two or more users are received, it will terminate early and fail.
 
 ### Sending messages
 
@@ -134,16 +146,16 @@ test will never succeed. This is the task of a sender:
 ```java
 class UserWorker implements Runnable {
 
-    private final Switchboard board;
+    private final Switchboard switchboard;
 
-    UserWorker(Switchboard board) {
-        this.board = board;
+    UserWorker(Switchboard switchboard) {
+        this.switchboard = switchboard;
     }
 
     @Override
     public void run() {
-        final List<String> names = board.inspect(User.class, String.class);
-        findUsersByNames(names).stream().forEach(board::send);
+        final List<String> names = switchboard.inspect(User.class, String.class);
+        findUsersByNames(names).stream().forEach(switchboard::send);
     }
 
     private List<User> findUsersByNames(List<String> names) {
