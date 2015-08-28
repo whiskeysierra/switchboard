@@ -25,18 +25,18 @@ import java.util.concurrent.Future;
 
 /**
  * publish/subscribe, async, hand-over/broadcast
- * deliver previously received events
+ * deliver previously received messages
  */
 public interface Switchboard {
 
-    <S, T, X extends Exception> T receive(final Subscription<S, ?> subscription, final SubscriptionMode<S, T, X> mode, final Timeout timeout)
+    <T, R, X extends Exception> R receive(final Subscription<T, ?> subscription, final SubscriptionMode<T, R, X> mode, final Timeout timeout)
             throws X, InterruptedException;
 
-    <S, T, X extends Exception> Future<T> subscribe(final Subscription<S, ?> subscription, final SubscriptionMode<S, T, X> mode);
+    <T, R, X extends Exception> Future<R> subscribe(final Subscription<T, ?> subscription, final SubscriptionMode<T, R, X> mode);
 
-    <E, H> List<H> inspect(Class<E> eventType, Class<H> hintType);
+    <T, H> List<H> inspect(Class<T> messageType, Class<H> hintType);
 
-    <E> void send(final Deliverable<E> deliverable);
+    <T> void send(final Deliverable<T> deliverable);
 
     static Switchboard create() {
         return new DefaultSwitchboard();

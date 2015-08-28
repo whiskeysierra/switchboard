@@ -20,37 +20,28 @@ package org.zalando.switchboard.model;
  * ​⁣
  */
 
+import org.zalando.switchboard.Subscription;
+
 import javax.annotation.concurrent.Immutable;
-import java.util.Objects;
+import java.util.Optional;
 
 @Immutable
-public final class Event {
+public final class MessageSubscription implements Subscription<Message, String> {
 
     private final String identifier;
 
-    public Event(final String identifier) {
+    public MessageSubscription(final String identifier) {
         this.identifier = identifier;
     }
 
-    String getIdentifier() {
-        return identifier;
+    @Override
+    public Optional<String> getHint() {
+        return Optional.of(identifier);
     }
 
     @Override
-    public boolean equals(final Object that) {
-        if (this == that) {
-            return true;
-        } else if (that instanceof Event) {
-            final Event other = (Event) that;
-            return Objects.equals(identifier, other.identifier);
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(identifier);
+    public boolean test(final Message input) {
+        return identifier.equals(input.getIdentifier());
     }
 
 }

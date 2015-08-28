@@ -36,11 +36,11 @@ import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
-    default void shouldDeliverRecordedEventsToSubscriptions() throws ExecutionException, InterruptedException {
+    default void shouldDeliverRecordedMessagesToSubscriptions() throws ExecutionException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send(message(eventA(), deliveryMode()));
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
 
         final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final S first = firstResult.get();
@@ -48,16 +48,16 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
         final S second = secondResult.get();
 
-        assertThat(first, is(eventA()));
-        assertThat(second, is(eventA()));
+        assertThat(first, is(messageA()));
+        assertThat(second, is(messageA()));
     }
 
     @Test(timeout = 250)
-    default void shouldDeliverRecordedEventsToConcurrentSubscriptions() throws InterruptedException, ExecutionException {
+    default void shouldDeliverRecordedMessagesToConcurrentSubscriptions() throws InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send(message(eventA(), deliveryMode()));
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
 
         final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
@@ -65,63 +65,63 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         final S first = firstResult.get();
         final S second = secondResult.get();
 
-        assertThat(first, is(eventA()));
-        assertThat(second, is(eventA()));
+        assertThat(first, is(messageA()));
+        assertThat(second, is(messageA()));
     }
 
     @Test(timeout = 250)
-    default void shouldDeliverRecordedEventsToSubscriptionsOneAtATime() throws InterruptedException, ExecutionException {
+    default void shouldDeliverRecordedMessagesToSubscriptionsOneAtATime() throws InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
 
         final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final S first = firstResult.get();
 
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
 
         final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
         final S second = secondResult.get();
 
-        assertThat(first, is(eventA()));
-        assertThat(second, is(eventA()));
+        assertThat(first, is(messageA()));
+        assertThat(second, is(messageA()));
     }
 
     @Test(timeout = 250)
-    default void shouldDeliverPartlyRecordedEventsToSubscriptionsOneAtATime() throws InterruptedException, ExecutionException {
+    default void shouldDeliverPartlyRecordedMessagesToSubscriptionsOneAtATime() throws InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
 
         final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final S first = firstResult.get();
 
         final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
 
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
 
         final S second = secondResult.get();
 
-        assertThat(first, is(eventA()));
-        assertThat(second, is(eventA()));
+        assertThat(first, is(messageA()));
+        assertThat(second, is(messageA()));
     }
 
     @Test(timeout = 250)
-    default void shouldDeliverPartlyRecordedEventsToConcurrentSubscriptions() throws InterruptedException, ExecutionException {
+    default void shouldDeliverPartlyRecordedMessagesToConcurrentSubscriptions() throws InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
 
         final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
 
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
 
         final S first = firstResult.get();
         final S second = secondResult.get();
 
-        assertThat(first, is(eventA()));
-        assertThat(second, is(eventA()));
+        assertThat(first, is(messageA()));
+        assertThat(second, is(messageA()));
     }
 
 }

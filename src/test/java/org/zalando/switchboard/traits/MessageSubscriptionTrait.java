@@ -20,25 +20,25 @@ package org.zalando.switchboard.traits;
  * ​⁣
  */
 
-import org.zalando.switchboard.model.Event;
-import org.zalando.switchboard.model.EventSubscription;
+import org.zalando.switchboard.model.Message;
+import org.zalando.switchboard.model.MessageSubscription;
 import org.zalando.switchboard.Subscription;
 
-public interface EventSubscriptionTrait extends SubscriptionTrait<Event> {
+public interface MessageSubscriptionTrait extends SubscriptionTrait<Message> {
 
     @Override
-    default Subscription<Event, ?> matchA() {
-        return new EventSubscription("A");
+    default Subscription<Message, ?> matchA() {
+        return new MessageSubscription("A");
     }
 
     @Override
-    default Subscription<Event, ?> matchB() {
-        return new EventSubscription("B");
+    default Subscription<Message, ?> matchB() {
+        return new MessageSubscription("B");
     }
 
     @Override
-    default Event eventA() {
-        return new Event("A");
+    default Message messageA() {
+        return new Message("A");
     }
 
 }

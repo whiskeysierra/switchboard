@@ -38,28 +38,28 @@ import org.zalando.switchboard.contracts.TimeoutContract;
 import org.zalando.switchboard.contracts.TimesContract;
 import org.zalando.switchboard.contracts.UnsubscribeContract;
 import org.zalando.switchboard.framework.Java8JunitClassRunner;
-import org.zalando.switchboard.model.Event;
+import org.zalando.switchboard.model.Message;
 import org.zalando.switchboard.traits.DirectDeliveryTrait;
-import org.zalando.switchboard.traits.EventSubscriptionTrait;
+import org.zalando.switchboard.traits.MessageSubscriptionTrait;
 
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 
 @RunWith(Java8JunitClassRunner.class)
-public final class DirectDeliveryTest implements DirectDeliveryTrait, EventSubscriptionTrait,
-        AtLeastContract<Event>,
-        AtLeastOnceContract<Event>,
-        AtMostContract<Event>,
-        ExactlyOnceContract<Event>,
-        FailContract<Event>,
-        FutureContract<Event>,
-        InspectContract<Event>,
-        NeverContract<Event>,
-        RecordContract<Event>,
-        SubscribeContract<Event>,
-        TimeoutContract<Event>,
-        TimesContract<Event>,
-        UnsubscribeContract<Event> {
+public final class DirectDeliveryTest implements DirectDeliveryTrait, MessageSubscriptionTrait,
+        AtLeastContract<Message>,
+        AtLeastOnceContract<Message>,
+        AtMostContract<Message>,
+        ExactlyOnceContract<Message>,
+        FailContract<Message>,
+        FutureContract<Message>,
+        InspectContract<Message>,
+        NeverContract<Message>,
+        RecordContract<Message>,
+        SubscribeContract<Message>,
+        TimeoutContract<Message>,
+        TimesContract<Message>,
+        UnsubscribeContract<Message> {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -72,12 +72,12 @@ public final class DirectDeliveryTest implements DirectDeliveryTrait, EventSubsc
     }
 
     @Test(expected = IllegalStateException.class, timeout = 250)
-    public void shouldThrowWhenDeliveringEventsToSubscriptions() {
+    public void shouldThrowWhenDeliveringMessagesToSubscriptions() {
         unit.subscribe(matchA(), exactlyOnce());
         unit.subscribe(matchA(), exactlyOnce());
 
-        unit.send(message(eventA(), DeliveryMode.DIRECT));
-        unit.send(message(eventA(), DeliveryMode.DIRECT));
+        unit.send(message(messageA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
     }
 
 }

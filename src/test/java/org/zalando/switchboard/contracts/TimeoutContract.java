@@ -38,27 +38,27 @@ import static org.zalando.switchboard.Timeout.in;
 public interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
 
     @Test(timeout = 250)
-    default void shouldTellThatThirdEventDidNotOccur() throws TimeoutException, InterruptedException {
+    default void shouldTellThatThirdMessageDidNotOccur() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send(message(eventA(), deliveryMode()));
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
 
         exception().expect(TimeoutException.class);
-        exception().expectMessage(containsString("Expected exactly 3 Event event(s), but got 2 in 1 nanoseconds"));
+        exception().expectMessage(containsString("Expected exactly 3 Message message(s), but got 2 in 1 nanoseconds"));
 
         unit.receive(matchA(), times(3), in(1, NANOSECONDS));
     }
 
     @Test(timeout = 250)
-    default void shouldTellThatThirdEventDidNotOccurWhenPollingAsync() throws TimeoutException, ExecutionException, InterruptedException {
+    default void shouldTellThatThirdMessageDidNotOccurWhenPollingAsync() throws TimeoutException, ExecutionException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send(message(eventA(), deliveryMode()));
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
 
         exception().expect(TimeoutException.class);
-        exception().expectMessage(containsString("Expected exactly 3 Event event(s), but got 2 in 1 nanoseconds"));
+        exception().expectMessage(containsString("Expected exactly 3 Message message(s), but got 2 in 1 nanoseconds"));
 
         unit.subscribe(matchA(), times(3)).get(1, NANOSECONDS);
     }

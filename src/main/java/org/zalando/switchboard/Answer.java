@@ -42,7 +42,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
-final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
+final class Answer<T, R, H> implements Future<R>, Predicate<Object> {
 
     enum State {
         WAITING, DONE, CANCELLED
@@ -50,23 +50,23 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
 
     private final AtomicReference<State> state = new AtomicReference<>(State.WAITING);
 
-    private final Subscription<E, H> subscription;
-    private final SubscriptionMode<E, T, ?> mode;
-    private final Consumer<Delivery<E, T, H>> unregister;
+    private final Subscription<T, H> subscription;
+    private final SubscriptionMode<T, R, ?> mode;
+    private final Consumer<Answer<T, R, H>> unregister;
 
-    private final BlockingQueue<Deliverable<E>> queue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Deliverable<T>> queue = new LinkedBlockingQueue<>();
     private final AtomicInteger delivered = new AtomicInteger();
 
     private final LockSupport lock = new LockSupport();
 
-    Delivery(final Subscription<E, H> subscription, final SubscriptionMode<E, T, ?> mode, final Consumer<Delivery<E, T, H>> unregister) {
+    Answer(final Subscription<T, H> subscription, final SubscriptionMode<T, R, ?> mode, final Consumer<Answer<T, R, H>> unregister) {
         this.subscription = subscription;
         this.mode = mode;
         this.unregister = unregister;
     }
 
-    Class<E> getEventType() {
-        return subscription.getEventType();
+    Class<T> getMessageType() {
+        return subscription.getMessageType();
     }
 
     Optional<H> getHint() {
@@ -75,15 +75,15 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
 
     @Override
     public boolean test(@Nullable final Object input) {
-        return subscription.getEventType().isInstance(input) && subscription.test(cast(input));
+        return subscription.getMessageType().isInstance(input) && subscription.test(cast(input));
     }
 
     @SuppressWarnings("unchecked")
-    private E cast(final Object input) {
-        return (E) input;
+    private T cast(final Object input) {
+        return (T) input;
     }
 
-    void deliver(final Deliverable<E> deliverable) {
+    void deliver(final Deliverable<T> deliverable) {
         lock.transactional(() -> {
             queue.add(deliverable);
 
@@ -129,15 +129,15 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
     }
 
     @Override
-    public T get() throws InterruptedException, ExecutionException {
+    public R get() throws InterruptedException, ExecutionException {
         checkTimeoutRequirement();
 
         try {
-            final List<E> results = new ArrayList<>();
+            final List<T> results = new ArrayList<>();
             int received = 0;
 
             while (!mode.isDone(received)) {
-                final Deliverable<E> deliverable = queue.take();
+                final Deliverable<T> deliverable = queue.take();
                 deliver(results, deliverable);
                 received++;
             }
@@ -153,15 +153,15 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
     }
 
     @Override
-    public T get(final long timeout, final TimeUnit timeoutUnit) throws InterruptedException, ExecutionException, TimeoutException {
+    public R get(final long timeout, final TimeUnit timeoutUnit) throws InterruptedException, ExecutionException, TimeoutException {
         try {
-            final List<E> results = new ArrayList<>();
+            final List<T> results = new ArrayList<>();
             int received = 0;
 
             final long deadline = System.nanoTime() + timeoutUnit.toNanos(timeout);
 
             while (!mode.isDone(received)) {
-                final Deliverable<E> deliverable = queue.poll(deadline - System.nanoTime(), NANOSECONDS);
+                final Deliverable<T> deliverable = queue.poll(deadline - System.nanoTime(), NANOSECONDS);
                 final boolean timedOut = deliverable == null;
 
                 if (timedOut) {
@@ -181,7 +181,7 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
         }
     }
 
-    private void deliver(final List<E> results, final Deliverable<E> deliverable) throws ExecutionException {
+    private void deliver(final List<T> results, final Deliverable<T> deliverable) throws ExecutionException {
         try {
             deliverable.deliverTo(results);
         } catch (final RuntimeException e) {
@@ -189,7 +189,7 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
         }
     }
 
-    private T verifyAndTransform(final List<E> results, final int received, final Function<Integer, String> message) {
+    private R verifyAndTransform(final List<T> results, final int received, final Function<Integer, String> message) {
         if (mode.isSuccess(received)) {
             return mode.collect(results);
         } else {
@@ -204,15 +204,15 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
     }
 
     private String message(final int received) {
-        return format("Expected %s %s event(s), but got %d", mode, getEventName(), received);
+        return format("Expected %s %s message(s), but got %d", mode, getMessageName(), received);
     }
 
     private String message(final int received, final long timeout, final TimeUnit timeoutUnit) {
-        return format("Expected %s %s event(s), but got %d in %d %s", mode, getEventName(), received, timeout, humanize(timeoutUnit));
+        return format("Expected %s %s message(s), but got %d in %d %s", mode, getMessageName(), received, timeout, humanize(timeoutUnit));
     }
 
-    private String getEventName() {
-        return subscription.getEventType().getSimpleName();
+    private String getMessageName() {
+        return subscription.getMessageType().getSimpleName();
     }
 
     private String humanize(final TimeUnit timeoutUnit) {
@@ -228,8 +228,8 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
     public boolean equals(@Nullable final Object that) {
         if (this == that) {
             return true;
-        } else if (that instanceof Delivery) {
-            final Delivery other = (Delivery) that;
+        } else if (that instanceof Answer) {
+            final Answer other = (Answer) that;
             return Objects.equals(subscription, other.subscription);
         } else {
             return false;

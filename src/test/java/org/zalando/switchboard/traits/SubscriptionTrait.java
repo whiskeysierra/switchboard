@@ -30,6 +30,6 @@ public interface SubscriptionTrait<S> {
         return e -> false;
     }
 
-    S eventA();
+    S messageA();
 
 }

@@ -26,19 +26,19 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public interface SubscriptionMode<S, T, X extends Exception> {
+public interface SubscriptionMode<T, R, X extends Exception> {
 
     default boolean requiresTimeout() {
         return false;
     }
 
-    T block(final Future<T> future, final long timeout, final TimeUnit timeoutUnit) throws X, ExecutionException, InterruptedException;
+    R block(final Future<R> future, final long timeout, final TimeUnit timeoutUnit) throws X, ExecutionException, InterruptedException;
 
     boolean isDone(int received);
 
     boolean isSuccess(int received);
 
-    T collect(List<S> results);
+    R collect(List<T> results);
 
     // TODO non blocking, at most until end of timeout
     static <S> SubscriptionMode<S, Void, RuntimeException> never() {

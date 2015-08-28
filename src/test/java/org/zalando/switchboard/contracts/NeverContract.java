@@ -21,7 +21,6 @@ package org.zalando.switchboard.contracts;
  */
 
 import org.junit.Test;
-import org.zalando.switchboard.DeliveryMode;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.ExpectedExceptionTrait;
@@ -47,11 +46,11 @@ public interface NeverContract<S> extends SubscriptionTrait<S>, DeliveryTrait, E
     @Test
     default void shouldFailIfExpectedNoneButReceivedOneWithTimeout() throws InterruptedException {
         exception().expect(IllegalStateException.class);
-        exception().expectMessage("Expected no Object event(s), but got 1 in 1 nanoseconds");
+        exception().expectMessage("Expected no Object message(s), but got 1 in 1 nanoseconds");
 
         final Switchboard unit = Switchboard.create();
 
-        unit.send(message("foo", DeliveryMode.DIRECT));
+        unit.send(message("foo", deliveryMode()));
 
         unit.receive("foo"::equals, never(), in(1, NANOSECONDS));
     }
@@ -59,11 +58,11 @@ public interface NeverContract<S> extends SubscriptionTrait<S>, DeliveryTrait, E
     @Test
     default void shouldFailIfExpectedNoneButReceivedOneWithoutTimeout() throws ExecutionException, InterruptedException {
         exception().expect(IllegalStateException.class);
-        exception().expectMessage(equalTo("Expected no Object event(s), but got 1"));
+        exception().expectMessage(equalTo("Expected no Object message(s), but got 1"));
 
         final Switchboard unit = Switchboard.create();
 
-        unit.send(message("foo", DeliveryMode.DIRECT));
+        unit.send(message("foo", deliveryMode()));
 
         unit.subscribe("foo"::equals, never()).get();
     }

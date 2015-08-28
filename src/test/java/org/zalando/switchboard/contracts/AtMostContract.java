@@ -60,7 +60,7 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait, 
     @Test
     default void shouldFailIfExpectedAtMostThreeButReceivedFourWithTimeout() throws InterruptedException {
         exception().expect(IllegalStateException.class);
-        exception().expectMessage("Expected at most 3 Object event(s), but got 4 in 1 nanoseconds");
+        exception().expectMessage("Expected at most 3 Object message(s), but got 4 in 1 nanoseconds");
 
         final Switchboard unit = Switchboard.create();
 
@@ -75,7 +75,7 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait, 
     @Test
     default void shouldFailIfExpectedAtMostThreeButReceivedFourWithout() throws ExecutionException, InterruptedException {
         exception().expect(IllegalStateException.class);
-        exception().expectMessage(equalTo("Expected at most 3 Object event(s), but got 4"));
+        exception().expectMessage(equalTo("Expected at most 3 Object message(s), but got 4"));
 
         final Switchboard unit = Switchboard.create();
 

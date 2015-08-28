@@ -22,7 +22,7 @@ package org.zalando.switchboard.contracts;
 
 import org.junit.Test;
 import org.zalando.switchboard.Switchboard;
-import org.zalando.switchboard.model.Event;
+import org.zalando.switchboard.model.Message;
 import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
@@ -38,17 +38,17 @@ import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 public interface InspectContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test(timeout = 250)
-    default void shouldAllowToInspectPendingEventHints() {
+    default void shouldAllowToInspectPendingHints() {
         final Switchboard unit = Switchboard.create();
 
         unit.subscribe(matchA(), exactlyOnce());
-        assertThat(unit.inspect(Event.class, String.class), is(singletonList("A")));
+        assertThat(unit.inspect(Message.class, String.class), is(singletonList("A")));
 
         unit.subscribe(matchA(), exactlyOnce());
-        assertThat(unit.inspect(Event.class, String.class), is(asList("A", "A")));
+        assertThat(unit.inspect(Message.class, String.class), is(asList("A", "A")));
 
         unit.subscribe(matchB(), exactlyOnce());
-        assertThat(unit.inspect(Event.class, String.class), containsInAnyOrder(asList("A", "A", "B").toArray()));
+        assertThat(unit.inspect(Message.class, String.class), containsInAnyOrder(asList("A", "A", "B").toArray()));
     }
 
     @Test

@@ -55,28 +55,28 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
     }
     
     @Test(timeout = 250)
-    default void shouldDeliverEventToSubscriptions() throws InterruptedException, ExecutionException {
+    default void shouldDeliverMessageToSubscriptions() throws InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
         final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
 
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
         final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
 
         final S first = firstResult.get();
         final S second = secondResult.get();
 
-        assertThat(first, is(eventA()));
-        assertThat(second, is(eventA()));
+        assertThat(first, is(messageA()));
+        assertThat(second, is(messageA()));
     }
 
     @Test(expected = TimeoutException.class, timeout = 250)
-    default void shouldTimeoutWhenThereAreNoMatchingEvents() throws TimeoutException, InterruptedException {
+    default void shouldTimeoutWhenThereAreNoMatchingMessages() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send(message(eventA(), deliveryMode()));
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
 
         unit.receive(matchB(), exactlyOnce(), in(1, NANOSECONDS));
     }
@@ -88,13 +88,13 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
         final int count = 5;
 
         for (int i = 0; i < count; i++) {
-            unit.send(message(eventA(), deliveryMode()));
+            unit.send(message(messageA(), deliveryMode()));
         }
 
-        final List<S> events = unit.receive(matchA(), times(count), in(1, NANOSECONDS));
+        final List<S> messages = unit.receive(matchA(), times(count), in(1, NANOSECONDS));
 
-        assertThat(events, hasSize(count));
-        assertThat(frequency(events, eventA()), is(count));
+        assertThat(messages, hasSize(count));
+        assertThat(frequency(messages, messageA()), is(count));
     }
 
     @Test(timeout = 250)
@@ -106,13 +106,13 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
         final Future<List<S>> future = unit.subscribe(matchA(), atLeast(count));
 
         for (int i = 0; i < count; i++) {
-            unit.send(message(eventA(), deliveryMode()));
+            unit.send(message(messageA(), deliveryMode()));
         }
 
-        final List<S> events = future.get();
+        final List<S> messages = future.get();
 
-        assertThat(events, hasSize(count));
-        assertThat(frequency(events, eventA()), is(count));
+        assertThat(messages, hasSize(count));
+        assertThat(frequency(messages, messageA()), is(count));
     }
 
     @Test(timeout = 250)
@@ -124,13 +124,13 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
         final Future<List<S>> future = unit.subscribe(matchA(), times(count));
 
         for (int i = 0; i < count; i++) {
-            unit.send(message(eventA(), deliveryMode()));
+            unit.send(message(messageA(), deliveryMode()));
         }
 
-        final List<S> events = future.get(1, NANOSECONDS);
+        final List<S> messages = future.get(1, NANOSECONDS);
 
-        assertThat(events, hasSize(count));
-        assertThat(frequency(events, eventA()), is(count));
+        assertThat(messages, hasSize(count));
+        assertThat(frequency(messages, messageA()), is(count));
     }
 
 }

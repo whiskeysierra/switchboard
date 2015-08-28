@@ -34,8 +34,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hobsoft.hamcrest.compose.ComposeMatchers.hasFeature;
 import static org.junit.Assert.assertThat;
 import static org.zalando.switchboard.Deliverable.message;
-import static org.zalando.switchboard.DeliveryMode.BROADCAST;
-import static org.zalando.switchboard.DeliveryMode.DIRECT;
+import static org.zalando.switchboard.DeliveryMode.broadcast;
+import static org.zalando.switchboard.DeliveryMode.directly;
 import static org.zalando.switchboard.Subscription.on;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
@@ -47,17 +47,17 @@ public final class SubscriptionTest {
 
     @Test
     public void shouldExtractTypeFromGenericTypeArgument() {
-        assertThat(new GenericallyTypedSubscription().getEventType(), is(equalTo(String.class)));
+        assertThat(new GenericallyTypedSubscription().getMessageType(), is(equalTo(String.class)));
     }
 
     @Test
     public void shouldExtractObjectFromRawTypeArgument() {
-        assertThat(new RawTypedSubscription().getEventType(), is(equalTo(Object.class)));
+        assertThat(new RawTypedSubscription().getMessageType(), is(equalTo(Object.class)));
     }
 
     @Test
     public void shouldSupportLambdas() throws TimeoutException, InterruptedException {
-        unit.send(message("foo", DIRECT));
+        unit.send(message("foo", directly()));
         final Subscription<String, ?> subscription = (String e) -> true;
         final String actual = unit.receive(subscription, exactlyOnce(), in(1, NANOSECONDS));
         assertThat(actual, is("foo"));
@@ -65,14 +65,14 @@ public final class SubscriptionTest {
 
     @Test
     public void shouldSupportMethodReference() throws TimeoutException, InterruptedException {
-        unit.send(message("foo", DIRECT));
+        unit.send(message("foo", directly()));
         final String actual = unit.receive(this::anyString, exactlyOnce(), in(1, NANOSECONDS));
         assertThat(actual, is("foo"));
     }
 
     @Test
     public void shouldSupportInstanceMethodReference() throws TimeoutException, InterruptedException {
-        unit.send(message("foo", DIRECT));
+        unit.send(message("foo", directly()));
         final String actual = unit.receive("foo"::equals, exactlyOnce(), in(1, NANOSECONDS));
         assertThat(actual, is("foo"));
     }
@@ -88,10 +88,10 @@ public final class SubscriptionTest {
     }
 
     @Test
-    public void shouldProvideEventType() {
+    public void shouldProvideMessageType() {
         final Subscription<String, Object> subscription = on(String.class, "foo"::equals);
 
-        assertThat(subscription, hasFeature("event type", Subscription::getEventType, equalTo(String.class)));
+        assertThat(subscription, hasFeature("message type", Subscription::getMessageType, equalTo(String.class)));
     }
 
     @Test
@@ -104,7 +104,7 @@ public final class SubscriptionTest {
     public void shouldDelegateToPredicate() throws TimeoutException, InterruptedException {
         final Subscription<String, Object> subscription = on(String.class, "foo"::equals);
 
-        unit.send(message("foo", BROADCAST));
+        unit.send(message("foo", broadcast()));
         final String s = unit.receive(subscription, atLeastOnce(), in(1, NANOSECONDS));
 
         assertThat(s, is("foo"));
@@ -112,7 +112,7 @@ public final class SubscriptionTest {
 
     @Test(expected = TimeoutException.class)
     public void shouldNotMatchDifferentType() throws TimeoutException, InterruptedException {
-        unit.send(message(123, BROADCAST));
+        unit.send(message(123, broadcast()));
         unit.receive(on(BigDecimal.class, Number.class::isInstance), atLeastOnce(), in(1, NANOSECONDS));
     }
 

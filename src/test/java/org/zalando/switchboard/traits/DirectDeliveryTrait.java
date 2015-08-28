@@ -26,7 +26,7 @@ public interface DirectDeliveryTrait extends DeliveryTrait {
 
     @Override
     default DeliveryMode deliveryMode() {
-        return DeliveryMode.DIRECT;
+        return DeliveryMode.directly();
     }
 
 }

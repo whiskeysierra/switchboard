@@ -40,7 +40,7 @@ public interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         final Switchboard unit = Switchboard.create();
 
         final Future<S> future = unit.subscribe(matchA(), atLeastOnce());
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
 
         assertThat(future.isDone(), is(true));
     }
@@ -50,7 +50,7 @@ public interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         final Switchboard unit = Switchboard.create();
 
         final Future<S> future = unit.subscribe(matchA(), atLeastOnce());
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
 
         assertThat(future.isCancelled(), is(false));
     }
@@ -88,7 +88,7 @@ public interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         final Switchboard unit = Switchboard.create();
 
         final Future<S> future = unit.subscribe(matchA(), atLeastOnce());
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
 
         assertThat(future.cancel(true), is(false));
     }

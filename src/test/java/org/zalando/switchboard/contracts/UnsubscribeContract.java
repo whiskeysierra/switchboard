@@ -21,7 +21,6 @@ package org.zalando.switchboard.contracts;
  */
 
 import org.junit.Test;
-import org.zalando.switchboard.DeliveryMode;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
@@ -47,7 +46,7 @@ public interface UnsubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTr
         // expected to unsubscribe itself in 1 ns
         unit.receive("foo"::equals, never(), in(1, NANOSECONDS));
 
-        unit.send(message("foo", DeliveryMode.DIRECT));
+        unit.send(message("foo", deliveryMode()));
         final String actual = unit.receive("foo"::equals, exactlyOnce(), in(1, NANOSECONDS));
         assertThat(actual, is("foo"));
     }
@@ -59,7 +58,7 @@ public interface UnsubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTr
         final Future<S> future = unit.subscribe(matchA(), exactlyOnce());
         future.cancel(false);
 
-        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
         future.get(1, NANOSECONDS);
     }
 

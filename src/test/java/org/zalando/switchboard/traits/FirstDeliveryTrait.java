@@ -26,7 +26,7 @@ public interface FirstDeliveryTrait extends DeliveryTrait {
 
     @Override
     default DeliveryMode deliveryMode() {
-        return DeliveryMode.FIRST;
+        return DeliveryMode.first();
     }
 
 }

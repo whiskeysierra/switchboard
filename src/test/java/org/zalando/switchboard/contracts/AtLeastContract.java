@@ -38,7 +38,7 @@ public interface AtLeastContract<S> extends SubscriptionTrait<S>, DeliveryTrait,
     @Test
     default void shouldFailIfExpectedAtLeastThreeButReceivedOnlyTwo() throws TimeoutException, InterruptedException {
         exception().expect(TimeoutException.class);
-        exception().expectMessage("Expected at least 3 Object event(s), but got 2 in 1 nanoseconds");
+        exception().expectMessage("Expected at least 3 Object message(s), but got 2 in 1 nanoseconds");
 
         final Switchboard unit = Switchboard.create();
 

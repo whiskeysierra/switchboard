@@ -38,7 +38,7 @@ public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
     @Test
     default void shouldFailIfExpectedAtLeastOneButReceivedNone() throws TimeoutException, InterruptedException {
         exception().expect(TimeoutException.class);
-        exception().expectMessage("Expected at least one Object event(s), but got 0 in 1 nanoseconds");
+        exception().expectMessage("Expected at least one Object message(s), but got 0 in 1 nanoseconds");
 
         final Switchboard unit = Switchboard.create();
 

@@ -31,7 +31,7 @@ import static org.zalando.switchboard.TypeResolver.resolve;
 @FunctionalInterface
 public interface Subscription<E, H> extends Predicate<E> {
 
-    default Class<E> getEventType() {
+    default Class<E> getMessageType() {
         return resolve(this, Subscription.class, 0);
     }
 
@@ -42,12 +42,12 @@ public interface Subscription<E, H> extends Predicate<E> {
         return Optional.empty();
     }
 
-    static <E, H> Subscription<E, H> on(final Class<E> eventType, final Predicate<E> predicate) {
-        return new SimpleSubscription<>(eventType, predicate, Optional.empty());
+    static <E, H> Subscription<E, H> on(final Class<E> messageType, final Predicate<E> predicate) {
+        return new SimpleSubscription<>(messageType, predicate, Optional.empty());
     }
 
-    static <E, H> Subscription<E, H> on(final Class<E> eventType, final Predicate<E> predicate, final H hint) {
-        return new SimpleSubscription<>(eventType, predicate, Optional.of(hint));
+    static <E, H> Subscription<E, H> on(final Class<E> messageType, final Predicate<E> predicate, final H hint) {
+        return new SimpleSubscription<>(messageType, predicate, Optional.of(hint));
     }
 
 }

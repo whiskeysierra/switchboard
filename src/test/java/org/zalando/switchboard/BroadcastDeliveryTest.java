@@ -38,9 +38,9 @@ import org.zalando.switchboard.contracts.TimeoutContract;
 import org.zalando.switchboard.contracts.TimesContract;
 import org.zalando.switchboard.contracts.UnsubscribeContract;
 import org.zalando.switchboard.framework.Java8JunitClassRunner;
-import org.zalando.switchboard.model.Event;
+import org.zalando.switchboard.model.Message;
 import org.zalando.switchboard.traits.BroadcastDeliveryTrait;
-import org.zalando.switchboard.traits.EventSubscriptionTrait;
+import org.zalando.switchboard.traits.MessageSubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -52,20 +52,20 @@ import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
 @RunWith(Java8JunitClassRunner.class)
-public final class BroadcastDeliveryTest implements BroadcastDeliveryTrait, EventSubscriptionTrait,
-        AtLeastContract<Event>,
-        AtLeastOnceContract<Event>,
-        AtMostContract<Event>,
-        ExactlyOnceContract<Event>,
-        FailContract<Event>,
-        FutureContract<Event>,
-        InspectContract<Event>,
-        NeverContract<Event>,
-        RecordContract<Event>,
-        SubscribeContract<Event>,
-        TimeoutContract<Event>,
-        TimesContract<Event>,
-        UnsubscribeContract<Event> {
+public final class BroadcastDeliveryTest implements BroadcastDeliveryTrait, MessageSubscriptionTrait,
+        AtLeastContract<Message>,
+        AtLeastOnceContract<Message>,
+        AtMostContract<Message>,
+        ExactlyOnceContract<Message>,
+        FailContract<Message>,
+        FutureContract<Message>,
+        InspectContract<Message>,
+        NeverContract<Message>,
+        RecordContract<Message>,
+        SubscribeContract<Message>,
+        TimeoutContract<Message>,
+        TimesContract<Message>,
+        UnsubscribeContract<Message> {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -78,17 +78,17 @@ public final class BroadcastDeliveryTest implements BroadcastDeliveryTrait, Even
     }
 
     @Test(timeout = 250)
-    public void shouldDeliverFirstEventToAllSubscriptions() throws ExecutionException, InterruptedException {
-        final Future<Event> firstResult = unit.subscribe(matchA(), atLeastOnce());
-        final Future<Event> secondResult = unit.subscribe(matchA(), atLeastOnce());
+    public void shouldDeliverFirstMessageToAllSubscriptions() throws ExecutionException, InterruptedException {
+        final Future<Message> firstResult = unit.subscribe(matchA(), atLeastOnce());
+        final Future<Message> secondResult = unit.subscribe(matchA(), atLeastOnce());
 
-        unit.send(message(eventA(), DeliveryMode.BROADCAST));
-        unit.send(message(eventA(), DeliveryMode.BROADCAST));
+        unit.send(message(messageA(), deliveryMode()));
+        unit.send(message(messageA(), deliveryMode()));
 
-        final Event first = firstResult.get();
-        final Event second = secondResult.get();
+        final Message first = firstResult.get();
+        final Message second = secondResult.get();
 
-        assertThat(first, is(eventA()));
+        assertThat(first, is(messageA()));
         assertThat(first, is(sameInstance(second)));
     }
 

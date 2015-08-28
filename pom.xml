@@ -14,8 +14,7 @@
 
     <name>Switchboard</name>
     <description>
-        An in-process, publish/subscribe-style event router that helps to write simple, asynchronous,
-        state-based and collaboration tests.
+        An in-process message router that helps to write simple, asynchronous, state-based and collaboration tests.
     </description>
     <url>https://github.com/zalando/switchboard</url>
 

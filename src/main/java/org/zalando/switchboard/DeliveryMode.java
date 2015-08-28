@@ -22,40 +22,21 @@ package org.zalando.switchboard;
 
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkState;
-
-// TODO should not be an enum, but would require to reveal Delivery (for the API)
-public enum DeliveryMode {
-
-    DIRECT {
-
-        @Override
-        <S, T> List<Delivery<S, T, ?>> distribute(final List<Delivery<S, T, ?>> deliveries) {
-            checkState(deliveries.size() == 1, "Too many subscriptions for event, expected one");
-            return deliveries;
-        }
-
-    },
-
-    FIRST {
-
-        @Override
-        <S, T> List<Delivery<S, T, ?>> distribute(final List<Delivery<S, T, ?>> deliveries) {
-            return deliveries.subList(0, 1);
-        }
-
-    },
-
-    BROADCAST {
-
-        @Override
-        <S, T> List<Delivery<S, T, ?>> distribute(final List<Delivery<S, T, ?>> deliveries) {
-            return deliveries;
-        }
-
-    };
+public interface DeliveryMode {
 
     // TODO is the order of given subscriptions defined?
-    abstract <S, T> List<Delivery<S, T, ?>> distribute(List<Delivery<S, T, ?>> deliveries);
+    <S, T> List<Answer<S, T, ?>> distribute(List<Answer<S, T, ?>> deliveries);
+
+    static DeliveryMode directly() {
+        return Direct.INSTANCE;
+    }
+
+    static DeliveryMode broadcast() {
+        return Broadcast.INSTANCE;
+    }
+
+    static DeliveryMode first() {
+        return First.INSTANCE;
+    }
 
 }

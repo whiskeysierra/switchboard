@@ -37,16 +37,16 @@ final class DefaultSwitchboard implements Switchboard {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultSwitchboard.class);
 
-    private final Queue<Deliverable> pending = new ConcurrentLinkedQueue<>();
-    private final Queue<Delivery> deliveries = new ConcurrentLinkedQueue<>();
+    private final Queue<Deliverable> recorded = new ConcurrentLinkedQueue<>();
+    private final Queue<Answer> answers = new ConcurrentLinkedQueue<>();
 
     private final LockSupport lock = new LockSupport();
 
     @Override
-    public <E, H> List<H> inspect(final Class<E> eventType, final Class<H> hintType) {
-        return copyOf(deliveries)
+    public <T, H> List<H> inspect(final Class<T> messageType, final Class<H> hintType) {
+        return copyOf(answers)
                 .stream()
-                .filter(delivery -> eventType.isAssignableFrom(delivery.getEventType()))
+                .filter(delivery -> messageType.isAssignableFrom(delivery.getMessageType()))
                 .map(delivery -> this.<H>cast(delivery.getHint()))
                 .map(hint -> hint.filter(hintType::isInstance).orElse(null))
                 .collect(toList());
@@ -57,24 +57,24 @@ final class DefaultSwitchboard implements Switchboard {
         return hint;
     }
 
-    private <S, T> List<Delivery<S, T, ?>> find(final Deliverable<S> deliverable) {
-        return deliveries.stream()
+    private <T, R> List<Answer<T, R, ?>> find(final Deliverable<T> deliverable) {
+        return answers.stream()
                 .filter(input -> input.test(deliverable.getMessage()))
-                .map(this::<S, T>cast)
+                .map(this::<T, R>cast)
                 .collect(toList());
     }
 
     @Override
-    public <E> void send(final Deliverable<E> deliverable) {
+    public <T> void send(final Deliverable<T> deliverable) {
         deliver(deliverable);
     }
 
-    private <S, T> void deliver(final Deliverable<S> deliverable) {
+    private <T, R> void deliver(final Deliverable<T> deliverable) {
         lock.transactional(() -> {
-            final List<Delivery<S, T, ?>> matches = find(deliverable);
+            final List<Answer<T, R, ?>> matches = find(deliverable);
 
             if (matches.isEmpty()) {
-                pending.add(deliverable);
+                recorded.add(deliverable);
             } else {
                 final DeliveryMode deliveryMode = deliverable.getDeliveryMode();
                 deliverTo(deliveryMode.distribute(matches), deliverable);
@@ -83,28 +83,28 @@ final class DefaultSwitchboard implements Switchboard {
     }
 
     @SuppressWarnings("unchecked")
-    private <S, T> Delivery<S, T, ?> cast(final Delivery delivery) {
-        return delivery;
+    private <T, R> Answer<T, R, ?> cast(final Answer answer) {
+        return answer;
     }
 
-    private <S, T> void deliverTo(final List<Delivery<S, T, ?>> list, final Deliverable<S> deliverable) {
-        for (final Delivery<S, T, ?> delivery : list) {
-            delivery.deliver(deliverable);
-            LOG.info("Successfully matched event [{}] to [{}]", deliverable.getMessage(), delivery);
+    private <T, R> void deliverTo(final List<Answer<T, R, ?>> list, final Deliverable<T> deliverable) {
+        for (final Answer<T, R, ?> answer : list) {
+            answer.deliver(deliverable);
+            LOG.info("Successfully matched message [{}] to [{}]", deliverable.getMessage(), answer);
         }
     }
 
-    <E, S> void unregister(final Delivery<E, S, ?> delivery) {
-        if (deliveries.remove(delivery)) {
-            LOG.trace("Unregistered [{}].", delivery);
+    <T, R> void unregister(final Answer<T, R, ?> answer) {
+        if (answers.remove(answer)) {
+            LOG.trace("Unregistered [{}].", answer);
         }
     }
 
     @Override
-    public <S, T, X extends Exception> T receive(final Subscription<S, ?> subscription, final SubscriptionMode<S, T, X> mode, final Timeout timeout)
+    public <T, R, X extends Exception> R receive(final Subscription<T, ?> subscription, final SubscriptionMode<T, R, X> mode, final Timeout timeout)
             throws X, InterruptedException {
         try {
-            final Delivery<S, T, ?> future = subscribe(subscription, mode);
+            final Answer<T, R, ?> future = subscribe(subscription, mode);
             return mode.block(future, timeout.getValue(), timeout.getUnit());
         } catch (final ExecutionException e) {
             throw (RuntimeException) e.getCause();
@@ -112,47 +112,47 @@ final class DefaultSwitchboard implements Switchboard {
     }
 
     @Override
-    public <S, T, X extends Exception> Delivery<S, T, ?> subscribe(final Subscription<S, ?> subscription, final SubscriptionMode<S, T, X> mode) {
-        final Delivery<S, T, ?> delivery = new Delivery<>(subscription, mode, this::unregister);
+    public <T, R, X extends Exception> Answer<T, R, ?> subscribe(final Subscription<T, ?> subscription, final SubscriptionMode<T, R, X> mode) {
+        final Answer<T, R, ?> answer = new Answer<>(subscription, mode, this::unregister);
 
-        registerForFutureEvents(delivery);
-        tryDeliverUnhandledEvents(delivery);
+        registerForFutureMessages(answer);
+        tryDeliverRecordedMessages(answer);
 
-        return delivery;
+        return answer;
     }
 
-    private <S, T> void registerForFutureEvents(final Delivery<S, T, ?> subscription) {
+    private <T, R> void registerForFutureMessages(final Answer<T, R, ?> answer) {
         lock.transactional(() -> {
-            checkState(!deliveries.contains(subscription), "[%s] is already registered", subscription);
-            deliveries.add(subscription);
-            LOG.trace("Registered [{}]", subscription);
+            checkState(!answers.contains(answer), "[%s] is already registered", answer);
+            answers.add(answer);
+            LOG.trace("Registered [{}]", answer);
         });
     }
 
-    private <S, T> void tryDeliverUnhandledEvents(final Delivery<S, T, ?> delivery) {
-        while (!delivery.isDone()) {
-            final Optional<Deliverable<S>> match = findAndRemove(delivery);
+    private <T, R> void tryDeliverRecordedMessages(final Answer<T, R, ?> answer) {
+        while (!answer.isDone()) {
+            final Optional<Deliverable<T>> match = findAndRemove(answer);
 
             if (match.isPresent()) {
-                final Deliverable<S> deliverable = match.get();
+                final Deliverable<T> deliverable = match.get();
                 send(deliverable);
-                final S event = deliverable.getMessage();
-                LOG.info("Successfully matched previously unhandled event [{}] to [{}]", event, delivery);
+                final T message = deliverable.getMessage();
+                LOG.info("Successfully matched previously unhandled message [{}] to [{}]", message, answer);
             } else {
                 break;
             }
         }
     }
 
-    private <S, T> Optional<Deliverable<S>> findAndRemove(final Delivery<S, T, ?> delivery) {
+    private <T, R> Optional<Deliverable<T>> findAndRemove(final Answer<T, R, ?> answer) {
         return lock.transactional(() -> {
-            final Optional<Deliverable<S>> first = pending.stream()
-                    .filter(event -> delivery.test(event.getMessage()))
-                    .map(this::<S>cast)
+            final Optional<Deliverable<T>> first = recorded.stream()
+                    .filter(deliverable -> answer.test(deliverable.getMessage()))
+                    .map(this::<T>cast)
                     .findFirst();
 
             if (first.isPresent()) {
-                pending.remove(first.get());
+                recorded.remove(first.get());
             }
 
             return first;
@@ -160,8 +160,8 @@ final class DefaultSwitchboard implements Switchboard {
     }
 
     @SuppressWarnings("unchecked")
-    private <E> Deliverable<E> cast(final Deliverable event) {
-        return event;
+    private <T> Deliverable<T> cast(final Deliverable deliverable) {
+        return deliverable;
     }
 
 }

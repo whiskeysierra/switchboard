@@ -1,4 +1,4 @@
-package org.zalando.switchboard.traits;
+package org.zalando.switchboard;
 
 /*
  * ⁣​
@@ -20,13 +20,24 @@ package org.zalando.switchboard.traits;
  * ​⁣
  */
 
-import org.zalando.switchboard.DeliveryMode;
+import java.util.List;
 
-public interface BroadcastDeliveryTrait extends DeliveryTrait {
+final class Broadcast implements DeliveryMode {
+
+    public static final DeliveryMode INSTANCE = new Broadcast();
+
+    private Broadcast() {
+        // singleton
+    }
 
     @Override
-    default DeliveryMode deliveryMode() {
-        return DeliveryMode.broadcast();
+    public <S, T> List<Answer<S, T, ?>> distribute(final List<Answer<S, T, ?>> deliveries) {
+        return deliveries;
+    }
+
+    @Override
+    public String toString() {
+        return "broadcast()";
     }
 
 }
