@@ -50,7 +50,6 @@ In our case those parties are threads and they *talk* to each other by passing m
 
 ## Usage
 
-
 Receiving vs. Sending messages
 
 ### Receiving messages
@@ -99,14 +98,14 @@ private static class UserSubscription implements Subscription<User, String> {
 
 #### Modes
 
-| Mode            | Description | Type         | Termination | Success  |
-|-----------------|-------------|--------------|-------------|----------|
-| `atLeast(n)`    |             | non-blocking | `m >= n`    | `m >= n` |
-| `atLeastOnce`   |             | non-blocking | `m >= 1`    | `m >= 1` |
-| `atMost(n)`     |             | non-blocking | `m > n`     | `m <= n` |
-| `exactlyOnce()` |             | blocking     | `m > 1`     | `m == 1` |
-| `never()`       |             | non-blocking | `m > 0`     | `m == 0` |
-| `times(n)`      |             | blocking     | `m > n`     | `m == n` |
+| Mode            | Type         | Termination | Success  |
+|-----------------|--------------|-------------|----------|
+| `atLeast(n)`    | non-blocking | `m >= n`    | `m >= n` |
+| `atLeastOnce`   | non-blocking | `m >= 1`    | `m >= 1` |
+| `atMost(n)`     | non-blocking | `m > n`     | `m <= n` |
+| `exactlyOnce()` | blocking     | `m > 1`     | `m == 1` |
+| `never()`       | non-blocking | `m > 0`     | `m == 0` |
+| `times(n)`      | blocking     | `m > n`     | `m == n` |
 
 ### Sending messages
 
