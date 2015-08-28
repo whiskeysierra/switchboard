@@ -99,14 +99,14 @@ private static class UserSubscription implements Subscription<User, String> {
 
 #### Modes
 
- | Mode            | Type         | Termination | Success  |
- |-----------------|--------------|-------------|----------|
- | `never()`       | non-blocking | `m > 0`     | `m == 0` |
- | `atMost(n)`     | non-blocking | `m > n`     | `m <= n` |
- | `exactlyOnce()` | blocking     | `m > 1`     | `m == 1` |
- | `times(n)`      | blocking     | `m > n`     | `m == n` |
- | `atLeastOnce()` | non-blocking | `m >= 1`    | `m >= 1` |
- | `atLeast(n)`    | non-blocking | `m >= n`    | `m >= n` |
+| Mode            | Description | Type         | Termination | Success  |
+|-----------------|-------------|--------------|-------------|----------|
+| `atLeast(n)`    |             | non-blocking | `m >= n`    | `m >= n` |
+| `atLeastOnce`   |             | non-blocking | `m >= 1`    | `m >= 1` |
+| `atMost(n)`     |             | non-blocking | `m > n`     | `m <= n` |
+| `exactlyOnce()` |             | blocking     | `m > 1`     | `m == 1` |
+| `never()`       |             | non-blocking | `m > 0`     | `m == 0` |
+| `times(n)`      |             | blocking     | `m > n`     | `m == n` |
 
 ### Sending messages
 
