@@ -26,7 +26,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-// TODO deny combination without timeouts
 final class AtLeast<S> implements SubscriptionMode<S, List<S>, TimeoutException> {
 
     private final int count;

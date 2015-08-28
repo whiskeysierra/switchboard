@@ -29,10 +29,6 @@ import java.util.concurrent.Future;
  */
 public interface Switchboard {
 
-    static Switchboard create() {
-        return new DefaultSwitchboard();
-    }
-
     <S, T, X extends Exception> T receive(final Subscription<S, ?> subscription, final SubscriptionMode<S, T, X> mode, final Timeout timeout)
             throws X, InterruptedException;
 
@@ -40,8 +36,10 @@ public interface Switchboard {
 
     <E, H> List<H> inspect(Class<E> eventType, Class<H> hintType);
 
-    <E> void send(E event, DeliveryMode deliveryMode);
+    <E> void send(final Deliverable<E> deliverable);
 
-    <E> void fail(E event, DeliveryMode deliveryMode, RuntimeException exception);
+    static Switchboard create() {
+        return new DefaultSwitchboard();
+    }
 
 }

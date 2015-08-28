@@ -31,6 +31,7 @@ import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.zalando.switchboard.Deliverable.failure;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.Timeout.in;
@@ -47,7 +48,7 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait, Ex
 
         final Switchboard unit = Switchboard.create();
 
-        unit.fail("foo", deliveryMode(), new SpecialException());
+        unit.send(failure("foo", deliveryMode(), new SpecialException()));
         unit.receive("foo"::equals, exactlyOnce(), in(1, NANOSECONDS));
     }
 
@@ -58,7 +59,7 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait, Ex
 
         final Switchboard unit = Switchboard.create();
 
-        unit.fail("foo", deliveryMode(), new SpecialException());
+        unit.send(failure("foo", deliveryMode(), new SpecialException()));
         unit.subscribe("foo"::equals, atLeastOnce()).get(1, NANOSECONDS);
     }
 
@@ -69,7 +70,7 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait, Ex
 
         final Switchboard unit = Switchboard.create();
 
-        unit.fail("foo", deliveryMode(), new SpecialException());
+        unit.send(failure("foo", deliveryMode(), new SpecialException()));
         unit.subscribe("foo"::equals, atLeastOnce()).get();
     }
 

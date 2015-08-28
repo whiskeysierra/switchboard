@@ -33,6 +33,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hobsoft.hamcrest.compose.ComposeMatchers.hasFeature;
 import static org.junit.Assert.assertThat;
+import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.DeliveryMode.BROADCAST;
 import static org.zalando.switchboard.DeliveryMode.DIRECT;
 import static org.zalando.switchboard.Subscription.on;
@@ -56,7 +57,7 @@ public final class SubscriptionTest {
 
     @Test
     public void shouldSupportLambdas() throws TimeoutException, InterruptedException {
-        unit.send("foo", DIRECT);
+        unit.send(message("foo", DIRECT));
         final Subscription<String, ?> subscription = (String e) -> true;
         final String actual = unit.receive(subscription, exactlyOnce(), in(1, NANOSECONDS));
         assertThat(actual, is("foo"));
@@ -64,14 +65,14 @@ public final class SubscriptionTest {
 
     @Test
     public void shouldSupportMethodReference() throws TimeoutException, InterruptedException {
-        unit.send("foo", DIRECT);
+        unit.send(message("foo", DIRECT));
         final String actual = unit.receive(this::anyString, exactlyOnce(), in(1, NANOSECONDS));
         assertThat(actual, is("foo"));
     }
 
     @Test
     public void shouldSupportInstanceMethodReference() throws TimeoutException, InterruptedException {
-        unit.send("foo", DIRECT);
+        unit.send(message("foo", DIRECT));
         final String actual = unit.receive("foo"::equals, exactlyOnce(), in(1, NANOSECONDS));
         assertThat(actual, is("foo"));
     }
@@ -103,7 +104,7 @@ public final class SubscriptionTest {
     public void shouldDelegateToPredicate() throws TimeoutException, InterruptedException {
         final Subscription<String, Object> subscription = on(String.class, "foo"::equals);
 
-        unit.send("foo", BROADCAST);
+        unit.send(message("foo", BROADCAST));
         final String s = unit.receive(subscription, atLeastOnce(), in(1, NANOSECONDS));
 
         assertThat(s, is("foo"));
@@ -111,7 +112,7 @@ public final class SubscriptionTest {
 
     @Test(expected = TimeoutException.class)
     public void shouldNotMatchDifferentType() throws TimeoutException, InterruptedException {
-        unit.send(123, BROADCAST);
+        unit.send(message(123, BROADCAST));
         unit.receive(on(BigDecimal.class, Number.class::isInstance), atLeastOnce(), in(1, NANOSECONDS));
     }
 

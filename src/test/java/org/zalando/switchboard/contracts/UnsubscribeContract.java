@@ -33,6 +33,7 @@ import java.util.concurrent.TimeoutException;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.SubscriptionMode.never;
 import static org.zalando.switchboard.Timeout.in;
@@ -46,7 +47,7 @@ public interface UnsubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTr
         // expected to unsubscribe itself in 1 ns
         unit.receive("foo"::equals, never(), in(1, NANOSECONDS));
 
-        unit.send("foo", DeliveryMode.DIRECT);
+        unit.send(message("foo", DeliveryMode.DIRECT));
         final String actual = unit.receive("foo"::equals, exactlyOnce(), in(1, NANOSECONDS));
         assertThat(actual, is("foo"));
     }
@@ -58,7 +59,7 @@ public interface UnsubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTr
         final Future<S> future = unit.subscribe(matchA(), exactlyOnce());
         future.cancel(false);
 
-        unit.send(eventA(), deliveryMode());
+        unit.send(message(eventA(), deliveryMode()));
         future.get(1, NANOSECONDS);
     }
 

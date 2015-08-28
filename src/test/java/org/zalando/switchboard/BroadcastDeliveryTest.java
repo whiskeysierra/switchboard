@@ -48,6 +48,7 @@ import java.util.concurrent.Future;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
 @RunWith(Java8JunitClassRunner.class)
@@ -81,8 +82,8 @@ public final class BroadcastDeliveryTest implements BroadcastDeliveryTrait, Even
         final Future<Event> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final Future<Event> secondResult = unit.subscribe(matchA(), atLeastOnce());
 
-        unit.send(eventA(), DeliveryMode.BROADCAST);
-        unit.send(eventA(), DeliveryMode.BROADCAST);
+        unit.send(message(eventA(), DeliveryMode.BROADCAST));
+        unit.send(message(eventA(), DeliveryMode.BROADCAST));
 
         final Event first = firstResult.get();
         final Event second = secondResult.get();

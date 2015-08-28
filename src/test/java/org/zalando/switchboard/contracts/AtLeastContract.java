@@ -29,6 +29,7 @@ import org.zalando.switchboard.traits.SubscriptionTrait;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeast;
 import static org.zalando.switchboard.Timeout.in;
 
@@ -41,8 +42,8 @@ public interface AtLeastContract<S> extends SubscriptionTrait<S>, DeliveryTrait,
 
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
 
         unit.receive("foo"::equals, atLeast(3), in(1, NANOSECONDS));
     }
@@ -51,9 +52,9 @@ public interface AtLeastContract<S> extends SubscriptionTrait<S>, DeliveryTrait,
     default void shouldNotFailIfExpectedAtLeastThreeAndReceivedExactlyThree() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
 
         unit.receive("foo"::equals, atLeast(3), in(1, NANOSECONDS));
     }
@@ -62,10 +63,10 @@ public interface AtLeastContract<S> extends SubscriptionTrait<S>, DeliveryTrait,
     default void shouldNotFailIfExpectedAtLeastThreeAndReceivedFour() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
 
         unit.receive("foo"::equals, atLeast(3), in(1, NANOSECONDS));
     }

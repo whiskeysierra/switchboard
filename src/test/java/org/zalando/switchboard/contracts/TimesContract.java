@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.times;
 import static org.zalando.switchboard.Timeout.in;
 
@@ -52,8 +53,8 @@ public interface TimesContract<S> extends SubscriptionTrait<S>, DeliveryTrait, E
 
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
 
         unit.receive("foo"::equals, times(3), in(1, NANOSECONDS));
     }
@@ -62,9 +63,9 @@ public interface TimesContract<S> extends SubscriptionTrait<S>, DeliveryTrait, E
     default void shouldNotFailIfExpectedThreeAndReceivedExactlyThree() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
 
         unit.receive("foo"::equals, times(3), in(1, NANOSECONDS));
     }
@@ -76,10 +77,10 @@ public interface TimesContract<S> extends SubscriptionTrait<S>, DeliveryTrait, E
 
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
 
         unit.receive("foo"::equals, times(3), in(1, NANOSECONDS));
     }

@@ -30,6 +30,7 @@ import java.util.concurrent.Future;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
 public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
@@ -38,8 +39,8 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     default void shouldDeliverRecordedEventsToSubscriptions() throws ExecutionException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send(eventA(), deliveryMode());
-        unit.send(eventA(), deliveryMode());
+        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(eventA(), deliveryMode()));
 
         final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final S first = firstResult.get();
@@ -54,9 +55,9 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     @Test(timeout = 250)
     default void shouldDeliverRecordedEventsToConcurrentSubscriptions() throws InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
-        
-        unit.send(eventA(), deliveryMode());
-        unit.send(eventA(), deliveryMode());
+
+        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(eventA(), deliveryMode()));
 
         final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
@@ -71,13 +72,13 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     @Test(timeout = 250)
     default void shouldDeliverRecordedEventsToSubscriptionsOneAtATime() throws InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
-        
-        unit.send(eventA(), deliveryMode());
+
+        unit.send(message(eventA(), deliveryMode()));
 
         final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final S first = firstResult.get();
 
-        unit.send(eventA(), deliveryMode());
+        unit.send(message(eventA(), deliveryMode()));
 
         final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
         final S second = secondResult.get();
@@ -89,15 +90,15 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     @Test(timeout = 250)
     default void shouldDeliverPartlyRecordedEventsToSubscriptionsOneAtATime() throws InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
-        
-        unit.send(eventA(), deliveryMode());
+
+        unit.send(message(eventA(), deliveryMode()));
 
         final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final S first = firstResult.get();
 
         final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
 
-        unit.send(eventA(), deliveryMode());
+        unit.send(message(eventA(), deliveryMode()));
 
         final S second = secondResult.get();
 
@@ -108,13 +109,13 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     @Test(timeout = 250)
     default void shouldDeliverPartlyRecordedEventsToConcurrentSubscriptions() throws InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
-        
-        unit.send(eventA(), deliveryMode());
+
+        unit.send(message(eventA(), deliveryMode()));
 
         final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
 
-        unit.send(eventA(), deliveryMode());
+        unit.send(message(eventA(), deliveryMode()));
 
         final S first = firstResult.get();
         final S second = secondResult.get();

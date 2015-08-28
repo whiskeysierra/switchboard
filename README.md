@@ -7,7 +7,7 @@
 [![Release](https://img.shields.io/github/release/zalando/switchboard.svg)](https://github.com/zalando/switchboard/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/org.zalando/switchboard.svg)](https://maven-badges.herokuapp.com/maven-central/org.zalando/switchboard)
 
-An in-process, publish/subscribe-style event router that helps to write simple, asynchronous, state-based and collaboration tests. 
+An in-process event router that helps to write simple, asynchronous, state-based and collaboration tests. 
     
 ## Dependency
 
@@ -26,34 +26,55 @@ In any non-trivial application you'll most probably seen a process like this.
 
 ![Synchronous Interaction](http://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgU3luY2hyb25vdXMgSW50ZXJhY3Rpb24KCkNsaWVudC0-U2VydmVyOiBSZXF1ZXN0CgAKBi0-RGF0YWJhc2UAEAoACggAKAxzcG9uc2UALAkATwYADgs&s=napkin)
  
-Since the call to the database is synchronous we can be sure it happened before the client got the response. Testing this case is therefore relatively straightforward:
+Since the call to the database is synchronous we can be sure it happened before the client got the response. Testing this case is therefore relatively 
+straightforward:
 
 ```java
 Response response = server.save(bob);
 assertThat(database.getUser("bob"), is(not(nullValue())));
 ```
 
-It all get's more difficult when you start to do time-consuming tasks in an asynchronous fashion:
+It all gets more difficult when you start to do time-consuming tasks in an asynchronous fashion:
  
 ![Asynchronous Interaction](http://www.websequencediagrams.com/cgi-bin/cdraw?lz=dGl0bGUgQXN5bmNocm9ub3VzIEludGVyYWN0aW9uCgpDbGllbnQtPlNlcnZlcjogUmVxdWVzdAoACgYtPkRhdGFiYXNlAAgSADQGOiBSZXNwb25zZQoAIwgAQQwAFAc&s=napkin)
  
 The test case from above may no longer work, since we may get the response back from the server before the database finished its part.
 
-The idea of *Switchboard* is to encapsulate the necessary polling/retry mechanism behind a small API that allows to write synchronous-style assertions for asynchronous events.
+The idea of *Switchboard* is to encapsulate the necessary event-based communication behind a small API that allows to write synchronous-style assertions for 
+asynchronous events.
+
+The term *switchboard* refers to old-style telephone switchboards, i.e. big communication devices handled by a switchboard operator that allow to connect
+multiple parties via telephone lines, usually one caller and one receiver.
+ 
+In our case those parties are threads and they *talk* to each other by passing messages.
+
+## Usage
+
+
+Receiving vs. Sending messages
+
+### Receiving messages
+
+#### Subscriptions
+
+There are two way to subscribe to messages: blocking and non-blocking.
+
+##### Blocking
 
 ```java
 Switchboard board = Switchboard.create();
-User user = board.receive(user("bob"), 10, SECONDS);
+User user = board.receive(user("bob"), atLeastOnce(), in(10, SECONDS));
 ```
 
-The `receive` operation requires a `Subscription` and a timeout. It either returns the requested event or fails with a `TimeoutException`. A subscription is nothing more than a predicate with some additional metadata:
+The `receive` operation requires a `Subscription`, a `mode` and a timeout. It either returns the requested event or fails with a `TimeoutException`. 
+A subscription is nothing more than a predicate with some additional metadata:
 
 ```java
 private UserSubscription user(String name) {
     return new UserSubscription(name);
 }
 
-private static class UserSubscription extends TypedSubscription<User, String> {
+private static class UserSubscription implements Subscription<User, String> {
 
     private final String name;
 
@@ -74,7 +95,29 @@ private static class UserSubscription extends TypedSubscription<User, String> {
 }
 ```
 
-Until now we only implemented half of the process. We registered on the switchboard with a subscription but since nobody is providing any actual events our test will never succeed. This is the task of a worker:
+##### Non-blocking
+
+#### Modes
+
+ | Mode            | Type         | Termination | Success  |
+ |-----------------|--------------|-------------|----------|
+ | `never()`       | non-blocking | `m > 0`     | `m == 0` |
+ | `atMost(n)`     | non-blocking | `m > n`     | `m <= n` |
+ | `exactlyOnce()` | blocking     | `m > 1`     | `m == 1` |
+ | `times(n)`      | blocking     | `m > n`     | `m == n` |
+ | `atLeastOnce()` | non-blocking | `m >= 1`    | `m >= 1` |
+ | `atLeast(n)`    | non-blocking | `m >= n`    | `m >= n` |
+
+### Sending messages
+
+#### Modes
+
+ - DIRECT
+ - BROADCAST
+ - FIRST
+
+Until now we only implemented half of the process. We registered on the switchboard with a subscription but since nobody is providing any actual events our 
+test will never succeed. This is the task of a sender:
 
 ```java
 class UserWorker implements Runnable {
@@ -101,9 +144,24 @@ class UserWorker implements Runnable {
 
 The worker requires the `switchboard` instance which is usually shared via some kind of dependency injection context, e.g. Spring. It also requires some scheduling, e.g. Quartz or just a single-threaded [`ScheduledExecutorService`](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executors.html#newSingleThreadScheduledExecutor\(\)).
 
+#### Hints
+
 The worker's task then is to inspect the switchboard to find all subscriptions for `User`s and fetch their hints, i.e. their names. The worker may then use some optimized way to fetch multiple users at once and sends the results back to the switchboard. 
 
 Workers can utilize subscription hints to reduce the number of calls to retrieve the events. This may be useful in some circumstances. Feel free to ignore hints and bulk fetch and send events into the switchboard.
+
+### Recording messages
+
+Switchboard has an answering machine builtin. That means any message that arrives without anyone receiving it right away will be recorded and delivered as
+soon as at least one receiver starts listening:
+
+```java
+switchboard.send("foo", DIRECT);
+
+String s = switchboard.receive("foo"::equals, atLeastOnce(), in(10, SECONDS));
+```
+
+The receiver will get the message immediately upon subscription.
 
 ## Attributions
 

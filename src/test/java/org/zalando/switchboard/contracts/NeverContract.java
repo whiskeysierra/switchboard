@@ -31,6 +31,7 @@ import java.util.concurrent.ExecutionException;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.equalTo;
+import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.never;
 import static org.zalando.switchboard.Timeout.in;
 
@@ -50,7 +51,7 @@ public interface NeverContract<S> extends SubscriptionTrait<S>, DeliveryTrait, E
 
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", DeliveryMode.DIRECT);
+        unit.send(message("foo", DeliveryMode.DIRECT));
 
         unit.receive("foo"::equals, never(), in(1, NANOSECONDS));
     }
@@ -62,7 +63,7 @@ public interface NeverContract<S> extends SubscriptionTrait<S>, DeliveryTrait, E
 
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", DeliveryMode.DIRECT);
+        unit.send(message("foo", DeliveryMode.DIRECT));
 
         unit.subscribe("foo"::equals, never()).get();
     }

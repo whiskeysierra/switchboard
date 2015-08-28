@@ -22,34 +22,31 @@ package org.zalando.switchboard;
 
 import java.util.Collection;
 
-final class QueuedEvent<T> implements Deliverable<T> {
+final class Failure<T> implements Deliverable<T> {
 
-    private final T event;
+    private final T message;
     private final DeliveryMode deliveryMode;
+    private final RuntimeException exception;
 
-    QueuedEvent(final T event, final DeliveryMode deliveryMode) {
-        this.event = event;
+    Failure(final T message, final DeliveryMode deliveryMode, final RuntimeException exception) {
+        this.message = message;
         this.deliveryMode = deliveryMode;
-    }
-
-    @Override
-    public void redeliver(final Switchboard board) {
-        board.send(event, deliveryMode);
+        this.exception = exception;
     }
 
     @Override
     public void deliverTo(final Collection<? super T> target) {
-        target.add(event);
+        throw exception;
     }
 
     @Override
-    public T getEvent() {
-        return event;
+    public T getMessage() {
+        return message;
     }
 
     @Override
     public DeliveryMode getDeliveryMode() {
         return deliveryMode;
     }
-    
+
 }

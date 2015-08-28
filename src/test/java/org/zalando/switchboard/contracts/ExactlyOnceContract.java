@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.Timeout.in;
 
@@ -59,7 +60,7 @@ public interface ExactlyOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
     default void shouldNotFailIfExpectedOneAndReceivedExactlyOne() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", deliveryMode());
+        unit.send(message("foo", deliveryMode()));
 
         unit.receive("foo"::equals, exactlyOnce(), in(1, NANOSECONDS));
     }
@@ -71,8 +72,8 @@ public interface ExactlyOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
 
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
 
         unit.receive("foo"::equals, exactlyOnce(), in(1, NANOSECONDS));
     }

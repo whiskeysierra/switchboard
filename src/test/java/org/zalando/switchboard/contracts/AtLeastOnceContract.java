@@ -29,6 +29,7 @@ import org.zalando.switchboard.traits.SubscriptionTrait;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.Timeout.in;
 
@@ -48,7 +49,7 @@ public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
     default void shouldNotFailIfExpectedAtLeastOneAndReceivedExactlyOne() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", deliveryMode());
+        unit.send(message("foo", deliveryMode()));
 
         unit.receive("foo"::equals, atLeastOnce(), in(1, NANOSECONDS));
     }
@@ -57,8 +58,8 @@ public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
     default void shouldNotFailIfExpectedAtLeastOneAndReceivedTwo() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
 
         unit.receive("foo"::equals, atLeastOnce(), in(1, NANOSECONDS));
     }

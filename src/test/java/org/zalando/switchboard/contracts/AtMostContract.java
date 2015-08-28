@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.equalTo;
+import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atMost;
 import static org.zalando.switchboard.Timeout.in;
 
@@ -39,8 +40,8 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait, 
     default void shouldNotFailIfExpectedAtMostThreeButReceivedOnlyTwo() throws InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
 
         unit.receive("foo"::equals, atMost(3), in(10, NANOSECONDS));
     }
@@ -49,9 +50,9 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait, 
     default void shouldNotFailIfExpectedAtMostThreeAndReceivedExactlyThree() throws InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
 
         unit.receive("foo"::equals, atMost(3), in(1, NANOSECONDS));
     }
@@ -63,10 +64,10 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait, 
 
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
 
         unit.receive("foo"::equals, atMost(3), in(1, NANOSECONDS));
     }
@@ -78,10 +79,10 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait, 
 
         final Switchboard unit = Switchboard.create();
 
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
-        unit.send("foo", deliveryMode());
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
+        unit.send(message("foo", deliveryMode()));
 
         unit.subscribe("foo"::equals, atMost(3)).get();
     }

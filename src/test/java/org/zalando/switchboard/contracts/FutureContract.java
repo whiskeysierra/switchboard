@@ -29,6 +29,7 @@ import java.util.concurrent.Future;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 
@@ -39,7 +40,7 @@ public interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         final Switchboard unit = Switchboard.create();
 
         final Future<S> future = unit.subscribe(matchA(), atLeastOnce());
-        unit.send(eventA(), deliveryMode());
+        unit.send(message(eventA(), deliveryMode()));
 
         assertThat(future.isDone(), is(true));
     }
@@ -49,7 +50,7 @@ public interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         final Switchboard unit = Switchboard.create();
 
         final Future<S> future = unit.subscribe(matchA(), atLeastOnce());
-        unit.send(eventA(), deliveryMode());
+        unit.send(message(eventA(), deliveryMode()));
 
         assertThat(future.isCancelled(), is(false));
     }
@@ -87,7 +88,7 @@ public interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         final Switchboard unit = Switchboard.create();
 
         final Future<S> future = unit.subscribe(matchA(), atLeastOnce());
-        unit.send(eventA(), deliveryMode());
+        unit.send(message(eventA(), deliveryMode()));
 
         assertThat(future.cancel(true), is(false));
     }

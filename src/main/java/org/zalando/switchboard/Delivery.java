@@ -35,8 +35,10 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
@@ -110,6 +112,7 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
             case DONE:
                 return false;
 
+            // CANCELLED is the only state that is left, but with a default case we wouldn't get the line covered
             default:
                 return true;
         }
@@ -127,69 +130,76 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
 
     @Override
     public T get() throws InterruptedException, ExecutionException {
-        if (mode.requiresTimeout()) {
-            throw new IllegalArgumentException("Mode " + mode.getClass().getSimpleName() + " requires a timeout");
-        }
+        checkTimeoutRequirement();
 
         try {
             final List<E> results = new ArrayList<>();
+            int received = 0;
 
-            int drained = 0;
-
-            while (!mode.isDone(drained)) {
+            while (!mode.isDone(received)) {
                 final Deliverable<E> deliverable = queue.take();
-
-                try {
-                    deliverable.deliverTo(results);
-                } catch (final RuntimeException e) {
-                    throw new ExecutionException(e);
-                }
-
-                drained++;
+                deliver(results, deliverable);
+                received++;
             }
 
-            if (mode.isSuccess(drained)) {
-                return mode.collect(results);
-            } else {
-                throw new IllegalStateException(message(drained));
-            }
+            return verifyAndTransform(results, received, this::message);
         } finally {
             unregister();
         }
+    }
+
+    private void checkTimeoutRequirement() {
+        checkArgument(!mode.requiresTimeout(), "Mode %s requires a timeout", mode.getClass().getSimpleName());
     }
 
     @Override
     public T get(final long timeout, final TimeUnit timeoutUnit) throws InterruptedException, ExecutionException, TimeoutException {
         try {
             final List<E> results = new ArrayList<>();
+            int received = 0;
 
             final long deadline = System.nanoTime() + timeoutUnit.toNanos(timeout);
-            int drained = 0;
 
-            while (!mode.isDone(drained)) {
+            while (!mode.isDone(received)) {
                 final Deliverable<E> deliverable = queue.poll(deadline - System.nanoTime(), NANOSECONDS);
+                final boolean timedOut = deliverable == null;
 
-                if (deliverable == null) {
-                    onTimeout(drained, timeout, timeoutUnit);
+                if (timedOut) {
+                    verifyTimeout(received, timeout, timeoutUnit);
                     break;
                 }
 
-                try {
-                    deliverable.deliverTo(results);
-                } catch (final RuntimeException e) {
-                    throw new ExecutionException(e);
-                }
+                deliver(results, deliverable);
 
-                drained++;
+                received++;
             }
 
-            if (mode.isSuccess(drained)) {
-                return mode.collect(results);
-            } else {
-                throw new IllegalStateException(message(drained, timeout, timeoutUnit));
-            }
+            return verifyAndTransform(results, received, count ->
+                    message(count, timeout, timeoutUnit));
         } finally {
             unregister();
+        }
+    }
+
+    private void deliver(final List<E> results, final Deliverable<E> deliverable) throws ExecutionException {
+        try {
+            deliverable.deliverTo(results);
+        } catch (final RuntimeException e) {
+            throw new ExecutionException(e);
+        }
+    }
+
+    private T verifyAndTransform(final List<E> results, final int received, final Function<Integer, String> message) {
+        if (mode.isSuccess(received)) {
+            return mode.collect(results);
+        } else {
+            throw new IllegalStateException(message.apply(received));
+        }
+    }
+
+    private void verifyTimeout(final int received, final long timeout, final TimeUnit timeoutUnit) throws TimeoutException {
+        if (!mode.isSuccess(received)) {
+            throw new TimeoutException(message(received, timeout, timeoutUnit));
         }
     }
 
@@ -199,12 +209,6 @@ final class Delivery<E, T, H> implements Future<T>, Predicate<Object> {
 
     private String message(final int received, final long timeout, final TimeUnit timeoutUnit) {
         return format("Expected %s %s event(s), but got %d in %d %s", mode, getEventName(), received, timeout, humanize(timeoutUnit));
-    }
-
-    private void onTimeout(final int drained, final long timeout, final TimeUnit timeoutUnit) throws TimeoutException {
-        if (!mode.isSuccess(drained)) {
-            throw new TimeoutException(message(drained, timeout, timeoutUnit));
-        }
     }
 
     private String getEventName() {

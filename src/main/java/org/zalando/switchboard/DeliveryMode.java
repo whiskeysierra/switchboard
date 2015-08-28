@@ -24,13 +24,14 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkState;
 
+// TODO should not be an enum, but would require to reveal Delivery (for the API)
 public enum DeliveryMode {
 
     DIRECT {
 
         @Override
         <S, T> List<Delivery<S, T, ?>> distribute(final List<Delivery<S, T, ?>> deliveries) {
-            checkState(deliveries.size() == 1, "Too many subcriptions for event, expected one");
+            checkState(deliveries.size() == 1, "Too many subscriptions for event, expected one");
             return deliveries;
         }
 

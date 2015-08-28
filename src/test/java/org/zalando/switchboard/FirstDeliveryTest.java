@@ -47,6 +47,7 @@ import java.util.concurrent.Future;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
 @RunWith(Java8JunitClassRunner.class)
@@ -80,8 +81,8 @@ public final class FirstDeliveryTest implements FirstDeliveryTrait, EventSubscri
         final Future<Event> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final Future<Event> secondResult = unit.subscribe(matchA(), atLeastOnce());
 
-        unit.send(eventA(), DeliveryMode.FIRST);
-        unit.send(eventA(), DeliveryMode.FIRST);
+        unit.send(message(eventA(), DeliveryMode.FIRST));
+        unit.send(message(eventA(), DeliveryMode.FIRST));
 
         final Event first = firstResult.get();
         final Event second = secondResult.get();

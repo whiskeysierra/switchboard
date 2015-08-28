@@ -42,6 +42,7 @@ import org.zalando.switchboard.model.Event;
 import org.zalando.switchboard.traits.DirectDeliveryTrait;
 import org.zalando.switchboard.traits.EventSubscriptionTrait;
 
+import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 
 @RunWith(Java8JunitClassRunner.class)
@@ -75,8 +76,8 @@ public final class DirectDeliveryTest implements DirectDeliveryTrait, EventSubsc
         unit.subscribe(matchA(), exactlyOnce());
         unit.subscribe(matchA(), exactlyOnce());
 
-        unit.send(eventA(), DeliveryMode.DIRECT);
-        unit.send(eventA(), DeliveryMode.DIRECT);
+        unit.send(message(eventA(), DeliveryMode.DIRECT));
+        unit.send(message(eventA(), DeliveryMode.DIRECT));
     }
 
 }

@@ -36,6 +36,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeast;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
@@ -57,10 +58,10 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
     default void shouldDeliverEventToSubscriptions() throws InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send(eventA(), deliveryMode());
+        unit.send(message(eventA(), deliveryMode()));
         final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
 
-        unit.send(eventA(), deliveryMode());
+        unit.send(message(eventA(), deliveryMode()));
         final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
 
         final S first = firstResult.get();
@@ -74,8 +75,8 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
     default void shouldTimeoutWhenThereAreNoMatchingEvents() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send(eventA(), deliveryMode());
-        unit.send(eventA(), deliveryMode());
+        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(eventA(), deliveryMode()));
 
         unit.receive(matchB(), exactlyOnce(), in(1, NANOSECONDS));
     }
@@ -87,7 +88,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
         final int count = 5;
 
         for (int i = 0; i < count; i++) {
-            unit.send(eventA(), deliveryMode());
+            unit.send(message(eventA(), deliveryMode()));
         }
 
         final List<S> events = unit.receive(matchA(), times(count), in(1, NANOSECONDS));
@@ -105,7 +106,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
         final Future<List<S>> future = unit.subscribe(matchA(), atLeast(count));
 
         for (int i = 0; i < count; i++) {
-            unit.send(eventA(), deliveryMode());
+            unit.send(message(eventA(), deliveryMode()));
         }
 
         final List<S> events = future.get();
@@ -123,7 +124,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
         final Future<List<S>> future = unit.subscribe(matchA(), times(count));
 
         for (int i = 0; i < count; i++) {
-            unit.send(eventA(), deliveryMode());
+            unit.send(message(eventA(), deliveryMode()));
         }
 
         final List<S> events = future.get(1, NANOSECONDS);

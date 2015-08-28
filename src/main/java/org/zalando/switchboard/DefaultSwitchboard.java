@@ -59,19 +59,14 @@ final class DefaultSwitchboard implements Switchboard {
 
     private <S, T> List<Delivery<S, T, ?>> find(final Deliverable<S> deliverable) {
         return deliveries.stream()
-                .filter(input -> input.test(deliverable.getEvent()))
+                .filter(input -> input.test(deliverable.getMessage()))
                 .map(this::<S, T>cast)
                 .collect(toList());
     }
 
     @Override
-    public <E> void send(final E event, final DeliveryMode deliveryMode) {
-        deliver(new QueuedEvent<>(event, deliveryMode));
-    }
-
-    @Override
-    public <E> void fail(final E event, final DeliveryMode deliveryMode, final RuntimeException exception) {
-        deliver(new QueuedError<>(event, deliveryMode, exception));
+    public <E> void send(final Deliverable<E> deliverable) {
+        deliver(deliverable);
     }
 
     private <S, T> void deliver(final Deliverable<S> deliverable) {
@@ -95,7 +90,7 @@ final class DefaultSwitchboard implements Switchboard {
     private <S, T> void deliverTo(final List<Delivery<S, T, ?>> list, final Deliverable<S> deliverable) {
         for (final Delivery<S, T, ?> delivery : list) {
             delivery.deliver(deliverable);
-            LOG.info("Successfully matched event [{}] to [{}]", deliverable.getEvent(), delivery);
+            LOG.info("Successfully matched event [{}] to [{}]", deliverable.getMessage(), delivery);
         }
     }
 
@@ -140,8 +135,8 @@ final class DefaultSwitchboard implements Switchboard {
 
             if (match.isPresent()) {
                 final Deliverable<S> deliverable = match.get();
-                deliverable.redeliver(this);
-                final S event = deliverable.getEvent();
+                send(deliverable);
+                final S event = deliverable.getMessage();
                 LOG.info("Successfully matched previously unhandled event [{}] to [{}]", event, delivery);
             } else {
                 break;
@@ -152,7 +147,7 @@ final class DefaultSwitchboard implements Switchboard {
     private <S, T> Optional<Deliverable<S>> findAndRemove(final Delivery<S, T, ?> delivery) {
         return lock.transactional(() -> {
             final Optional<Deliverable<S>> first = pending.stream()
-                    .filter(event -> delivery.test(event.getEvent()))
+                    .filter(event -> delivery.test(event.getMessage()))
                     .map(this::<S>cast)
                     .findFirst();
 

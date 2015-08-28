@@ -31,6 +31,7 @@ import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.containsString;
+import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.times;
 import static org.zalando.switchboard.Timeout.in;
 
@@ -40,8 +41,8 @@ public interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait,
     default void shouldTellThatThirdEventDidNotOccur() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send(eventA(), deliveryMode());
-        unit.send(eventA(), deliveryMode());
+        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(eventA(), deliveryMode()));
 
         exception().expect(TimeoutException.class);
         exception().expectMessage(containsString("Expected exactly 3 Event event(s), but got 2 in 1 nanoseconds"));
@@ -53,8 +54,8 @@ public interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait,
     default void shouldTellThatThirdEventDidNotOccurWhenPollingAsync() throws TimeoutException, ExecutionException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        unit.send(eventA(), deliveryMode());
-        unit.send(eventA(), deliveryMode());
+        unit.send(message(eventA(), deliveryMode()));
+        unit.send(message(eventA(), deliveryMode()));
 
         exception().expect(TimeoutException.class);
         exception().expectMessage(containsString("Expected exactly 3 Event event(s), but got 2 in 1 nanoseconds"));
