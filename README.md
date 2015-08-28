@@ -50,7 +50,7 @@ In our case those parties are threads and they *talk* to each other by passing m
 
 ## Usage
 
-Any communication via *Switchboard* consists of two parts: [Receiving](#receiving-message) and [sending messages](#sending-messages).
+Any communication via *Switchboard* consists of two parts: [Receiving](#receiving-messages) and [sending messages](#sending-messages).
 
 ### Receiving messages
 
