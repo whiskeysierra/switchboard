@@ -58,29 +58,28 @@ You receive messages by [subscribing](#subscriptions) to it. Subscriptions can b
 
 #### Subscriptions
 
-A subscription is bascially a predicate that tests filters based on your requirements.
+A subscription is bascially a predicate that filters based on your requirements:
 
-```
-user -> "Bob".equals(user.getName());
-```
-There are two way to subscribe to messages: blocking and non-blocking.
-
-#### Blocking
+Subscriptions can be lambda expression:
 
 ```java
-Switchboard board = Switchboard.create();
-User user = board.receive(user("bob"), atLeastOnce(), in(10, SECONDS));
+user -> "Bob".equals(user.getName());
 ```
 
-The `receive` operation requires a `Subscription`, a `mode` and a timeout. It either returns the requested event or fails with a `TimeoutException`. 
-A subscription is nothing more than a predicate with some additional metadata:
+or method references
+
+```java
+User.BOB::equals
+```
+
+or of course concrete implementations:
 
 ```java
 private UserSubscription user(String name) {
     return new UserSubscription(name);
 }
 
-private static class UserSubscription implements Subscription<User, String> {
+private static class UserSubscription implements Subscription<User, Object> {
 
     private final String name;
 
@@ -92,14 +91,21 @@ private static class UserSubscription implements Subscription<User, String> {
     public boolean apply(User user) {
         return user.getName().equals(name);
     }
-
-    @Override
-    public String getHint() {
-        return name;
-    }
     
 }
 ```
+
+#### Blocking
+
+Receiving messages in a blocking way is usually the easiest in terms of readability:
+
+```java
+Switchboard board = Switchboard.create();
+User user = board.receive(user("bob"), atLeastOnce(), in(10, SECONDS));
+```
+
+If a user called *Bob* is received within 10 seconds it will be returned otherwise a `TimeoutException` is thrown.
+Additionally, since `receive` is a blocking operation, it is allowed to throw `InterruptedException`.
 
 #### Non-blocking
 
