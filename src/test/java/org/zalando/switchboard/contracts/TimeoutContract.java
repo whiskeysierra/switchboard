@@ -22,6 +22,7 @@ package org.zalando.switchboard.contracts;
 
 import org.junit.Test;
 import org.zalando.switchboard.Switchboard;
+import org.zalando.switchboard.TestTimeout;
 import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.ExpectedExceptionTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
@@ -37,7 +38,7 @@ import static org.zalando.switchboard.Timeout.in;
 
 public interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
 
-    @Test(timeout = 250)
+    @Test(timeout = TestTimeout.DEFAULT)
     default void shouldTellThatThirdMessageDidNotOccur() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
@@ -50,7 +51,7 @@ public interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait,
         unit.receive(matchA(), times(3), in(1, NANOSECONDS));
     }
 
-    @Test(timeout = 250)
+    @Test(timeout = TestTimeout.DEFAULT)
     default void shouldTellThatThirdMessageDidNotOccurWhenPollingAsync() throws TimeoutException, ExecutionException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 

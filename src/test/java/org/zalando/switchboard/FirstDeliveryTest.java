@@ -52,8 +52,8 @@ import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
 @RunWith(Java8JunitClassRunner.class)
 public final class FirstDeliveryTest implements FirstDeliveryTrait, MessageSubscriptionTrait,
-        AtLeastOnceContract<Message>,
         AtLeastContract<Message>,
+        AtLeastOnceContract<Message>,
         AtMostContract<Message>,
         ExactlyOnceContract<Message>,
         FailContract<Message>,
@@ -76,7 +76,7 @@ public final class FirstDeliveryTest implements FirstDeliveryTrait, MessageSubsc
         return exception;
     }
 
-    @Test(timeout = 250)
+    @Test(timeout = TestTimeout.DEFAULT)
     public void shouldDeliverMessagesToFirstSubscriptions() throws ExecutionException, InterruptedException {
         final Future<Message> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final Future<Message> secondResult = unit.subscribe(matchA(), atLeastOnce());

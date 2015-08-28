@@ -22,6 +22,7 @@ package org.zalando.switchboard.contracts;
 
 import org.junit.Test;
 import org.zalando.switchboard.Switchboard;
+import org.zalando.switchboard.TestTimeout;
 import org.zalando.switchboard.model.Message;
 import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
@@ -37,7 +38,7 @@ import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 
 public interface InspectContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
-    @Test(timeout = 250)
+    @Test(timeout = TestTimeout.DEFAULT)
     default void shouldAllowToInspectPendingHints() {
         final Switchboard unit = Switchboard.create();
 

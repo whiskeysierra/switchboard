@@ -71,7 +71,7 @@ public final class DirectDeliveryTest implements DirectDeliveryTrait, MessageSub
         return exception;
     }
 
-    @Test(expected = IllegalStateException.class, timeout = 250)
+    @Test(expected = IllegalStateException.class, timeout = TestTimeout.DEFAULT)
     public void shouldThrowWhenDeliveringMessagesToSubscriptions() {
         unit.subscribe(matchA(), exactlyOnce());
         unit.subscribe(matchA(), exactlyOnce());

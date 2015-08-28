@@ -23,6 +23,7 @@ package org.zalando.switchboard.contracts;
 import org.junit.Test;
 import org.zalando.switchboard.Subscription;
 import org.zalando.switchboard.Switchboard;
+import org.zalando.switchboard.TestTimeout;
 import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
@@ -54,7 +55,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
         unit.subscribe(subscription, exactlyOnce());
     }
     
-    @Test(timeout = 250)
+    @Test(timeout = TestTimeout.DEFAULT)
     default void shouldDeliverMessageToSubscriptions() throws InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
@@ -71,7 +72,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
         assertThat(second, is(messageA()));
     }
 
-    @Test(expected = TimeoutException.class, timeout = 250)
+    @Test(expected = TimeoutException.class, timeout = TestTimeout.DEFAULT)
     default void shouldTimeoutWhenThereAreNoMatchingMessages() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
@@ -81,7 +82,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
         unit.receive(matchB(), exactlyOnce(), in(1, NANOSECONDS));
     }
 
-    @Test(timeout = 250)
+    @Test(timeout = TestTimeout.DEFAULT)
     default void shouldPollMultipleTimesWhenCountGiven() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
         
@@ -97,7 +98,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
         assertThat(frequency(messages, messageA()), is(count));
     }
 
-    @Test(timeout = 250)
+    @Test(timeout = TestTimeout.DEFAULT)
     default void shouldPollAsyncMultipleTimesWhenCountGiven() throws ExecutionException, InterruptedException {
         final Switchboard unit = Switchboard.create();
         
@@ -115,7 +116,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
         assertThat(frequency(messages, messageA()), is(count));
     }
 
-    @Test(timeout = 250)
+    @Test(timeout = TestTimeout.DEFAULT)
     default void shouldPollAsyncWithTimeoutMultipleTimesWhenCountGiven() throws ExecutionException, InterruptedException, TimeoutException {
         final Switchboard unit = Switchboard.create();
         

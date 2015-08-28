@@ -22,6 +22,7 @@ package org.zalando.switchboard.contracts;
 
 import org.junit.Test;
 import org.zalando.switchboard.Switchboard;
+import org.zalando.switchboard.TestTimeout;
 import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
@@ -52,7 +53,7 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         assertThat(second, is(messageA()));
     }
 
-    @Test(timeout = 250)
+    @Test(timeout = TestTimeout.DEFAULT)
     default void shouldDeliverRecordedMessagesToConcurrentSubscriptions() throws InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
@@ -69,7 +70,7 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         assertThat(second, is(messageA()));
     }
 
-    @Test(timeout = 250)
+    @Test(timeout = TestTimeout.DEFAULT)
     default void shouldDeliverRecordedMessagesToSubscriptionsOneAtATime() throws InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
@@ -87,7 +88,7 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         assertThat(second, is(messageA()));
     }
 
-    @Test(timeout = 250)
+    @Test(timeout = TestTimeout.DEFAULT)
     default void shouldDeliverPartlyRecordedMessagesToSubscriptionsOneAtATime() throws InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
@@ -106,7 +107,7 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         assertThat(second, is(messageA()));
     }
 
-    @Test(timeout = 250)
+    @Test(timeout = TestTimeout.DEFAULT)
     default void shouldDeliverPartlyRecordedMessagesToConcurrentSubscriptions() throws InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 

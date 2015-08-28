@@ -77,7 +77,7 @@ public final class BroadcastDeliveryTest implements BroadcastDeliveryTrait, Mess
         return exception;
     }
 
-    @Test(timeout = 250)
+    @Test(timeout = TestTimeout.DEFAULT)
     public void shouldDeliverFirstMessageToAllSubscriptions() throws ExecutionException, InterruptedException {
         final Future<Message> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final Future<Message> secondResult = unit.subscribe(matchA(), atLeastOnce());
