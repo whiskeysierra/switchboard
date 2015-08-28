@@ -50,15 +50,22 @@ In our case those parties are threads and they *talk* to each other by passing m
 
 ## Usage
 
-Receiving vs. Sending messages
+Any communication via *Switchboard* consists of two parts: [Receiving](#receiving-message) and [sending messages](#sending-messages(.
 
 ### Receiving messages
 
+You receive messages by [subscribing](#subscriptions) to it. Subscriptions can be done either in a [blocking](#blocking) or [non-blocking](#non-blocking) fashion. Additionaly one can specify a [*mode*](#modes) to indicate how much messages are going to be consumed.
+
 #### Subscriptions
 
+A subscription is bascially a predicate that tests filters based on your requirements.
+
+```
+user -> "Bob".equals(user.getName());
+```
 There are two way to subscribe to messages: blocking and non-blocking.
 
-##### Blocking
+#### Blocking
 
 ```java
 Switchboard board = Switchboard.create();
@@ -94,7 +101,7 @@ private static class UserSubscription implements Subscription<User, String> {
 }
 ```
 
-##### Non-blocking
+#### Non-blocking
 
 #### Modes
 
