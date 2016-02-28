@@ -20,6 +20,7 @@ package org.zalando.switchboard.contracts;
  * ​⁣
  */
 
+import org.junit.Assert;
 import org.junit.gen5.api.Test;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.DeliveryTrait;
@@ -44,19 +45,55 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     }
 
+    final class SpecialCheckedException extends Exception {
+
+    }
+
+    final class SpecialThrowable extends Throwable {
+
+    }
+
     @Test
-    default void shouldThrowException() throws TimeoutException, InterruptedException {
+    default void shouldThrowWrappedException() {
         final Switchboard unit = Switchboard.create();
 
         unit.send(failure("foo", deliveryMode(), new SpecialException()));
 
-        expectThrows(SpecialException.class, () -> {
+        final ExecutionException executionException = expectThrows(ExecutionException.class, () -> {
             unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS));
         });
+
+        Assert.assertThat(executionException.getCause(), instanceOf(SpecialException.class));
     }
 
     @Test
-    default void shouldThrowExceptionWithTimeout() throws ExecutionException, InterruptedException, TimeoutException {
+    default void shouldThrowWrappedCheckedException() {
+        final Switchboard unit = Switchboard.create();
+
+        unit.send(failure("foo", deliveryMode(), new SpecialCheckedException()));
+
+        final ExecutionException executionException = expectThrows(ExecutionException.class, () -> {
+            unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS));
+        });
+
+        Assert.assertThat(executionException.getCause(), instanceOf(SpecialCheckedException.class));
+    }
+
+    @Test
+    default void shouldThrowWrappedThrowable() {
+        final Switchboard unit = Switchboard.create();
+
+        unit.send(failure("foo", deliveryMode(), new SpecialThrowable()));
+
+        final ExecutionException executionException = expectThrows(ExecutionException.class, () -> {
+            unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS));
+        });
+
+        Assert.assertThat(executionException.getCause(), instanceOf(SpecialThrowable.class));
+    }
+
+    @Test
+    default void shouldThrowExceptionWithTimeout() {
         final Switchboard unit = Switchboard.create();
 
         unit.send(failure("foo", deliveryMode(), new SpecialException()));
@@ -69,7 +106,7 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     }
 
     @Test
-    default void shouldThrowExceptionWithoutTimeout() throws ExecutionException, InterruptedException {
+    default void shouldThrowExceptionWithoutTimeout() {
         final Switchboard unit = Switchboard.create();
 
         unit.send(failure("foo", deliveryMode(), new SpecialException()));

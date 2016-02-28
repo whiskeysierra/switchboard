@@ -26,11 +26,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-final class Never<S> implements SubscriptionMode<S, Void, RuntimeException> {
+final class Never<S> implements SubscriptionMode<S, Void> {
 
     @Override
     public Void block(final Future<Void> future, final long timeout, final TimeUnit timeoutUnit)
-            throws RuntimeException, InterruptedException, ExecutionException {
+            throws InterruptedException, ExecutionException {
         try {
             return future.get(timeout, timeoutUnit);
         } catch (final TimeoutException ignored) {

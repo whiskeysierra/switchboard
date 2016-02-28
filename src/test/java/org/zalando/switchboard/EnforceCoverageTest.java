@@ -50,16 +50,6 @@ public final class EnforceCoverageTest {
     }
 
     @Test
-    public void shouldVisitDeadCatchClauseInAtMost() throws ExecutionException, TimeoutException, InterruptedException {
-        @SuppressWarnings("unchecked")
-        final Future<List<String>> future = mock(Future.class);
-        when(future.get(anyLong(), any())).thenThrow(new TimeoutException());
-
-        final AtMost<String> mode = new AtMost<>(1);
-        mode.block(future, 1, TimeUnit.NANOSECONDS);
-    }
-
-    @Test
     public void shouldVisitDeadCatchClauseInNever() throws ExecutionException, TimeoutException, InterruptedException {
         @SuppressWarnings("unchecked")
         final Future<Void> future = mock(Future.class);

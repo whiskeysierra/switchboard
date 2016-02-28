@@ -26,7 +26,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class Times<S> implements SubscriptionMode<S, List<S>, TimeoutException> {
+public class Times<S> implements SubscriptionMode<S, List<S>> {
 
     private final int count;
 

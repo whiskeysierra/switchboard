@@ -50,7 +50,7 @@ public interface TimesContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     }
 
     @Test
-    default void shouldFailIfExpectedThreeButReceivedOnlyTwo() throws TimeoutException, InterruptedException {
+    default void shouldFailIfExpectedThreeButReceivedOnlyTwo() {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
@@ -64,7 +64,7 @@ public interface TimesContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     }
 
     @Test
-    default void shouldNotFailIfExpectedThreeAndReceivedExactlyThree() throws TimeoutException, InterruptedException {
+    default void shouldNotFailIfExpectedThreeAndReceivedExactlyThree() throws TimeoutException, InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
@@ -75,7 +75,7 @@ public interface TimesContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     }
 
     @Test
-    default void shouldFailIfExpectedThreeButReceivedFour() throws TimeoutException, InterruptedException {
+    default void shouldFailIfExpectedThreeButReceivedFour() {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));

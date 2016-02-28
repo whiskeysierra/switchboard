@@ -26,7 +26,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-final class AtMost<S> implements SubscriptionMode<S, List<S>, RuntimeException> {
+final class AtMost<S> implements SubscriptionMode<S, List<S>> {
 
     private final int count;
 
@@ -36,12 +36,8 @@ final class AtMost<S> implements SubscriptionMode<S, List<S>, RuntimeException> 
 
     @Override
     public List<S> block(final Future<List<S>> future, final long timeout, final TimeUnit timeoutUnit)
-            throws RuntimeException, InterruptedException, ExecutionException {
-        try {
-            return future.get(timeout, timeoutUnit);
-        } catch (final TimeoutException ignored) {
-            return null;
-        }
+            throws ExecutionException, InterruptedException, TimeoutException {
+        return future.get(timeout, timeoutUnit);
     }
 
     @Override

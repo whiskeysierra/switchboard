@@ -26,13 +26,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public interface SubscriptionMode<T, R, X extends Exception> {
+public interface SubscriptionMode<T, R> {
 
     default boolean requiresTimeout() {
         return false;
     }
 
-    R block(final Future<R> future, final long timeout, final TimeUnit timeoutUnit) throws X, ExecutionException, InterruptedException;
+    R block(final Future<R> future, final long timeout, final TimeUnit timeoutUnit) throws ExecutionException, TimeoutException, InterruptedException;
 
     boolean isDone(int received);
 
@@ -41,32 +41,32 @@ public interface SubscriptionMode<T, R, X extends Exception> {
     R collect(List<T> results);
 
     // TODO non blocking, at most until end of timeout
-    static <S> SubscriptionMode<S, Void, RuntimeException> never() {
+    static <S> SubscriptionMode<S, Void> never() {
         return new Never<>();
     }
 
     // TODO non blocking, at most until end of timeout
-    static <S> SubscriptionMode<S, List<S>, RuntimeException> atMost(final int count) {
+    static <S> SubscriptionMode<S, List<S>> atMost(final int count) {
         return new AtMost<>(count);
     }
 
     // TODO exactly, blocking
-    static <S> SubscriptionMode<S, S, TimeoutException> exactlyOnce() {
+    static <S> SubscriptionMode<S, S> exactlyOnce() {
         return new ExactlyOnce<>();
     }
 
     // TODO exactly, blocking
-    static <S> SubscriptionMode<S, List<S>, TimeoutException> times(final int count) {
+    static <S> SubscriptionMode<S, List<S>> times(final int count) {
         return new Times<>(count);
     }
 
     // TODO non blocking, at most until end of timeout
-    static <S> SubscriptionMode<S, S, TimeoutException> atLeastOnce() {
+    static <S> SubscriptionMode<S, S> atLeastOnce() {
         return new AtLeastOnce<>();
     }
 
     // TODO non blocking, at most until end of timeout
-    static <S> SubscriptionMode<S, List<S>, TimeoutException> atLeast(final int count) {
+    static <S> SubscriptionMode<S, List<S>> atLeast(final int count) {
         return new AtLeast<>(count);
     }
 

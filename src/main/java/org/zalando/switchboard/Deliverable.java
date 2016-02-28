@@ -21,6 +21,7 @@ package org.zalando.switchboard;
  */
 
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 
 public interface Deliverable<T> {
 
@@ -30,7 +31,7 @@ public interface Deliverable<T> {
      * @param target target collection, potentially being passed to the receiver
      * @throws RuntimeException if delivery should fail
      */
-    void deliverTo(Collection<? super T> target) throws RuntimeException;
+    void deliverTo(Collection<? super T> target) throws ExecutionException;
 
     T getMessage();
 
@@ -40,8 +41,8 @@ public interface Deliverable<T> {
         return new Message<>(message, mode);
     }
 
-    static <T> Deliverable<T> failure(final T message, final DeliveryMode mode, final RuntimeException exception) {
-        return new Failure<>(message, mode, exception);
+    static <T> Deliverable<T> failure(final T message, final DeliveryMode mode, final Throwable throwable) {
+        return new Failure<>(message, mode, throwable);
     }
 
 }

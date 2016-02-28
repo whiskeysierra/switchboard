@@ -26,7 +26,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-final class AtLeastOnce<S> implements SubscriptionMode<S, S, TimeoutException> {
+final class AtLeastOnce<S> implements SubscriptionMode<S, S> {
 
     @Override
     public S block(final Future<S> future, final long timeout, final TimeUnit timeoutUnit) throws InterruptedException, ExecutionException, TimeoutException {

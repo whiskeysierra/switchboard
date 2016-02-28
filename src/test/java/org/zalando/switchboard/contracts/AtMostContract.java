@@ -26,6 +26,7 @@ import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import static java.time.temporal.ChronoUnit.NANOS;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,7 +39,7 @@ import static org.zalando.switchboard.Timeout.within;
 public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
-    default void shouldNotFailIfExpectedAtMostThreeButReceivedOnlyTwo() throws InterruptedException {
+    default void shouldNotFailIfExpectedAtMostThreeButReceivedOnlyTwo() throws InterruptedException, TimeoutException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
@@ -48,7 +49,7 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     }
 
     @Test
-    default void shouldNotFailIfExpectedAtMostThreeAndReceivedExactlyThree() throws InterruptedException {
+    default void shouldNotFailIfExpectedAtMostThreeAndReceivedExactlyThree() throws InterruptedException, TimeoutException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
@@ -59,7 +60,7 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     }
 
     @Test
-    default void shouldFailIfExpectedAtMostThreeButReceivedFourWithTimeout() throws InterruptedException {
+    default void shouldFailIfExpectedAtMostThreeButReceivedFourWithTimeout() {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
@@ -75,7 +76,7 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     }
 
     @Test
-    default void shouldFailIfExpectedAtMostThreeButReceivedFourWithout() throws ExecutionException, InterruptedException {
+    default void shouldFailIfExpectedAtMostThreeButReceivedFourWithout() {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));

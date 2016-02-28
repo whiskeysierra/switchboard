@@ -26,6 +26,7 @@ import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import static java.time.temporal.ChronoUnit.NANOS;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,14 +39,14 @@ import static org.zalando.switchboard.Timeout.within;
 public interface NeverContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
-    default void shouldNotFailIfExpectedNoneAndReceivedNone() throws InterruptedException {
+    default void shouldNotFailIfExpectedNoneAndReceivedNone() throws InterruptedException, TimeoutException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
         unit.receive("foo"::equals, never(), within(1, NANOS));
     }
 
     @Test
-    default void shouldFailIfExpectedNoneButReceivedOneWithTimeout() throws InterruptedException {
+    default void shouldFailIfExpectedNoneButReceivedOneWithTimeout() {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
@@ -58,7 +59,7 @@ public interface NeverContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     }
 
     @Test
-    default void shouldFailIfExpectedNoneButReceivedOneWithoutTimeout() throws ExecutionException, InterruptedException {
+    default void shouldFailIfExpectedNoneButReceivedOneWithoutTimeout() {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));

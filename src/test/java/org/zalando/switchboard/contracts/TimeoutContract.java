@@ -40,7 +40,7 @@ import static org.zalando.switchboard.Timeout.within;
 public interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test // TODO (timeout = TestTimeout.DEFAULT)
-    default void shouldTellThatThirdMessageDidNotOccur() throws TimeoutException, InterruptedException {
+    default void shouldTellThatThirdMessageDidNotOccur() {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message(messageA(), deliveryMode()));
@@ -54,7 +54,7 @@ public interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait 
     }
 
     @Test // TODO (timeout = TestTimeout.DEFAULT)
-    default void shouldTellThatThirdMessageDidNotOccurWhenPollingAsync() throws TimeoutException, ExecutionException, InterruptedException {
+    default void shouldTellThatThirdMessageDidNotOccurWhenPollingAsync() {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message(messageA(), deliveryMode()));

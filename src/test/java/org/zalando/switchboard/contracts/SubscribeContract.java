@@ -77,7 +77,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
     }
 
     @Test // TODO (timeout = TestTimeout.DEFAULT)
-    default void shouldTimeoutWhenThereAreNoMatchingMessages() throws TimeoutException, InterruptedException {
+    default void shouldTimeoutWhenThereAreNoMatchingMessages() {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message(messageA(), deliveryMode()));
@@ -89,7 +89,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
     }
 
     @Test // TODO (timeout = TestTimeout.DEFAULT)
-    default void shouldPollMultipleTimesWhenCountGiven() throws TimeoutException, InterruptedException {
+    default void shouldPollMultipleTimesWhenCountGiven() throws TimeoutException, InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
         
         final int count = 5;

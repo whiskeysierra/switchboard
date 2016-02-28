@@ -50,7 +50,7 @@ public interface ExactlyOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
     }
 
     @Test
-    default void shouldFailIfExpectedOneButReceivedNone() throws TimeoutException, InterruptedException {
+    default void shouldFailIfExpectedOneButReceivedNone() {
         final Switchboard unit = Switchboard.create();
 
         final TimeoutException exception = expectThrows(TimeoutException.class, () -> {
@@ -61,7 +61,7 @@ public interface ExactlyOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
     }
 
     @Test
-    default void shouldNotFailIfExpectedOneAndReceivedExactlyOne() throws TimeoutException, InterruptedException {
+    default void shouldNotFailIfExpectedOneAndReceivedExactlyOne() throws TimeoutException, InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
@@ -70,7 +70,7 @@ public interface ExactlyOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
     }
 
     @Test
-    default void shouldFailIfExpectedOneButReceivedTwo() throws TimeoutException, InterruptedException {
+    default void shouldFailIfExpectedOneButReceivedTwo() {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));

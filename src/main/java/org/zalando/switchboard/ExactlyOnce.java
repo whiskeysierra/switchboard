@@ -26,7 +26,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-final class ExactlyOnce<S> implements SubscriptionMode<S, S, TimeoutException> {
+final class ExactlyOnce<S> implements SubscriptionMode<S, S> {
 
     @Override
     public boolean requiresTimeout() {
