@@ -20,10 +20,9 @@ package org.zalando.switchboard.contracts;
  * ​⁣
  */
 
-import org.junit.Test;
+import org.junit.gen5.api.Test;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.DeliveryTrait;
-import org.zalando.switchboard.traits.ExpectedExceptionTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
@@ -31,13 +30,15 @@ import java.util.concurrent.TimeoutException;
 
 import static java.time.temporal.ChronoUnit.NANOS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.gen5.api.Assertions.expectThrows;
 import static org.zalando.switchboard.Deliverable.failure;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.Timeout.within;
 
-public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
+public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     final class SpecialException extends RuntimeException {
 
@@ -45,34 +46,39 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait, Ex
 
     @Test
     default void shouldThrowException() throws TimeoutException, InterruptedException {
-        exception().expect(SpecialException.class);
-
         final Switchboard unit = Switchboard.create();
 
         unit.send(failure("foo", deliveryMode(), new SpecialException()));
-        unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS));
+
+        expectThrows(SpecialException.class, () -> {
+            unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS));
+        });
     }
 
     @Test
     default void shouldThrowExceptionWithTimeout() throws ExecutionException, InterruptedException, TimeoutException {
-        exception().expect(ExecutionException.class);
-        exception().expectCause(instanceOf(SpecialException.class));
-
         final Switchboard unit = Switchboard.create();
 
         unit.send(failure("foo", deliveryMode(), new SpecialException()));
-        unit.subscribe("foo"::equals, atLeastOnce()).get(1, NANOSECONDS);
+
+        final ExecutionException exception = expectThrows(ExecutionException.class, () -> {
+            unit.subscribe("foo"::equals, atLeastOnce()).get(1, NANOSECONDS);
+        });
+
+        assertThat(exception.getCause(), instanceOf(SpecialException.class));
     }
 
     @Test
     default void shouldThrowExceptionWithoutTimeout() throws ExecutionException, InterruptedException {
-        exception().expect(ExecutionException.class);
-        exception().expectCause(instanceOf(SpecialException.class));
-
         final Switchboard unit = Switchboard.create();
 
         unit.send(failure("foo", deliveryMode(), new SpecialException()));
-        unit.subscribe("foo"::equals, atLeastOnce()).get();
+
+        final ExecutionException exception = expectThrows(ExecutionException.class, () -> {
+            unit.subscribe("foo"::equals, atLeastOnce()).get();
+        });
+
+        assertThat(exception.getCause(), instanceOf(SpecialException.class));
     }
 
 }

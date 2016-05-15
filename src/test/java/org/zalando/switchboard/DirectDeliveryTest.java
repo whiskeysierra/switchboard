@@ -20,10 +20,7 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.gen5.api.Test;
 import org.zalando.switchboard.contracts.AtLeastContract;
 import org.zalando.switchboard.contracts.AtLeastOnceContract;
 import org.zalando.switchboard.contracts.AtMostContract;
@@ -37,15 +34,14 @@ import org.zalando.switchboard.contracts.SubscribeContract;
 import org.zalando.switchboard.contracts.TimeoutContract;
 import org.zalando.switchboard.contracts.TimesContract;
 import org.zalando.switchboard.contracts.UnsubscribeContract;
-import org.zalando.switchboard.framework.Java8JunitClassRunner;
 import org.zalando.switchboard.model.Message;
 import org.zalando.switchboard.traits.DirectDeliveryTrait;
 import org.zalando.switchboard.traits.MessageSubscriptionTrait;
 
+import static org.junit.gen5.api.Assertions.expectThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 
-@RunWith(Java8JunitClassRunner.class)
 public final class DirectDeliveryTest implements DirectDeliveryTrait, MessageSubscriptionTrait,
         AtLeastContract<Message>,
         AtLeastOnceContract<Message>,
@@ -61,23 +57,16 @@ public final class DirectDeliveryTest implements DirectDeliveryTrait, MessageSub
         TimesContract<Message>,
         UnsubscribeContract<Message> {
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
     private final Switchboard unit = Switchboard.create();
 
-    @Override
-    public ExpectedException exception() {
-        return exception;
-    }
-
-    @Test(expected = IllegalStateException.class, timeout = TestTimeout.DEFAULT)
+    @Test // TODO (timeout = TestTimeout.DEFAULT)
     public void shouldThrowWhenDeliveringMessagesToSubscriptions() {
         unit.subscribe(matchA(), exactlyOnce());
         unit.subscribe(matchA(), exactlyOnce());
 
-        unit.send(message(messageA(), deliveryMode()));
-        unit.send(message(messageA(), deliveryMode()));
+        expectThrows(IllegalStateException.class, () -> {
+            unit.send(message(messageA(), deliveryMode()));
+        });
     }
 
 }

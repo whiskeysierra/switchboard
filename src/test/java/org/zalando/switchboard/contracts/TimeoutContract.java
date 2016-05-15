@@ -20,11 +20,9 @@ package org.zalando.switchboard.contracts;
  * ​⁣
  */
 
-import org.junit.Test;
+import org.junit.gen5.api.Test;
 import org.zalando.switchboard.Switchboard;
-import org.zalando.switchboard.TestTimeout;
 import org.zalando.switchboard.traits.DeliveryTrait;
-import org.zalando.switchboard.traits.ExpectedExceptionTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
@@ -32,37 +30,41 @@ import java.util.concurrent.TimeoutException;
 
 import static java.time.temporal.ChronoUnit.NANOS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.gen5.api.Assertions.expectThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.times;
 import static org.zalando.switchboard.Timeout.within;
 
-public interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
+public interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
-    @Test(timeout = TestTimeout.DEFAULT)
+    @Test // TODO (timeout = TestTimeout.DEFAULT)
     default void shouldTellThatThirdMessageDidNotOccur() throws TimeoutException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message(messageA(), deliveryMode()));
         unit.send(message(messageA(), deliveryMode()));
 
-        exception().expect(TimeoutException.class);
-        exception().expectMessage(containsString("Expected exactly 3 Message message(s), but got 2 in 1 nanoseconds"));
+        final TimeoutException exception = expectThrows(TimeoutException.class, () -> {
+            unit.receive(matchA(), times(3), within(1, NANOS));
+        });
 
-        unit.receive(matchA(), times(3), within(1, NANOS));
+        assertThat(exception.getMessage(), is("Expected exactly 3 Message message(s), but got 2 in 1 nanoseconds"));
     }
 
-    @Test(timeout = TestTimeout.DEFAULT)
+    @Test // TODO (timeout = TestTimeout.DEFAULT)
     default void shouldTellThatThirdMessageDidNotOccurWhenPollingAsync() throws TimeoutException, ExecutionException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message(messageA(), deliveryMode()));
         unit.send(message(messageA(), deliveryMode()));
 
-        exception().expect(TimeoutException.class);
-        exception().expectMessage(containsString("Expected exactly 3 Message message(s), but got 2 in 1 nanoseconds"));
+        final TimeoutException exception = expectThrows(TimeoutException.class, () -> {
+            unit.subscribe(matchA(), times(3)).get(1, NANOSECONDS);
+        });
 
-        unit.subscribe(matchA(), times(3)).get(1, NANOSECONDS);
+        assertThat(exception.getMessage(), is("Expected exactly 3 Message message(s), but got 2 in 1 nanoseconds"));
     }
 
 }

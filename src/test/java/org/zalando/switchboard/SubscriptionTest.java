@@ -20,7 +20,7 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import org.junit.Test;
+import org.junit.gen5.api.Test;
 
 import javax.annotation.concurrent.Immutable;
 import java.math.BigDecimal;
@@ -29,10 +29,10 @@ import java.util.concurrent.TimeoutException;
 
 import static java.time.temporal.ChronoUnit.NANOS;
 import static java.util.Optional.empty;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hobsoft.hamcrest.compose.ComposeMatchers.hasFeature;
-import static org.junit.Assert.assertThat;
+import static org.junit.gen5.api.Assertions.expectThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.DeliveryMode.broadcast;
 import static org.zalando.switchboard.DeliveryMode.directly;
@@ -84,20 +84,20 @@ public final class SubscriptionTest {
     @Test
     public void shouldProvideNoHintByDefault() {
         final Subscription<String, Object> subscription = "foo"::equals;
-        assertThat(subscription, hasFeature("hint", Subscription::getHint, is(empty())));
+        assertThat(subscription.getHint(), is(empty()));
     }
 
     @Test
     public void shouldProvideMessageType() {
         final Subscription<String, Object> subscription = on(String.class, "foo"::equals);
 
-        assertThat(subscription, hasFeature("message type", Subscription::getMessageType, equalTo(String.class)));
+        assertThat(subscription.getMessageType(), equalTo(String.class));
     }
 
     @Test
     public void shouldProvideHint() {
         final Subscription<String, String> subscription = on(String.class, "foo"::equals, "bar");
-        assertThat(subscription, hasFeature("hint", Subscription::getHint, is(Optional.of("bar"))));
+        assertThat(subscription.getHint(), is(Optional.of("bar")));
     }
 
     @Test
@@ -110,10 +110,13 @@ public final class SubscriptionTest {
         assertThat(s, is("foo"));
     }
 
-    @Test(expected = TimeoutException.class)
+    @Test
     public void shouldNotMatchDifferentType() throws TimeoutException, InterruptedException {
         unit.send(message(123, broadcast()));
-        unit.receive(on(BigDecimal.class, Number.class::isInstance), atLeastOnce(), within(1, NANOS));
+
+        expectThrows(TimeoutException.class, () -> {
+            unit.receive(on(BigDecimal.class, Number.class::isInstance), atLeastOnce(), within(1, NANOS));
+        });
     }
 
     @Immutable

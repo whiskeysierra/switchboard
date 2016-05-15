@@ -22,7 +22,7 @@ package org.zalando.switchboard;
 
 import com.google.gag.annotation.remark.Hack;
 import com.google.gag.annotation.remark.OhNoYouDidnt;
-import org.junit.Test;
+import org.junit.gen5.api.Test;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;

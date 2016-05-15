@@ -20,10 +20,7 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.gen5.api.Test;
 import org.zalando.switchboard.contracts.AtLeastContract;
 import org.zalando.switchboard.contracts.AtLeastOnceContract;
 import org.zalando.switchboard.contracts.AtMostContract;
@@ -37,7 +34,6 @@ import org.zalando.switchboard.contracts.SubscribeContract;
 import org.zalando.switchboard.contracts.TimeoutContract;
 import org.zalando.switchboard.contracts.TimesContract;
 import org.zalando.switchboard.contracts.UnsubscribeContract;
-import org.zalando.switchboard.framework.Java8JunitClassRunner;
 import org.zalando.switchboard.model.Message;
 import org.zalando.switchboard.traits.FirstDeliveryTrait;
 import org.zalando.switchboard.traits.MessageSubscriptionTrait;
@@ -45,12 +41,11 @@ import org.zalando.switchboard.traits.MessageSubscriptionTrait;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
-@RunWith(Java8JunitClassRunner.class)
 public final class FirstDeliveryTest implements FirstDeliveryTrait, MessageSubscriptionTrait,
         AtLeastContract<Message>,
         AtLeastOnceContract<Message>,
@@ -66,17 +61,9 @@ public final class FirstDeliveryTest implements FirstDeliveryTrait, MessageSubsc
         TimesContract<Message>,
         UnsubscribeContract<Message> {
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
     private final Switchboard unit = Switchboard.create();
 
-    @Override
-    public ExpectedException exception() {
-        return exception;
-    }
-
-    @Test(timeout = TestTimeout.DEFAULT)
+    @Test // TODO (timeout = TestTimeout.DEFAULT)
     public void shouldDeliverMessagesToFirstSubscriptions() throws ExecutionException, InterruptedException {
         final Future<Message> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final Future<Message> secondResult = unit.subscribe(matchA(), atLeastOnce());

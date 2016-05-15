@@ -20,25 +20,24 @@ package org.zalando.switchboard.contracts;
  * ​⁣
  */
 
-import org.junit.Test;
+import org.junit.gen5.api.Test;
 import org.zalando.switchboard.Switchboard;
-import org.zalando.switchboard.TestTimeout;
 import org.zalando.switchboard.model.Message;
 import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.zalando.switchboard.Subscription.on;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 
 public interface InspectContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
-    @Test(timeout = TestTimeout.DEFAULT)
+    @Test // TODO (timeout = TestTimeout.DEFAULT)
     default void shouldAllowToInspectPendingHints() {
         final Switchboard unit = Switchboard.create();
 
