@@ -21,41 +21,14 @@ package org.zalando.switchboard;
  */
 
 import org.junit.gen5.api.Test;
-import org.zalando.switchboard.contracts.AtLeastContract;
-import org.zalando.switchboard.contracts.AtLeastOnceContract;
-import org.zalando.switchboard.contracts.AtMostContract;
-import org.zalando.switchboard.contracts.ExactlyOnceContract;
-import org.zalando.switchboard.contracts.FailContract;
-import org.zalando.switchboard.contracts.FutureContract;
-import org.zalando.switchboard.contracts.InspectContract;
-import org.zalando.switchboard.contracts.NeverContract;
-import org.zalando.switchboard.contracts.RecordContract;
-import org.zalando.switchboard.contracts.SubscribeContract;
-import org.zalando.switchboard.contracts.TimeoutContract;
-import org.zalando.switchboard.contracts.TimesContract;
-import org.zalando.switchboard.contracts.UnsubscribeContract;
-import org.zalando.switchboard.model.Message;
+import org.zalando.switchboard.contracts.DeliveryContract;
 import org.zalando.switchboard.traits.DirectDeliveryTrait;
-import org.zalando.switchboard.traits.MessageSubscriptionTrait;
 
 import static org.junit.gen5.api.Assertions.expectThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 
-public final class DirectDeliveryTest implements DirectDeliveryTrait, MessageSubscriptionTrait,
-        AtLeastContract<Message>,
-        AtLeastOnceContract<Message>,
-        AtMostContract<Message>,
-        ExactlyOnceContract<Message>,
-        FailContract<Message>,
-        FutureContract<Message>,
-        InspectContract<Message>,
-        NeverContract<Message>,
-        RecordContract<Message>,
-        SubscribeContract<Message>,
-        TimeoutContract<Message>,
-        TimesContract<Message>,
-        UnsubscribeContract<Message> {
+public final class DirectDeliveryTest implements DirectDeliveryTrait, DeliveryContract {
 
     private final Switchboard unit = Switchboard.create();
 

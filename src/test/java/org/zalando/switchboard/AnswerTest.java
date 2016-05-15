@@ -31,7 +31,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.zalando.switchboard.SubscriptionMode.times;
 
-public final class DeliveryTest {
+public final class AnswerTest {
     
     private final Switchboard unit = Switchboard.create();
     
