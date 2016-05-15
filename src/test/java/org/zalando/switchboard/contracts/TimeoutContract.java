@@ -30,11 +30,12 @@ import org.zalando.switchboard.traits.SubscriptionTrait;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import static java.time.temporal.ChronoUnit.NANOS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.containsString;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.times;
-import static org.zalando.switchboard.Timeout.in;
+import static org.zalando.switchboard.Timeout.within;
 
 public interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
 
@@ -48,7 +49,7 @@ public interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait,
         exception().expect(TimeoutException.class);
         exception().expectMessage(containsString("Expected exactly 3 Message message(s), but got 2 in 1 nanoseconds"));
 
-        unit.receive(matchA(), times(3), in(1, NANOSECONDS));
+        unit.receive(matchA(), times(3), within(1, NANOS));
     }
 
     @Test(timeout = TestTimeout.DEFAULT)

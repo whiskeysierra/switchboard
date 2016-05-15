@@ -104,7 +104,7 @@ private static class UserSubscription implements Subscription<User, Object> {
 Receiving messages in a blocking way is usually the easiest in terms of readability:
 
 ```java
-User user = switchboard.receive(user("bob"), atLeastOnce(), in(10, SECONDS));
+User user = switchboard.receive(user("bob"), atLeastOnce(), within(10, SECONDS));
 ```
 
 If a user called *Bob* is received within 10 seconds it will be returned otherwise a `TimeoutException` is thrown.
@@ -135,7 +135,7 @@ When subscribing to message you can specify one of the following modes. They hav
 | `times(n)`      | `m > n`     | `m == n` |
 
 **Note**: Be ware that `exactlyOnce()` and `times(n)` have termination conditions that require to wait till the end of the timeout to ensure its success 
-condition holds true, e.g. `switchboard.receive(user("Bob"), exactlyOnce(), in(2, MINUTES))` will wait full 2 minutes in case it received 0 or 1 user 
+condition holds true, e.g. `switchboard.receive(user("Bob"), exactlyOnce(), within(2, MINUTES))` will wait full 2 minutes in case it received 0 or 1 user 
 called *Bob*. In case two or more users are received, it will terminate early and fail.
 
 ### Sending messages
@@ -215,7 +215,7 @@ soon as at least one receiver starts listening. This is especially useful if you
 ```java
 switchboard.send(message("foo", directly()));
 
-String string = switchboard.receive("foo"::equals, atLeastOnce(), in(10, SECONDS));
+String string = switchboard.receive("foo"::equals, atLeastOnce(), within(10, SECONDS));
 ```
 
 The receiver will get the message immediately upon subscription.

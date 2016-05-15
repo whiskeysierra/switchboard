@@ -27,8 +27,8 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
+import static java.time.temporal.ChronoUnit.NANOS;
 import static java.util.Optional.empty;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hobsoft.hamcrest.compose.ComposeMatchers.hasFeature;
@@ -39,7 +39,7 @@ import static org.zalando.switchboard.DeliveryMode.directly;
 import static org.zalando.switchboard.Subscription.on;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
-import static org.zalando.switchboard.Timeout.in;
+import static org.zalando.switchboard.Timeout.within;
 
 public final class SubscriptionTest {
 
@@ -59,21 +59,21 @@ public final class SubscriptionTest {
     public void shouldSupportLambdas() throws TimeoutException, InterruptedException {
         unit.send(message("foo", directly()));
         final Subscription<String, ?> subscription = (String e) -> true;
-        final String actual = unit.receive(subscription, exactlyOnce(), in(1, NANOSECONDS));
+        final String actual = unit.receive(subscription, exactlyOnce(), within(1, NANOS));
         assertThat(actual, is("foo"));
     }
 
     @Test
     public void shouldSupportMethodReference() throws TimeoutException, InterruptedException {
         unit.send(message("foo", directly()));
-        final String actual = unit.receive(this::anyString, exactlyOnce(), in(1, NANOSECONDS));
+        final String actual = unit.receive(this::anyString, exactlyOnce(), within(1, NANOS));
         assertThat(actual, is("foo"));
     }
 
     @Test
     public void shouldSupportInstanceMethodReference() throws TimeoutException, InterruptedException {
         unit.send(message("foo", directly()));
-        final String actual = unit.receive("foo"::equals, exactlyOnce(), in(1, NANOSECONDS));
+        final String actual = unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS));
         assertThat(actual, is("foo"));
     }
 
@@ -105,7 +105,7 @@ public final class SubscriptionTest {
         final Subscription<String, Object> subscription = on(String.class, "foo"::equals);
 
         unit.send(message("foo", broadcast()));
-        final String s = unit.receive(subscription, atLeastOnce(), in(1, NANOSECONDS));
+        final String s = unit.receive(subscription, atLeastOnce(), within(1, NANOS));
 
         assertThat(s, is("foo"));
     }
@@ -113,7 +113,7 @@ public final class SubscriptionTest {
     @Test(expected = TimeoutException.class)
     public void shouldNotMatchDifferentType() throws TimeoutException, InterruptedException {
         unit.send(message(123, broadcast()));
-        unit.receive(on(BigDecimal.class, Number.class::isInstance), atLeastOnce(), in(1, NANOSECONDS));
+        unit.receive(on(BigDecimal.class, Number.class::isInstance), atLeastOnce(), within(1, NANOS));
     }
 
     @Immutable

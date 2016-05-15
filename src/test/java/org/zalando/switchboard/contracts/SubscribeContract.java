@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
+import static java.time.temporal.ChronoUnit.NANOS;
 import static java.util.Collections.frequency;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.Matchers.hasSize;
@@ -42,7 +43,7 @@ import static org.zalando.switchboard.SubscriptionMode.atLeast;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.SubscriptionMode.times;
-import static org.zalando.switchboard.Timeout.in;
+import static org.zalando.switchboard.Timeout.within;
 
 public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
@@ -79,7 +80,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
         unit.send(message(messageA(), deliveryMode()));
         unit.send(message(messageA(), deliveryMode()));
 
-        unit.receive(matchB(), exactlyOnce(), in(1, NANOSECONDS));
+        unit.receive(matchB(), exactlyOnce(), within(1, NANOS));
     }
 
     @Test(timeout = TestTimeout.DEFAULT)
@@ -92,7 +93,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
             unit.send(message(messageA(), deliveryMode()));
         }
 
-        final List<S> messages = unit.receive(matchA(), times(count), in(1, NANOSECONDS));
+        final List<S> messages = unit.receive(matchA(), times(count), within(1, NANOS));
 
         assertThat(messages, hasSize(count));
         assertThat(frequency(messages, messageA()), is(count));

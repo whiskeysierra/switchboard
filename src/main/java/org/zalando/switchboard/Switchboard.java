@@ -20,6 +20,7 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -29,7 +30,7 @@ import java.util.concurrent.Future;
  */
 public interface Switchboard {
 
-    <T, R, X extends Exception> R receive(final Subscription<T, ?> subscription, final SubscriptionMode<T, R, X> mode, final Timeout timeout)
+    <T, R, X extends Exception> R receive(final Subscription<T, ?> subscription, final SubscriptionMode<T, R, X> mode, final Duration timeout)
             throws X, InterruptedException;
 
     <T, R, X extends Exception> Future<R> subscribe(final Subscription<T, ?> subscription, final SubscriptionMode<T, R, X> mode);

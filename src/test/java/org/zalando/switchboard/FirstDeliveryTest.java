@@ -39,8 +39,8 @@ import org.zalando.switchboard.contracts.TimesContract;
 import org.zalando.switchboard.contracts.UnsubscribeContract;
 import org.zalando.switchboard.framework.Java8JunitClassRunner;
 import org.zalando.switchboard.model.Message;
-import org.zalando.switchboard.traits.MessageSubscriptionTrait;
 import org.zalando.switchboard.traits.FirstDeliveryTrait;
+import org.zalando.switchboard.traits.MessageSubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;

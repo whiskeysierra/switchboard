@@ -40,6 +40,11 @@ import static org.mockito.Mockito.when;
 public final class EnforceCoverageTest {
 
     @Test
+    public void shouldUseTimeoutConstructor() {
+        new Timeout();
+    }
+
+    @Test
     public void shouldUseTypeResolverConstructor() {
         new TypeResolver();
     }

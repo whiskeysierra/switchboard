@@ -20,9 +20,9 @@ package org.zalando.switchboard.traits;
  * ​⁣
  */
 
+import org.zalando.switchboard.Subscription;
 import org.zalando.switchboard.model.Message;
 import org.zalando.switchboard.model.MessageSubscription;
-import org.zalando.switchboard.Subscription;
 
 public interface MessageSubscriptionTrait extends SubscriptionTrait<Message> {
 

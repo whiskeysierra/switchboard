@@ -28,10 +28,10 @@ import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.TimeoutException;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.time.temporal.ChronoUnit.NANOS;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
-import static org.zalando.switchboard.Timeout.in;
+import static org.zalando.switchboard.Timeout.within;
 
 public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
 
@@ -42,7 +42,7 @@ public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
 
         final Switchboard unit = Switchboard.create();
 
-        unit.receive("foo"::equals, atLeastOnce(), in(1, NANOSECONDS));
+        unit.receive("foo"::equals, atLeastOnce(), within(1, NANOS));
     }
 
     @Test
@@ -51,7 +51,7 @@ public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
 
         unit.send(message("foo", deliveryMode()));
 
-        unit.receive("foo"::equals, atLeastOnce(), in(1, NANOSECONDS));
+        unit.receive("foo"::equals, atLeastOnce(), within(1, NANOS));
     }
 
     @Test
@@ -61,7 +61,7 @@ public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        unit.receive("foo"::equals, atLeastOnce(), in(1, NANOSECONDS));
+        unit.receive("foo"::equals, atLeastOnce(), within(1, NANOS));
     }
 
 }
