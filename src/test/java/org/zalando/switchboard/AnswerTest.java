@@ -20,18 +20,18 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import org.junit.Test;
+import org.junit.gen5.api.Test;
 
 import java.util.List;
 import java.util.concurrent.Future;
 
 import static java.util.Objects.hash;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
 import static org.zalando.switchboard.SubscriptionMode.times;
 
-public final class DeliveryTest {
+public final class AnswerTest {
     
     private final Switchboard unit = Switchboard.create();
     

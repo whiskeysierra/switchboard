@@ -23,11 +23,13 @@ package org.zalando.switchboard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.copyOf;
@@ -101,11 +103,11 @@ final class DefaultSwitchboard implements Switchboard {
     }
 
     @Override
-    public <T, R, X extends Exception> R receive(final Subscription<T, ?> subscription, final SubscriptionMode<T, R, X> mode, final Timeout timeout)
+    public <T, R, X extends Exception> R receive(final Subscription<T, ?> subscription, final SubscriptionMode<T, R, X> mode, final Duration timeout)
             throws X, InterruptedException {
         try {
             final Answer<T, R, ?> future = subscribe(subscription, mode);
-            return mode.block(future, timeout.getValue(), timeout.getUnit());
+            return mode.block(future, timeout.toNanos(), TimeUnit.NANOSECONDS);
         } catch (final ExecutionException e) {
             throw (RuntimeException) e.getCause();
         }

@@ -22,7 +22,7 @@ package org.zalando.switchboard;
 
 import com.google.gag.annotation.remark.Hack;
 import com.google.gag.annotation.remark.OhNoYouDidnt;
-import org.junit.Test;
+import org.junit.gen5.api.Test;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -38,6 +38,11 @@ import static org.mockito.Mockito.when;
 @Hack
 @OhNoYouDidnt
 public final class EnforceCoverageTest {
+
+    @Test
+    public void shouldUseTimeoutConstructor() {
+        new Timeout();
+    }
 
     @Test
     public void shouldUseTypeResolverConstructor() {

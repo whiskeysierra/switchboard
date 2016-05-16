@@ -20,29 +20,32 @@ package org.zalando.switchboard.contracts;
  * ​⁣
  */
 
-import org.junit.Test;
+import org.junit.gen5.api.Test;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.DeliveryTrait;
-import org.zalando.switchboard.traits.ExpectedExceptionTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.TimeoutException;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.time.temporal.ChronoUnit.NANOS;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.gen5.api.Assertions.expectThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
-import static org.zalando.switchboard.Timeout.in;
+import static org.zalando.switchboard.Timeout.within;
 
-public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
+public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldFailIfExpectedAtLeastOneButReceivedNone() throws TimeoutException, InterruptedException {
-        exception().expect(TimeoutException.class);
-        exception().expectMessage("Expected at least one Object message(s), but got 0 in 1 nanoseconds");
-
         final Switchboard unit = Switchboard.create();
 
-        unit.receive("foo"::equals, atLeastOnce(), in(1, NANOSECONDS));
+        final TimeoutException exception = expectThrows(TimeoutException.class, () -> {
+            unit.receive("foo"::equals, atLeastOnce(), within(1, NANOS));
+        });
+
+        assertThat(exception.getMessage(), is("Expected at least one Object message(s), but got 0 in 1 nanoseconds"));
     }
 
     @Test
@@ -51,7 +54,7 @@ public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
 
         unit.send(message("foo", deliveryMode()));
 
-        unit.receive("foo"::equals, atLeastOnce(), in(1, NANOSECONDS));
+        unit.receive("foo"::equals, atLeastOnce(), within(1, NANOS));
     }
 
     @Test
@@ -61,7 +64,7 @@ public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        unit.receive("foo"::equals, atLeastOnce(), in(1, NANOSECONDS));
+        unit.receive("foo"::equals, atLeastOnce(), within(1, NANOS));
     }
 
 }

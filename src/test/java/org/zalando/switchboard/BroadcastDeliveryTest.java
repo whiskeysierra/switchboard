@@ -20,64 +20,25 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.zalando.switchboard.contracts.AtLeastContract;
-import org.zalando.switchboard.contracts.AtLeastOnceContract;
-import org.zalando.switchboard.contracts.AtMostContract;
-import org.zalando.switchboard.contracts.ExactlyOnceContract;
-import org.zalando.switchboard.contracts.FailContract;
-import org.zalando.switchboard.contracts.FutureContract;
-import org.zalando.switchboard.contracts.InspectContract;
-import org.zalando.switchboard.contracts.NeverContract;
-import org.zalando.switchboard.contracts.RecordContract;
-import org.zalando.switchboard.contracts.SubscribeContract;
-import org.zalando.switchboard.contracts.TimeoutContract;
-import org.zalando.switchboard.contracts.TimesContract;
-import org.zalando.switchboard.contracts.UnsubscribeContract;
-import org.zalando.switchboard.framework.Java8JunitClassRunner;
+import org.junit.gen5.api.Test;
+import org.zalando.switchboard.contracts.DeliveryContract;
 import org.zalando.switchboard.model.Message;
 import org.zalando.switchboard.traits.BroadcastDeliveryTrait;
-import org.zalando.switchboard.traits.MessageSubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
-@RunWith(Java8JunitClassRunner.class)
-public final class BroadcastDeliveryTest implements BroadcastDeliveryTrait, MessageSubscriptionTrait,
-        AtLeastContract<Message>,
-        AtLeastOnceContract<Message>,
-        AtMostContract<Message>,
-        ExactlyOnceContract<Message>,
-        FailContract<Message>,
-        FutureContract<Message>,
-        InspectContract<Message>,
-        NeverContract<Message>,
-        RecordContract<Message>,
-        SubscribeContract<Message>,
-        TimeoutContract<Message>,
-        TimesContract<Message>,
-        UnsubscribeContract<Message> {
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+public final class BroadcastDeliveryTest implements BroadcastDeliveryTrait, DeliveryContract {
 
     private final Switchboard unit = Switchboard.create();
 
-    @Override
-    public ExpectedException exception() {
-        return exception;
-    }
-
-    @Test(timeout = TestTimeout.DEFAULT)
+    @Test // TODO (timeout = TestTimeout.DEFAULT)
     public void shouldDeliverFirstMessageToAllSubscriptions() throws ExecutionException, InterruptedException {
         final Future<Message> firstResult = unit.subscribe(matchA(), atLeastOnce());
         final Future<Message> secondResult = unit.subscribe(matchA(), atLeastOnce());

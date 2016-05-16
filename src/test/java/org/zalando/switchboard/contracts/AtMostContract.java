@@ -20,21 +20,22 @@ package org.zalando.switchboard.contracts;
  * ​⁣
  */
 
-import org.junit.Test;
+import org.junit.gen5.api.Test;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.DeliveryTrait;
-import org.zalando.switchboard.traits.ExpectedExceptionTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static org.hamcrest.Matchers.equalTo;
+import static java.time.temporal.ChronoUnit.NANOS;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.gen5.api.Assertions.expectThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atMost;
-import static org.zalando.switchboard.Timeout.in;
+import static org.zalando.switchboard.Timeout.within;
 
-public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait, ExpectedExceptionTrait {
+public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldNotFailIfExpectedAtMostThreeButReceivedOnlyTwo() throws InterruptedException {
@@ -43,7 +44,7 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait, 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        unit.receive("foo"::equals, atMost(3), in(10, NANOSECONDS));
+        unit.receive("foo"::equals, atMost(3), within(10, NANOS));
     }
 
     @Test
@@ -54,14 +55,11 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait, 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        unit.receive("foo"::equals, atMost(3), in(1, NANOSECONDS));
+        unit.receive("foo"::equals, atMost(3), within(1, NANOS));
     }
 
     @Test
     default void shouldFailIfExpectedAtMostThreeButReceivedFourWithTimeout() throws InterruptedException {
-        exception().expect(IllegalStateException.class);
-        exception().expectMessage("Expected at most 3 Object message(s), but got 4 in 1 nanoseconds");
-
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
@@ -69,14 +67,15 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait, 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        unit.receive("foo"::equals, atMost(3), in(1, NANOSECONDS));
+        final IllegalStateException exception = expectThrows(IllegalStateException.class, () -> {
+            unit.receive("foo"::equals, atMost(3), within(1, NANOS));
+        });
+
+        assertThat(exception.getMessage(), is("Expected at most 3 Object message(s), but got 4 in 1 nanoseconds"));
     }
 
     @Test
     default void shouldFailIfExpectedAtMostThreeButReceivedFourWithout() throws ExecutionException, InterruptedException {
-        exception().expect(IllegalStateException.class);
-        exception().expectMessage(equalTo("Expected at most 3 Object message(s), but got 4"));
-
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
@@ -84,7 +83,11 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait, 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        unit.subscribe("foo"::equals, atMost(3)).get();
+        final IllegalStateException exception = expectThrows(IllegalStateException.class, () -> {
+            unit.subscribe("foo"::equals, atMost(3)).get();
+        });
+
+        assertThat(exception.getMessage(), is("Expected at most 3 Object message(s), but got 4"));
     }
 
 }

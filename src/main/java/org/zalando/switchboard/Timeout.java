@@ -20,16 +20,17 @@ package org.zalando.switchboard;
  * ​⁣
  */
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
-public interface Timeout {
+public class Timeout {
 
-    long getValue();
+    Timeout() {
+        // package private so we can trick code coverage
+    }
 
-    TimeUnit getUnit();
-
-    static Timeout in(final long timeout, final TimeUnit timeoutUnit) {
-        return new DefaultTimeout(timeout, timeoutUnit);
+    public static Duration within(final long timeout, final ChronoUnit unit) {
+        return Duration.of(timeout, unit);
     }
 
 }

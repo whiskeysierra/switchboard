@@ -1,10 +1,10 @@
-package org.zalando.switchboard.traits;
+package org.zalando.switchboard.contracts;
 
 /*
  * ⁣​
  * Switchboard
  * ⁣⁣
- * Copyright (C) 2015 Zalando SE
+ * Copyright (C) 2015 - 2016 Zalando SE
  * ⁣⁣
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,25 +20,21 @@ package org.zalando.switchboard.traits;
  * ​⁣
  */
 
-import org.zalando.switchboard.Subscription;
 import org.zalando.switchboard.model.Message;
-import org.zalando.switchboard.model.MessageSubscription;
+import org.zalando.switchboard.traits.MessageSubscriptionTrait;
 
-public interface MessageSubscriptionTrait extends SubscriptionTrait<Message> {
-
-    @Override
-    default Subscription<Message, ?> matchA() {
-        return new MessageSubscription("A");
-    }
-
-    @Override
-    default Subscription<Message, ?> matchB() {
-        return new MessageSubscription("B");
-    }
-
-    @Override
-    default Message messageA() {
-        return new Message("A");
-    }
-
+public interface DeliveryContract extends MessageSubscriptionTrait,
+        AtLeastContract<Message>,
+        AtLeastOnceContract<Message>,
+        AtMostContract<Message>,
+        ExactlyOnceContract<Message>,
+        FailContract<Message>,
+        FutureContract<Message>,
+        InspectContract<Message>,
+        NeverContract<Message>,
+        RecordContract<Message>,
+        SubscribeContract<Message>,
+        TimeoutContract<Message>,
+        TimesContract<Message>,
+        UnsubscribeContract<Message> {
 }

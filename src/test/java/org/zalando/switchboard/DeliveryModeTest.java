@@ -26,8 +26,8 @@ import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
 import static org.zalando.switchboard.DeliveryMode.broadcast;
 import static org.zalando.switchboard.DeliveryMode.directly;
 import static org.zalando.switchboard.DeliveryMode.first;
