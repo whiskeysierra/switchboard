@@ -30,6 +30,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.copyOf;
@@ -103,18 +104,14 @@ final class DefaultSwitchboard implements Switchboard {
     }
 
     @Override
-    public <T, R, X extends Exception> R receive(final Subscription<T, ?> subscription, final SubscriptionMode<T, R, X> mode, final Duration timeout)
-            throws X, InterruptedException {
-        try {
-            final Answer<T, R, ?> future = subscribe(subscription, mode);
-            return mode.block(future, timeout.toNanos(), TimeUnit.NANOSECONDS);
-        } catch (final ExecutionException e) {
-            throw (RuntimeException) e.getCause();
-        }
+    public <T, R> R receive(final Subscription<T, ?> subscription, final SubscriptionMode<T, R> mode, final Duration timeout)
+            throws InterruptedException, TimeoutException, ExecutionException {
+        final Answer<T, R, ?> future = subscribe(subscription, mode);
+        return mode.block(future, timeout.toNanos(), TimeUnit.NANOSECONDS);
     }
 
     @Override
-    public <T, R, X extends Exception> Answer<T, R, ?> subscribe(final Subscription<T, ?> subscription, final SubscriptionMode<T, R, X> mode) {
+    public <T, R> Answer<T, R, ?> subscribe(final Subscription<T, ?> subscription, final SubscriptionMode<T, R> mode) {
         final Answer<T, R, ?> answer = new Answer<>(subscription, mode, this::unregister);
 
         registerForFutureMessages(answer);

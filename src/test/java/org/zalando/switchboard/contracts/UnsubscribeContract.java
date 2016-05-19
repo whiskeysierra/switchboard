@@ -42,7 +42,7 @@ import static org.zalando.switchboard.Timeout.within;
 public interface UnsubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
-    default void shouldUnsubscribe() throws TimeoutException, InterruptedException {
+    default void shouldUnsubscribe() throws TimeoutException, InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
         // expected to unsubscribe itself in 1 ns

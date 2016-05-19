@@ -25,6 +25,7 @@ import org.junit.gen5.api.Test;
 import javax.annotation.concurrent.Immutable;
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import static java.time.temporal.ChronoUnit.NANOS;
@@ -56,7 +57,7 @@ public final class SubscriptionTest {
     }
 
     @Test
-    public void shouldSupportLambdas() throws TimeoutException, InterruptedException {
+    public void shouldSupportLambdas() throws TimeoutException, InterruptedException, ExecutionException {
         unit.send(message("foo", directly()));
         final Subscription<String, ?> subscription = (String e) -> true;
         final String actual = unit.receive(subscription, exactlyOnce(), within(1, NANOS));
@@ -64,14 +65,14 @@ public final class SubscriptionTest {
     }
 
     @Test
-    public void shouldSupportMethodReference() throws TimeoutException, InterruptedException {
+    public void shouldSupportMethodReference() throws TimeoutException, InterruptedException, ExecutionException {
         unit.send(message("foo", directly()));
         final String actual = unit.receive(this::anyString, exactlyOnce(), within(1, NANOS));
         assertThat(actual, is("foo"));
     }
 
     @Test
-    public void shouldSupportInstanceMethodReference() throws TimeoutException, InterruptedException {
+    public void shouldSupportInstanceMethodReference() throws TimeoutException, InterruptedException, ExecutionException {
         unit.send(message("foo", directly()));
         final String actual = unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS));
         assertThat(actual, is("foo"));
@@ -101,7 +102,7 @@ public final class SubscriptionTest {
     }
 
     @Test
-    public void shouldDelegateToPredicate() throws TimeoutException, InterruptedException {
+    public void shouldDelegateToPredicate() throws TimeoutException, InterruptedException, ExecutionException {
         final Subscription<String, Object> subscription = on(String.class, "foo"::equals);
 
         unit.send(message("foo", broadcast()));
@@ -111,7 +112,7 @@ public final class SubscriptionTest {
     }
 
     @Test
-    public void shouldNotMatchDifferentType() throws TimeoutException, InterruptedException {
+    public void shouldNotMatchDifferentType() {
         unit.send(message(123, broadcast()));
 
         expectThrows(TimeoutException.class, () -> {

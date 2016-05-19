@@ -25,6 +25,7 @@ import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import static java.time.temporal.ChronoUnit.NANOS;
@@ -38,7 +39,7 @@ import static org.zalando.switchboard.Timeout.within;
 public interface AtLeastContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
-    default void shouldFailIfExpectedAtLeastThreeButReceivedOnlyTwo() throws TimeoutException, InterruptedException {
+    default void shouldFailIfExpectedAtLeastThreeButReceivedOnlyTwo() {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
@@ -52,7 +53,7 @@ public interface AtLeastContract<S> extends SubscriptionTrait<S>, DeliveryTrait 
     }
 
     @Test
-    default void shouldNotFailIfExpectedAtLeastThreeAndReceivedExactlyThree() throws TimeoutException, InterruptedException {
+    default void shouldNotFailIfExpectedAtLeastThreeAndReceivedExactlyThree() throws TimeoutException, InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
@@ -63,7 +64,7 @@ public interface AtLeastContract<S> extends SubscriptionTrait<S>, DeliveryTrait 
     }
 
     @Test
-    default void shouldNotFailIfExpectedAtLeastThreeAndReceivedFour() throws TimeoutException, InterruptedException {
+    default void shouldNotFailIfExpectedAtLeastThreeAndReceivedFour() throws TimeoutException, InterruptedException, ExecutionException {
         final Switchboard unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
