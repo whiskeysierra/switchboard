@@ -4,6 +4,7 @@
 
 [![Build Status](https://img.shields.io/travis/zalando/switchboard.svg)](https://travis-ci.org/zalando/switchboard)
 [![Coverage Status](https://img.shields.io/coveralls/zalando/switchboard.svg)](https://coveralls.io/r/zalando/switchboard)
+[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/org.zalando/switchboard/badge.svg)](http://www.javadoc.io/doc/org.zalando/switchboard)
 [![Release](https://img.shields.io/github/release/zalando/switchboard.svg)](https://github.com/zalando/switchboard/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/org.zalando/switchboard.svg)](https://maven-badges.herokuapp.com/maven-central/org.zalando/switchboard)
 
