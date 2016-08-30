@@ -2,10 +2,10 @@
 
 [![Switchboard](docs/switchboard.jpg)](https://www.flickr.com/photos/justininsd/7888302222/)
 
-[![Build Status](https://img.shields.io/travis/zalando/switchboard/master.svg)](https://travis-ci.org/zalando/switchboard)
-[![Coverage Status](https://img.shields.io/coveralls/zalando/switchboard/master.svg)](https://coveralls.io/r/zalando/switchboard)
+[![Build Status](https://img.shields.io/travis/zalando-incubator/switchboard/master.svg)](https://travis-ci.org/zalando-incubator/switchboard)
+[![Coverage Status](https://img.shields.io/coveralls/zalando-incubator/switchboard/master.svg)](https://coveralls.io/r/zalando-incubator/switchboard)
 [![Javadoc](https://javadoc-emblem.rhcloud.com/doc/org.zalando/switchboard/badge.svg)](http://www.javadoc.io/doc/org.zalando/switchboard)
-[![Release](https://img.shields.io/github/release/zalando/switchboard.svg)](https://github.com/zalando/switchboard/releases)
+[![Release](https://img.shields.io/github/release/zalando-incubator/switchboard.svg)](https://github.com/zalando-incubator/switchboard/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/org.zalando/switchboard.svg)](https://maven-badges.herokuapp.com/maven-central/org.zalando/switchboard)
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/zalando-incubator/switchboard/master/LICENSE)
 
