@@ -9,6 +9,8 @@
 [![Maven Central](https://img.shields.io/maven-central/v/org.zalando/switchboard.svg)](https://maven-badges.herokuapp.com/maven-central/org.zalando/switchboard)
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/zalando-incubator/switchboard/master/LICENSE)
 
+> **Switchboard** noun, /swɪtʃ bɔːɹd/: The electronic panel that is used to direct telephone calls to the desired recipient.
+
 An in-process message router that helps to write simple, asynchronous, state-based and collaboration tests. 
     
 ## Dependency
