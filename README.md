@@ -1,4 +1,4 @@
-# Switchboard
+# Switchboard: In-Process Message Router
 
 [![Switchboard](docs/switchboard.jpg)](https://www.flickr.com/photos/justininsd/7888302222/)
 
