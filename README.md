@@ -7,7 +7,7 @@
 [![Javadoc](https://javadoc-emblem.rhcloud.com/doc/org.zalando/switchboard/badge.svg)](http://www.javadoc.io/doc/org.zalando/switchboard)
 [![Release](https://img.shields.io/github/release/zalando-incubator/switchboard.svg)](https://github.com/zalando-incubator/switchboard/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/org.zalando/switchboard.svg)](https://maven-badges.herokuapp.com/maven-central/org.zalando/switchboard)
-[![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/zalando-incubator/switchboard/master/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/zalando-incubator/switchboard/master/LICENSE)
 
 > **Switchboard** noun, /swɪtʃ bɔːɹd/: The electronic panel that is used to direct telephone calls to the desired recipient.
 
