@@ -1,6 +1,8 @@
 package org.zalando.switchboard;
 
 import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
 
 import java.util.List;
 import java.util.concurrent.Future;
@@ -11,6 +13,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.zalando.switchboard.SubscriptionMode.times;
 
+@RunWith(JUnitPlatform.class)
 public final class AnswerTest {
     
     private final Switchboard unit = Switchboard.create();

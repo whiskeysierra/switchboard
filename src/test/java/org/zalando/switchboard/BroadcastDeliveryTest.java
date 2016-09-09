@@ -1,6 +1,8 @@
 package org.zalando.switchboard;
 
 import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
 import org.zalando.switchboard.contracts.DeliveryContract;
 import org.zalando.switchboard.model.Message;
 import org.zalando.switchboard.traits.BroadcastDeliveryTrait;
@@ -14,6 +16,7 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
+@RunWith(JUnitPlatform.class)
 public final class BroadcastDeliveryTest implements BroadcastDeliveryTrait, DeliveryContract {
 
     private final Switchboard unit = Switchboard.create();

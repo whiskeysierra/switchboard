@@ -1,40 +1,32 @@
 package org.zalando.switchboard;
 
-import org.junit.Test;
+import com.google.common.collect.ImmutableMap;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
+import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.hasToString;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.zalando.switchboard.DeliveryMode.broadcast;
 import static org.zalando.switchboard.DeliveryMode.directly;
 import static org.zalando.switchboard.DeliveryMode.first;
 
-@RunWith(Parameterized.class)
+@RunWith(JUnitPlatform.class)
 public final class DeliveryModeTest {
 
-    private final DeliveryMode mode;
-    private final String expected;
-
-    public DeliveryModeTest(final DeliveryMode mode, final String expected) {
-        this.mode = mode;
-        this.expected = expected;
-    }
-
-    @Parameterized.Parameters(name = "{1}")
-    public static Iterable<Object[]> data() {
-        return Arrays.asList(new Object[][]{
-                {directly(), "directly()"},
-                {broadcast(), "broadcast()"},
-                {first(), "first()"},
-        });
-    }
-
-    @Test
-    public void shouldRenderName() throws Exception {
-        assertThat(mode.toString(), is(expected));
+    @TestFactory
+    Stream<DynamicTest> createPointTests() {
+        return ImmutableMap.of(
+                "directly", directly(),
+                "broadcast", broadcast(),
+                "first", first())
+                .entrySet().stream()
+                .map(entry -> dynamicTest(entry.getKey(), () ->
+                        assertThat(entry.getValue(), hasToString(entry.getKey() + "()"))));
     }
 
 }

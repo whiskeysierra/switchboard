@@ -1,6 +1,6 @@
 package org.zalando.switchboard;
 
-public final class TestTimeout {
+public final class Timeouts {
 
     public static final long DEFAULT = 1500;
 
