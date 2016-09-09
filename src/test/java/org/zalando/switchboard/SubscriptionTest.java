@@ -1,6 +1,6 @@
 package org.zalando.switchboard;
 
-import org.junit.gen5.api.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.annotation.concurrent.Immutable;
 import java.math.BigDecimal;
@@ -13,7 +13,7 @@ import static java.util.Optional.empty;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.gen5.api.Assertions.expectThrows;
+import static org.junit.jupiter.api.Assertions.expectThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.DeliveryMode.broadcast;
 import static org.zalando.switchboard.DeliveryMode.directly;

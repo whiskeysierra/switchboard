@@ -1,6 +1,6 @@
 package org.zalando.switchboard;
 
-import org.junit.gen5.api.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.Future;

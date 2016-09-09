@@ -16,7 +16,7 @@
     <description>
         An in-process message router that helps to write simple, asynchronous, state-based and collaboration tests.
     </description>
-    <url>https://github.com/zalando/switchboard</url>
+    <url>https://github.com/zalando-incubator/switchboard</url>
 
     <organization>
         <name>Zalando SE</name>
@@ -42,15 +42,17 @@
     </developers>
 
     <scm>
-        <url>https://github.com/zalando/riptide</url>
-        <connection>scm:git:git@github.com:zalando/riptide.git</connection>
-        <developerConnection>scm:git:git@github.com:zalando/riptide.git</developerConnection>
+        <url>https://github.com/zalando-incubator/switchboard</url>
+        <connection>scm:git:git@github.com:zalando-incubator/switchboard.git</connection>
+        <developerConnection>scm:git:git@github.com:zalando-incubator/switchboard.git</developerConnection>
     </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <junit-platform.version>1.0.0-M2</junit-platform.version>
+        <junit-jupiter.version>5.0.0-M2</junit-jupiter.version>
     </properties>
 
     <dependencies>
@@ -87,9 +89,21 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.junit</groupId>
-            <artifactId>junit5-api</artifactId>
-            <version>5.0.0-ALPHA</version>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-runner</artifactId>
+            <version>${junit-platform.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -111,9 +125,21 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.hobsoft.hamcrest</groupId>
+            <artifactId>hamcrest-compose</artifactId>
+            <version>0.3.0</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>2.0.93-beta</version>
+            <version>2.1.0-beta.120</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -168,9 +194,9 @@
                 </configuration>
                 <dependencies>
                     <dependency>
-                        <groupId>org.junit</groupId>
-                        <artifactId>surefire-junit5</artifactId>
-                        <version>5.0.0-ALPHA</version>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>${junit-platform.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>

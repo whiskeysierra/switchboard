@@ -1,10 +1,10 @@
 package org.zalando.switchboard;
 
-import org.junit.gen5.api.Test;
+import org.junit.jupiter.api.Test;
 import org.zalando.switchboard.contracts.DeliveryContract;
 import org.zalando.switchboard.traits.DirectDeliveryTrait;
 
-import static org.junit.gen5.api.Assertions.expectThrows;
+import static org.junit.jupiter.api.Assertions.expectThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 

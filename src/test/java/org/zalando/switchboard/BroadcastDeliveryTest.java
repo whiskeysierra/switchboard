@@ -1,6 +1,6 @@
 package org.zalando.switchboard;
 
-import org.junit.gen5.api.Test;
+import org.junit.jupiter.api.Test;
 import org.zalando.switchboard.contracts.DeliveryContract;
 import org.zalando.switchboard.model.Message;
 import org.zalando.switchboard.traits.BroadcastDeliveryTrait;
