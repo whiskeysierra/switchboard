@@ -13,18 +13,23 @@
 
 An in-process message router that helps to write simple, asynchronous, state-based and collaboration tests. 
     
-## Dependency
+- **Technology stack**: Java 8+, long running integration tests
+- **Status**:  Beta, ported from an internal implementation that is used in production
 
-```xml
-<dependency>
-    <groupId>org.zalando</groupId>
-    <artifactId>switchboard</artifactId>
-    <version>${switchboard.version}</version>
-    <scope>test</scope>
-</dependency>
+## Example
+
+```java
+server.save("bob");
+User user = switchboard.receive(userCreated("bob"), atLeastOnce(), within(10, SECONDS));
 ```
+
+## Features
+
+- test asynchronous interactions more easily
+- allows extreme parallelization of long running tests
+- extensible, powerful API
     
-## Concept
+## Origin
 
 In any non-trivial application you'll most probably seen a process like this.
 
@@ -51,6 +56,23 @@ The term *switchboard* refers to old-style telephone switchboards, i.e. big comm
 multiple parties via telephone lines, usually one caller and one receiver.
  
 In our case those parties are threads and they *talk* to each other by passing messages.
+
+## Dependencies
+
+- Java 8 or higher
+
+## Installation
+
+Add the following dependency to your project:
+
+```xml
+<dependency>
+    <groupId>org.zalando</groupId>
+    <artifactId>switchboard</artifactId>
+    <version>${switchboard.version}</version>
+    <scope>test</scope>
+</dependency>
+```
 
 ## Usage
 
@@ -224,7 +246,16 @@ String string = switchboard.receive("foo"::equals, atLeastOnce(), within(10, SEC
 
 The receiver will get the message immediately upon subscription.
 
-## Attributions
+## Getting Help
+
+If you have questions, concerns, bug reports, etc., please file an issue in this repository's [Issue Tracker](../../issues).
+
+## Getting Involved/Contributing
+
+To contribute, simply make a pull request and add a brief description (1-2 sentences) of your addition or change. For
+more details, check the [contribution guidelines](CONTRIBUTING.md).
+
+## Credits and references
 
 ![Creative Commons License](http://i.creativecommons.org/l/by-nc-sa/2.0/80x15.png)
 [Meals at all Hours](https://www.flickr.com/photos/justininsd/7888302222/) by 
