@@ -6,7 +6,8 @@ import org.junit.runner.RunWith;
 import org.zalando.switchboard.contracts.DeliveryContract;
 import org.zalando.switchboard.traits.DirectDeliveryTrait;
 
-import static org.junit.jupiter.api.Assertions.expectThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 
@@ -15,13 +16,14 @@ public final class DirectDeliveryTest implements DirectDeliveryTrait, DeliveryCo
 
     private final Switchboard unit = Switchboard.create();
 
-    @Test // TODO (timeout = TestTimeout.DEFAULT)
+    @Test
     public void shouldThrowWhenDeliveringMessagesToSubscriptions() {
-        unit.subscribe(matchA(), exactlyOnce());
-        unit.subscribe(matchA(), exactlyOnce());
+        assertTimeout(TestTimeout.DEFAULT, () -> {
+            unit.subscribe(matchA(), exactlyOnce());
+            unit.subscribe(matchA(), exactlyOnce());
 
-        expectThrows(IllegalStateException.class, () -> {
-            unit.send(message(messageA(), deliveryMode()));
+            assertThrows(IllegalStateException.class, () ->
+                    unit.send(message(messageA(), deliveryMode())));
         });
     }
 

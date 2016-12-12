@@ -1,6 +1,7 @@
 package org.zalando.switchboard;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -8,9 +9,9 @@ final class SimpleSubscription<T, H> implements Subscription<T, H> {
 
     private final Class<T> messageType;
     private final Predicate<T> predicate;
-    private final Optional<H> hint;
+    private final H hint;
 
-    SimpleSubscription(final Class<T> messageType, final Predicate<T> predicate, final Optional<H> hint) {
+    SimpleSubscription(final Class<T> messageType, final Predicate<T> predicate, final @Nullable H hint) {
         this.messageType = messageType;
         this.predicate = predicate;
         this.hint = hint;
@@ -28,7 +29,7 @@ final class SimpleSubscription<T, H> implements Subscription<T, H> {
 
     @Override
     public Optional<H> getHint() {
-        return hint;
+        return Optional.ofNullable(hint);
     }
 
 }

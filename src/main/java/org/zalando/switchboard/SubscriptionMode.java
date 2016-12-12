@@ -20,32 +20,32 @@ public interface SubscriptionMode<T, R> {
 
     R collect(List<T> results);
 
-    // TODO non blocking, at most until end of timeout
+    // TODO document: non blocking, at most until end of timeout
     static <S> SubscriptionMode<S, Void> never() {
         return new Never<>();
     }
 
-    // TODO non blocking, at most until end of timeout
+    // TODO document: non blocking, at most until end of timeout
     static <S> SubscriptionMode<S, List<S>> atMost(final int count) {
         return new AtMost<>(count);
     }
 
-    // TODO exactly, blocking
+    // TODO document: exactly, blocking
     static <S> SubscriptionMode<S, S> exactlyOnce() {
         return new ExactlyOnce<>();
     }
 
-    // TODO exactly, blocking
+    // TODO document: exactly, blocking
     static <S> SubscriptionMode<S, List<S>> times(final int count) {
         return new Times<>(count);
     }
 
-    // TODO non blocking, at most until end of timeout
+    // TODO document: non blocking, at most until end of timeout
     static <S> SubscriptionMode<S, S> atLeastOnce() {
         return new AtLeastOnce<>();
     }
 
-    // TODO non blocking, at most until end of timeout
+    // TODO document: non blocking, at most until end of timeout
     static <S> SubscriptionMode<S, List<S>> atLeast(final int count) {
         return new AtLeast<>(count);
     }

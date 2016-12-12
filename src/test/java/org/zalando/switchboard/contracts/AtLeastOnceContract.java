@@ -11,7 +11,7 @@ import java.util.concurrent.TimeoutException;
 import static java.time.temporal.ChronoUnit.NANOS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.expectThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.Timeout.within;
@@ -22,9 +22,8 @@ public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
     default void shouldFailIfExpectedAtLeastOneButReceivedNone() {
         final Switchboard unit = Switchboard.create();
 
-        final TimeoutException exception = expectThrows(TimeoutException.class, () -> {
-            unit.receive("foo"::equals, atLeastOnce(), within(1, NANOS));
-        });
+        final TimeoutException exception = assertThrows(TimeoutException.class, () ->
+                unit.receive("foo"::equals, atLeastOnce(), within(1, NANOS)));
 
         assertThat(exception.getMessage(), is("Expected at least one Object message(s), but got 0 in 1 nanoseconds"));
     }

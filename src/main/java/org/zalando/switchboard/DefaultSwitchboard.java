@@ -77,7 +77,7 @@ final class DefaultSwitchboard implements Switchboard {
         }
     }
 
-    <T, R> void unregister(final Answer<T, R, ?> answer) {
+    private <T, R> void unregister(final Answer<T, R, ?> answer) {
         if (answers.remove(answer)) {
             LOG.trace("Unregistered [{}].", answer);
         }
@@ -130,9 +130,7 @@ final class DefaultSwitchboard implements Switchboard {
                     .map(this::<T>cast)
                     .findFirst();
 
-            if (first.isPresent()) {
-                recorded.remove(first.get());
-            }
+            first.ifPresent(recorded::remove);
 
             return first;
         });

@@ -10,7 +10,7 @@ public class Times<S> implements SubscriptionMode<S, List<S>> {
 
     private final int count;
 
-    public Times(final int count) {
+    Times(final int count) {
         this.count = count;
     }
 

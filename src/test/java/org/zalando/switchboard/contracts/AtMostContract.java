@@ -11,7 +11,7 @@ import java.util.concurrent.TimeoutException;
 import static java.time.temporal.ChronoUnit.NANOS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.expectThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atMost;
 import static org.zalando.switchboard.Timeout.within;
@@ -48,9 +48,8 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        final IllegalStateException exception = expectThrows(IllegalStateException.class, () -> {
-            unit.receive("foo"::equals, atMost(3), within(1, NANOS));
-        });
+        final IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+                unit.receive("foo"::equals, atMost(3), within(1, NANOS)));
 
         assertThat(exception.getMessage(), is("Expected at most 3 Object message(s), but got 4 in 1 nanoseconds"));
     }
@@ -64,9 +63,8 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        final IllegalStateException exception = expectThrows(IllegalStateException.class, () -> {
-            unit.subscribe("foo"::equals, atMost(3)).get();
-        });
+        final IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+                unit.subscribe("foo"::equals, atMost(3)).get());
 
         assertThat(exception.getMessage(), is("Expected at most 3 Object message(s), but got 4"));
     }
