@@ -10,7 +10,7 @@ final class AtMost<S> implements SubscriptionMode<S, List<S>> {
 
     private final int count;
 
-    public AtMost(final int count) {
+    AtMost(final int count) {
         this.count = count;
     }
 

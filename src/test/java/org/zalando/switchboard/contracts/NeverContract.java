@@ -11,7 +11,7 @@ import java.util.concurrent.TimeoutException;
 import static java.time.temporal.ChronoUnit.NANOS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.expectThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.never;
 import static org.zalando.switchboard.Timeout.within;
@@ -31,9 +31,8 @@ public interface NeverContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
         unit.send(message("foo", deliveryMode()));
 
-        final IllegalStateException exception = expectThrows(IllegalStateException.class, () -> {
-            unit.receive("foo"::equals, never(), within(1, NANOS));
-        });
+        final IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+                unit.receive("foo"::equals, never(), within(1, NANOS)));
 
         assertThat(exception.getMessage(), is("Expected no Object message(s), but got 1 in 1 nanoseconds"));
     }
@@ -44,9 +43,8 @@ public interface NeverContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
         unit.send(message("foo", deliveryMode()));
 
-        final IllegalStateException exception = expectThrows(IllegalStateException.class, () -> {
-            unit.subscribe("foo"::equals, never()).get();
-        });
+        final IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+                unit.subscribe("foo"::equals, never()).get());
 
         assertThat(exception.getMessage(), is("Expected no Object message(s), but got 1"));
     }

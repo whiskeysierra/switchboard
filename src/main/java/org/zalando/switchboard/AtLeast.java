@@ -10,7 +10,7 @@ final class AtLeast<S> implements SubscriptionMode<S, List<S>> {
 
     private final int count;
 
-    public AtLeast(final int count) {
+    AtLeast(final int count) {
         this.count = count;
     }
 

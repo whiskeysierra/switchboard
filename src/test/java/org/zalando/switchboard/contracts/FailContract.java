@@ -7,13 +7,12 @@ import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 import static java.time.temporal.ChronoUnit.NANOS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.jupiter.api.Assertions.expectThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.zalando.switchboard.Deliverable.failure;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
@@ -39,9 +38,8 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
         unit.send(failure("foo", deliveryMode(), new SpecialException()));
 
-        final ExecutionException executionException = expectThrows(ExecutionException.class, () -> {
-            unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS));
-        });
+        final ExecutionException executionException = assertThrows(ExecutionException.class, () ->
+                unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS)));
 
         Assert.assertThat(executionException.getCause(), instanceOf(SpecialException.class));
     }
@@ -52,9 +50,8 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
         unit.send(failure("foo", deliveryMode(), new SpecialCheckedException()));
 
-        final ExecutionException executionException = expectThrows(ExecutionException.class, () -> {
-            unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS));
-        });
+        final ExecutionException executionException = assertThrows(ExecutionException.class, () ->
+                unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS)));
 
         Assert.assertThat(executionException.getCause(), instanceOf(SpecialCheckedException.class));
     }
@@ -65,9 +62,8 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
         unit.send(failure("foo", deliveryMode(), new SpecialThrowable()));
 
-        final ExecutionException executionException = expectThrows(ExecutionException.class, () -> {
-            unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS));
-        });
+        final ExecutionException executionException = assertThrows(ExecutionException.class, () ->
+                unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS)));
 
         Assert.assertThat(executionException.getCause(), instanceOf(SpecialThrowable.class));
     }
@@ -78,9 +74,8 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
         unit.send(failure("foo", deliveryMode(), new SpecialException()));
 
-        final ExecutionException exception = expectThrows(ExecutionException.class, () -> {
-            unit.subscribe("foo"::equals, atLeastOnce()).get(1, NANOSECONDS);
-        });
+        final ExecutionException exception = assertThrows(ExecutionException.class, () ->
+                unit.subscribe("foo"::equals, atLeastOnce()).get(1, NANOSECONDS));
 
         assertThat(exception.getCause(), instanceOf(SpecialException.class));
     }
@@ -91,9 +86,8 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
         unit.send(failure("foo", deliveryMode(), new SpecialException()));
 
-        final ExecutionException exception = expectThrows(ExecutionException.class, () -> {
-            unit.subscribe("foo"::equals, atLeastOnce()).get();
-        });
+        final ExecutionException exception = assertThrows(ExecutionException.class, () ->
+                unit.subscribe("foo"::equals, atLeastOnce()).get());
 
         assertThat(exception.getCause(), instanceOf(SpecialException.class));
     }

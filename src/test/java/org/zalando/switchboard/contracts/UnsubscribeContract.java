@@ -13,7 +13,7 @@ import static java.time.temporal.ChronoUnit.NANOS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.expectThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.SubscriptionMode.never;
@@ -42,9 +42,8 @@ public interface UnsubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTr
 
         unit.send(message(messageA(), deliveryMode()));
 
-        expectThrows(TimeoutException.class, () -> {
-            future.get(1, NANOSECONDS);
-        });
+        assertThrows(TimeoutException.class, () ->
+                future.get(1, NANOSECONDS));
     }
 
 }

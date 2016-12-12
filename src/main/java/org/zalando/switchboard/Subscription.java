@@ -23,11 +23,11 @@ public interface Subscription<E, H> extends Predicate<E> {
     }
 
     static <E, H> Subscription<E, H> on(final Class<E> messageType, final Predicate<E> predicate) {
-        return new SimpleSubscription<>(messageType, predicate, Optional.empty());
+        return new SimpleSubscription<>(messageType, predicate, null);
     }
 
     static <E, H> Subscription<E, H> on(final Class<E> messageType, final Predicate<E> predicate, final H hint) {
-        return new SimpleSubscription<>(messageType, predicate, Optional.of(hint));
+        return new SimpleSubscription<>(messageType, predicate, hint);
     }
 
 }

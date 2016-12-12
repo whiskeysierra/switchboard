@@ -4,7 +4,7 @@ import java.util.List;
 
 final class Broadcast implements DeliveryMode {
 
-    public static final DeliveryMode INSTANCE = new Broadcast();
+    static final DeliveryMode INSTANCE = new Broadcast();
 
     private Broadcast() {
         // singleton

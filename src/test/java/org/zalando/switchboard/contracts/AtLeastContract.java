@@ -11,7 +11,7 @@ import java.util.concurrent.TimeoutException;
 import static java.time.temporal.ChronoUnit.NANOS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.expectThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeast;
 import static org.zalando.switchboard.Timeout.within;
@@ -25,9 +25,8 @@ public interface AtLeastContract<S> extends SubscriptionTrait<S>, DeliveryTrait 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        final TimeoutException exception = expectThrows(TimeoutException.class, () -> {
-            unit.receive("foo"::equals, atLeast(3), within(1, NANOS));
-        });
+        final TimeoutException exception = assertThrows(TimeoutException.class, () ->
+                unit.receive("foo"::equals, atLeast(3), within(1, NANOS)));
 
         assertThat(exception.getMessage(), is("Expected at least 3 Object message(s), but got 2 in 1 nanoseconds"));
     }

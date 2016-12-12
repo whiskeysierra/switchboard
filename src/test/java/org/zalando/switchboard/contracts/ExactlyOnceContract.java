@@ -11,7 +11,7 @@ import java.util.concurrent.TimeoutException;
 import static java.time.temporal.ChronoUnit.NANOS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.expectThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.Timeout.within;
@@ -22,9 +22,8 @@ public interface ExactlyOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
     default void shouldFailIfExpectedOneWithoutTimeout() throws ExecutionException, InterruptedException {
         final Switchboard unit = Switchboard.create();
 
-        final IllegalArgumentException exception = expectThrows(IllegalArgumentException.class, () -> {
-            unit.subscribe("foo"::equals, exactlyOnce()).get();
-        });
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                unit.subscribe("foo"::equals, exactlyOnce()).get());
 
         assertThat(exception.getMessage(), is("Mode ExactlyOnce requires a timeout"));
     }
@@ -33,9 +32,8 @@ public interface ExactlyOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
     default void shouldFailIfExpectedOneButReceivedNone() {
         final Switchboard unit = Switchboard.create();
 
-        final TimeoutException exception = expectThrows(TimeoutException.class, () -> {
-            unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS));
-        });
+        final TimeoutException exception = assertThrows(TimeoutException.class, () ->
+                unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS)));
 
         assertThat(exception.getMessage(), is("Expected exactly one Object message(s), but got 0 in 1 nanoseconds"));
     }
@@ -56,9 +54,8 @@ public interface ExactlyOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        final IllegalStateException exception = expectThrows(IllegalStateException.class, () -> {
-            unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS));
-        });
+        final IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+                unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS)));
 
         assertThat(exception.getMessage(), is("Expected exactly one Object message(s), but got 2 in 1 nanoseconds"));
     }

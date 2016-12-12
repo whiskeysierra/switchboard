@@ -6,7 +6,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 final class Direct implements DeliveryMode {
 
-    public static final DeliveryMode INSTANCE = new Direct();
+    static final DeliveryMode INSTANCE = new Direct();
 
     private Direct() {
         // singleton
@@ -14,7 +14,9 @@ final class Direct implements DeliveryMode {
 
     @Override
     public <S, T> List<Answer<S, T, ?>> distribute(final List<Answer<S, T, ?>> deliveries) {
-        checkState(deliveries.size() == 1, "Too many subscriptions for message %s, expected one", deliveries.get(0).getMessageType().getSimpleName());
+        checkState(deliveries.size() == 1,
+                "Too many subscriptions for message %s, expected one",
+                deliveries.get(0).getMessageType().getSimpleName());
         return deliveries;
     }
 
