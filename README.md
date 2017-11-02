@@ -2,12 +2,12 @@
 
 [![Switchboard](docs/switchboard.jpg)](https://www.flickr.com/photos/justininsd/7888302222/)
 
-[![Build Status](https://img.shields.io/travis/zalando-incubator/switchboard/master.svg)](https://travis-ci.org/zalando-incubator/switchboard)
-[![Coverage Status](https://img.shields.io/coveralls/zalando-incubator/switchboard/master.svg)](https://coveralls.io/r/zalando-incubator/switchboard)
-[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/org.zalando/switchboard/badge.svg)](http://www.javadoc.io/doc/org.zalando/switchboard)
-[![Release](https://img.shields.io/github/release/zalando-incubator/switchboard.svg)](https://github.com/zalando-incubator/switchboard/releases)
+[![Build Status](https://img.shields.io/travis/whiskeysierra/switchboard/master.svg)](https://travis-ci.org/whiskeysierra/switchboard)
+[![Coverage Status](https://img.shields.io/coveralls/whiskeysierra/switchboard/master.svg)](https://coveralls.io/r/whiskeysierra/switchboard)
+[![Javadoc](http://javadoc.io/badge/org.zalando/switchboard.svg)](http://www.javadoc.io/doc/org.zalando/switchboard)
+[![Release](https://img.shields.io/github/release/whiskeysierra/switchboard.svg)](https://github.com/whiskeysierra/switchboard/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/org.zalando/switchboard.svg)](https://maven-badges.herokuapp.com/maven-central/org.zalando/switchboard)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/zalando-incubator/switchboard/master/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/whiskeysierra/switchboard/master/LICENSE)
 
 > **Switchboard** noun, /swɪtʃ bɔːɹd/: The electronic panel that is used to direct telephone calls to the desired recipient.
 

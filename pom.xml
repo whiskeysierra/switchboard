@@ -16,7 +16,7 @@
     <description>
         An in-process message router that helps to write simple, asynchronous, state-based and collaboration tests.
     </description>
-    <url>https://github.com/zalando-incubator/switchboard</url>
+    <url>https://github.com/whiskeysierra/switchboard</url>
 
     <organization>
         <name>Zalando SE</name>
@@ -42,9 +42,9 @@
     </developers>
 
     <scm>
-        <url>https://github.com/zalando-incubator/switchboard</url>
-        <connection>scm:git:git@github.com:zalando-incubator/switchboard.git</connection>
-        <developerConnection>scm:git:git@github.com:zalando-incubator/switchboard.git</developerConnection>
+        <url>https://github.com/whiskeysierra/switchboard</url>
+        <connection>scm:git:git@github.com:whiskeysierra/switchboard.git</connection>
+        <developerConnection>scm:git:git@github.com:whiskeysierra/switchboard.git</developerConnection>
     </scm>
 
     <properties>
