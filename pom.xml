@@ -4,10 +4,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <prerequisites>
-        <maven>3.0.4</maven>
-    </prerequisites>
-
     <groupId>org.zalando</groupId>
     <artifactId>switchboard</artifactId>
     <version>0.3.0-SNAPSHOT</version>
@@ -51,8 +47,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <junit-platform.version>1.0.0-M3</junit-platform.version>
-        <junit-jupiter.version>5.0.0-M3</junit-jupiter.version>
+        <junit-platform.version>1.2.0-RC1</junit-platform.version>
+        <junit-jupiter.version>5.2.0-RC1</junit-jupiter.version>
     </properties>
 
     <dependencies>
@@ -147,6 +143,26 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.0.0-M1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.0.4</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>com.ning.maven.plugins</groupId>
                 <artifactId>maven-duplicate-finder-plugin</artifactId>
                 <version>1.0.9</version>
@@ -186,7 +202,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19.1</version>
+                <version>2.21.0</version>
                 <configuration>
                     <parallel>classesAndMethods</parallel>
                     <threadCount>1</threadCount>
