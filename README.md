@@ -4,6 +4,7 @@
 
 [![Build Status](https://img.shields.io/travis/whiskeysierra/switchboard/master.svg)](https://travis-ci.org/whiskeysierra/switchboard)
 [![Coverage Status](https://img.shields.io/coveralls/whiskeysierra/switchboard/master.svg)](https://coveralls.io/r/whiskeysierra/switchboard)
+[![Code Quality](https://img.shields.io/codacy/grade/c6117b0da34448b4823c37d53cec9109/master.svg)](https://www.codacy.com/app/whiskeysierra/switchboard)
 [![Javadoc](http://javadoc.io/badge/org.zalando/switchboard.svg)](http://www.javadoc.io/doc/org.zalando/switchboard)
 [![Release](https://img.shields.io/github/release/whiskeysierra/switchboard.svg)](https://github.com/whiskeysierra/switchboard/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/org.zalando/switchboard.svg)](https://maven-badges.herokuapp.com/maven-central/org.zalando/switchboard)
