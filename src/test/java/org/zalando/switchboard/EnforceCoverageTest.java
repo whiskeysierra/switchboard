@@ -19,27 +19,16 @@ import static org.mockito.Mockito.when;
 @Hack
 @OhNoYouDidnt
 @RunWith(JUnitPlatform.class)
-public final class EnforceCoverageTest {
+final class EnforceCoverageTest {
 
     @Test
-    public void shouldUseTimeoutConstructor() {
-        new Timeout();
-    }
-
-    @Test
-    public void shouldUseTypeResolverConstructor() {
-        new TypeResolver();
-    }
-
-    @Test
-    public void shouldVisitDeadCatchClauseInNever() throws ExecutionException, TimeoutException, InterruptedException {
+    void shouldVisitDeadCatchClauseInNever() throws ExecutionException, TimeoutException, InterruptedException {
         @SuppressWarnings("unchecked")
         final Future<Void> future = mock(Future.class);
         when(future.get(anyLong(), any())).thenThrow(new TimeoutException());
 
         final Never<String> mode = new Never<>();
         mode.block(future, 1, TimeUnit.NANOSECONDS);
-
     }
 
 }

@@ -5,8 +5,8 @@ import java.time.temporal.ChronoUnit;
 
 public class Timeout {
 
-    Timeout() {
-        // package private so we can trick code coverage
+    private Timeout() {
+
     }
 
     public static Duration within(final long timeout, final ChronoUnit unit) {
