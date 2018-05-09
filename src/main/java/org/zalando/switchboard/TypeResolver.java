@@ -4,8 +4,8 @@ import com.google.common.reflect.TypeToken;
 
 final class TypeResolver {
 
-    TypeResolver() {
-        // package private so we can trick code coverage
+    private TypeResolver() {
+
     }
 
     static <T> Class<T> resolve(final Object instance, final Class<?> type, final int index) {
