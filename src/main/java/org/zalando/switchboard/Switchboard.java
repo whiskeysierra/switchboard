@@ -12,15 +12,14 @@ import java.util.concurrent.TimeoutException;
  */
 public interface Switchboard {
 
-
-    <T, R> R receive(final Subscription<T, ?> subscription, final SubscriptionMode<T, R> mode, final Duration timeout)
+    <T, R> R receive(Subscription<T, ?> subscription, SubscriptionMode<T, R> mode, Duration timeout)
             throws ExecutionException, TimeoutException, InterruptedException;
 
-    <T, R> Future<R> subscribe(final Subscription<T, ?> subscription, final SubscriptionMode<T, R> mode);
+    <T, R> Future<R> subscribe(Subscription<T, ?> subscription, SubscriptionMode<T, R> mode);
 
-    <T, H> List<H> inspect(final Class<T> messageType, final Class<H> hintType);
+    <T, H> List<H> inspect(Class<T> messageType, Class<H> hintType);
 
-    <T> void send(final Deliverable<T> deliverable);
+    <T> void send(Deliverable<T> deliverable);
 
     static Switchboard create() {
         return new DefaultSwitchboard();
