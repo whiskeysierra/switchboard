@@ -1,25 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>org.zalando</groupId>
     <artifactId>switchboard</artifactId>
     <version>0.3.0-SNAPSHOT</version>
-
     <name>Switchboard</name>
     <description>
         An in-process message router that helps to write simple, asynchronous, state-based and collaboration tests.
     </description>
     <url>https://github.com/whiskeysierra/switchboard</url>
-
+    <inceptionYear>2015</inceptionYear>
     <organization>
         <name>Zalando SE</name>
     </organization>
-
-    <inceptionYear>2015</inceptionYear>
-
     <licenses>
         <license>
             <name>MIT License</name>
@@ -27,7 +20,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
     <developers>
         <developer>
             <name>Willi Schönborn</name>
@@ -36,13 +28,21 @@
             <organizationUrl>https://tech.zalando.com/</organizationUrl>
         </developer>
     </developers>
-
     <scm>
         <url>https://github.com/whiskeysierra/switchboard</url>
         <connection>scm:git:git@github.com:whiskeysierra/switchboard.git</connection>
         <developerConnection>scm:git:git@github.com:whiskeysierra/switchboard.git</developerConnection>
     </scm>
-
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -50,7 +50,6 @@
         <junit-platform.version>1.2.0</junit-platform.version>
         <junit-jupiter.version>5.2.0</junit-jupiter.version>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
@@ -140,7 +139,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -277,18 +275,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
-
     <profiles>
         <profile>
             <id>release</id>
@@ -349,5 +335,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>
