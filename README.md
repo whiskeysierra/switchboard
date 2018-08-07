@@ -2,6 +2,7 @@
 
 [![Switchboard](docs/switchboard.jpg)](https://www.flickr.com/photos/justininsd/7888302222/)
 
+[![Stability: Active](https://masterminds.github.io/stability/active.svg)](https://masterminds.github.io/stability/active.html)
 [![Build Status](https://img.shields.io/travis/whiskeysierra/switchboard/master.svg)](https://travis-ci.org/whiskeysierra/switchboard)
 [![Coverage Status](https://img.shields.io/coveralls/whiskeysierra/switchboard/master.svg)](https://coveralls.io/r/whiskeysierra/switchboard)
 [![Code Quality](https://img.shields.io/codacy/grade/c6117b0da34448b4823c37d53cec9109/master.svg)](https://www.codacy.com/app/whiskeysierra/switchboard)
