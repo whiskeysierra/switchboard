@@ -7,18 +7,15 @@ import java.math.BigDecimal;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import static java.time.temporal.ChronoUnit.NANOS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.zalando.switchboard.Deliverable.message;
-import static org.zalando.switchboard.DeliveryMode.broadcast;
-import static org.zalando.switchboard.DeliveryMode.directly;
 import static org.zalando.switchboard.Specification.on;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
-import static org.zalando.switchboard.Timeout.within;
 
 final class SpecificationTest {
 
@@ -36,16 +33,20 @@ final class SpecificationTest {
 
     @Test
     void shouldSupportLambdas() throws TimeoutException, InterruptedException, ExecutionException {
-        unit.send(message("foo", directly()));
+        unit.publish(message("foo"));
         final Specification<String> specification = (String e) -> true;
-        final var actual = unit.receive(specification, exactlyOnce(), within(1, NANOS));
+
+
+        final var actual = unit.subscribe(specification, exactlyOnce()).get(1, NANOSECONDS);
         assertThat(actual, is("foo"));
     }
 
     @Test
     void shouldSupportMethodReference() throws TimeoutException, InterruptedException, ExecutionException {
-        unit.send(message("foo", directly()));
-        final String actual = unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS));
+        unit.publish(message("foo"));
+
+
+        final String actual = unit.subscribe("foo"::equals, SubscriptionMode.<String>exactlyOnce()).get(1, NANOSECONDS);
         assertThat(actual, is("foo"));
     }
 
@@ -60,18 +61,20 @@ final class SpecificationTest {
     void shouldDelegateToPredicate() throws TimeoutException, InterruptedException, ExecutionException {
         final var subscription = on(String.class, "foo"::equals);
 
-        unit.send(message("foo", broadcast()));
-        final var s = unit.receive(subscription, atLeastOnce(), within(1, NANOS));
+        unit.publish(message("foo"));
+
+
+        final var s = unit.subscribe(subscription, atLeastOnce()).get(1, NANOSECONDS);
 
         assertThat(s, is("foo"));
     }
 
     @Test
     void shouldNotMatchDifferentType() {
-        unit.send(message(123, broadcast()));
+        unit.publish(message(123));
 
-        assertThrows(TimeoutException.class, () ->
-                unit.receive(on(BigDecimal.class, Number.class::isInstance), atLeastOnce(), within(1, NANOS)));
+        assertThrows(TimeoutException.class,
+                () -> unit.subscribe(on(BigDecimal.class, Number.class::isInstance), atLeastOnce()).get(1, NANOSECONDS));
     }
 
     @Immutable

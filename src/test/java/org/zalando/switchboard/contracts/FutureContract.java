@@ -2,7 +2,6 @@ package org.zalando.switchboard.contracts;
 
 import org.junit.jupiter.api.Test;
 import org.zalando.switchboard.Switchboard;
-import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -11,14 +10,14 @@ import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 
-interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface FutureContract<S> extends SubscriptionTrait<S> {
 
     @Test
     default void successfulFutureShouldBeDone() {
         final var unit = Switchboard.create();
 
         final var future = unit.subscribe(matchA(), atLeastOnce());
-        unit.send(message(messageA(), deliveryMode()));
+        unit.publish(message(messageA()));
 
         assertThat(future.isDone(), is(true));
     }
@@ -28,7 +27,7 @@ interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         final var unit = Switchboard.create();
 
         final var future = unit.subscribe(matchA(), atLeastOnce());
-        unit.send(message(messageA(), deliveryMode()));
+        unit.publish(message(messageA()));
 
         assertThat(future.isCancelled(), is(false));
     }
@@ -66,7 +65,7 @@ interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         final var unit = Switchboard.create();
 
         final var future = unit.subscribe(matchA(), atLeastOnce());
-        unit.send(message(messageA(), deliveryMode()));
+        unit.publish(message(messageA()));
 
         assertThat(future.cancel(true), is(false));
     }

@@ -1,10 +1,6 @@
 package org.zalando.switchboard;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public interface SubscriptionMode<T, R> {
 
@@ -12,8 +8,6 @@ public interface SubscriptionMode<T, R> {
     default boolean requiresTimeout() {
         return false;
     }
-
-    R block(final Future<R> future, final long timeout, final TimeUnit timeoutUnit) throws ExecutionException, TimeoutException, InterruptedException;
 
     boolean isDone(int received);
 

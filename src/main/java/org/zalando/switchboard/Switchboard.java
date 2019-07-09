@@ -1,9 +1,6 @@
 package org.zalando.switchboard;
 
-import java.time.Duration;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeoutException;
 
 /**
  * publish/subscribe, async, hand-over/broadcast
@@ -11,23 +8,20 @@ import java.util.concurrent.TimeoutException;
  */
 public interface Switchboard {
 
-    <T> void send(Deliverable<T> deliverable);
-
-    <T, R> R receive(Specification<T> specification, SubscriptionMode<T, R> mode, Duration timeout)
-            throws ExecutionException, TimeoutException, InterruptedException;
-
     <T, R> Future<R> subscribe(Specification<T> specification, SubscriptionMode<T, R> mode);
+
+    <T> void publish(Deliverable<T> deliverable);
 
     static Switchboard create() {
         return builder().build();
     }
 
-    static RecipientsStage builder() {
-        return new DefaultSwitchboardBuilder();
+    static RegistryStage builder() {
+        return new Builder();
     }
 
-    interface RecipientsStage extends AnsweringMachineStage {
-        AnsweringMachineStage recipients(Subscriptions subscriptions);
+    interface RegistryStage extends AnsweringMachineStage {
+        AnsweringMachineStage registry(Registry registry);
     }
 
     interface AnsweringMachineStage extends BuildStage {

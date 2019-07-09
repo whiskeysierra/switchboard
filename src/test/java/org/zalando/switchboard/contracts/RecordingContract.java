@@ -3,7 +3,6 @@ package org.zalando.switchboard.contracts;
 import org.junit.jupiter.api.Test;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.TestTimeout;
-import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
@@ -16,14 +15,14 @@ import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
-interface RecordingContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface RecordingContract<S> extends SubscriptionTrait<S> {
 
     @Test
     default void shouldDeliverRecordedMessagesToSubscriptions() throws ExecutionException, InterruptedException, TimeoutException {
         final var unit = Switchboard.create();
 
-        unit.send(message(messageA(), deliveryMode()));
-        unit.send(message(messageA(), deliveryMode()));
+        unit.publish(message(messageA()));
+        unit.publish(message(messageA()));
 
         final var firstResult = unit.subscribe(matchA(), atLeastOnce());
         final var first = firstResult.get(1, TimeUnit.NANOSECONDS);
@@ -40,8 +39,8 @@ interface RecordingContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
-            unit.send(message(messageA(), deliveryMode()));
-            unit.send(message(messageA(), deliveryMode()));
+            unit.publish(message(messageA()));
+            unit.publish(message(messageA()));
 
             final var firstResult = unit.subscribe(matchA(), atLeastOnce());
             final var secondResult = unit.subscribe(matchA(), atLeastOnce());
@@ -59,12 +58,12 @@ interface RecordingContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
-            unit.send(message(messageA(), deliveryMode()));
+            unit.publish(message(messageA()));
 
             final var firstResult = unit.subscribe(matchA(), atLeastOnce());
             final var first = firstResult.get();
 
-            unit.send(message(messageA(), deliveryMode()));
+            unit.publish(message(messageA()));
 
             final var secondResult = unit.subscribe(matchA(), atLeastOnce());
             final var second = secondResult.get();
@@ -79,14 +78,14 @@ interface RecordingContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
-            unit.send(message(messageA(), deliveryMode()));
+            unit.publish(message(messageA()));
 
             final var firstResult = unit.subscribe(matchA(), atLeastOnce());
             final var first = firstResult.get();
 
             final var secondResult = unit.subscribe(matchA(), atLeastOnce());
 
-            unit.send(message(messageA(), deliveryMode()));
+            unit.publish(message(messageA()));
 
             final var second = secondResult.get();
 
@@ -100,12 +99,12 @@ interface RecordingContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
-            unit.send(message(messageA(), deliveryMode()));
+            unit.publish(message(messageA()));
 
             final var firstResult = unit.subscribe(matchA(), atLeastOnce());
             final var secondResult = unit.subscribe(matchA(), atLeastOnce());
 
-            unit.send(message(messageA(), deliveryMode()));
+            unit.publish(message(messageA()));
 
             final var first = firstResult.get();
             final var second = secondResult.get();

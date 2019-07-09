@@ -1,10 +1,6 @@
 package org.zalando.switchboard;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class Times<S> implements SubscriptionMode<S, List<S>> {
 
@@ -17,12 +13,6 @@ public class Times<S> implements SubscriptionMode<S, List<S>> {
     @Override
     public boolean requiresTimeout() {
         return true;
-    }
-
-    @Override
-    public List<S> block(final Future<List<S>> future, final long timeout, final TimeUnit timeoutUnit)
-            throws InterruptedException, ExecutionException, TimeoutException {
-        return future.get(timeout, timeoutUnit);
     }
 
     @Override
@@ -42,7 +32,14 @@ public class Times<S> implements SubscriptionMode<S, List<S>> {
 
     @Override
     public String toString() {
-        return "exactly " + count;
+        switch (count) {
+            case 1:
+                return "once";
+            case 2:
+                return "twice";
+            default:
+                return count + " times";
+        }
     }
 
 }

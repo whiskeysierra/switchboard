@@ -2,51 +2,50 @@ package org.zalando.switchboard.contracts;
 
 import org.junit.jupiter.api.Test;
 import org.zalando.switchboard.Switchboard;
-import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import static java.time.temporal.ChronoUnit.NANOS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.never;
-import static org.zalando.switchboard.Timeout.within;
 
-interface NeverContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface NeverContract<S> extends SubscriptionTrait<S> {
 
     @Test
     default void shouldNotFailIfExpectedNoneAndReceivedNone() throws InterruptedException, TimeoutException, ExecutionException {
         final var unit = Switchboard.create();
 
-        unit.receive("foo"::equals, never(), within(1, NANOS));
+
+        unit.subscribe("foo"::equals, never()).get(1, NANOSECONDS);
     }
 
     @Test
     default void shouldFailIfExpectedNoneButReceivedOneWithTimeout() {
         final var unit = Switchboard.create();
 
-        unit.send(message("foo", deliveryMode()));
+        unit.publish(message("foo"));
 
-        final var exception = assertThrows(IllegalStateException.class, () ->
-                unit.receive("foo"::equals, never(), within(1, NANOS)));
+        final var exception = assertThrows(IllegalStateException.class,
+                () -> unit.subscribe("foo"::equals, never()).get(1, NANOSECONDS));
 
-        assertThat(exception.getMessage(), is("Expected no Object message(s), but got 1 in 1 nanoseconds"));
+        assertThat(exception.getMessage(), is("Expected to receive Object message(s) not even once within 1 nanoseconds, but got 1"));
     }
 
     @Test
     default void shouldFailIfExpectedNoneButReceivedOneWithoutTimeout() {
         final var unit = Switchboard.create();
 
-        unit.send(message("foo", deliveryMode()));
+        unit.publish(message("foo"));
 
         final var exception = assertThrows(IllegalStateException.class, () ->
                 unit.subscribe("foo"::equals, never()).get());
 
-        assertThat(exception.getMessage(), is("Expected no Object message(s), but got 1"));
+        assertThat(exception.getMessage(), is("Expected to receive Object message(s) not even once, but got 1"));
     }
 
 }

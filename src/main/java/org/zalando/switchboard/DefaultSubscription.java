@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -49,6 +48,7 @@ final class DefaultSubscription<T, R> implements Subscription<T, R> {
     public void deliver(final Deliverable<T> deliverable) {
         queue.add(deliverable);
 
+        // TODO race condition between queue + increment?
         if (mode.isDone(delivered.incrementAndGet())) {
             finish(State.DONE);
         }
@@ -90,7 +90,7 @@ final class DefaultSubscription<T, R> implements Subscription<T, R> {
     }
 
     @Override
-    public R get() throws InterruptedException, ExecutionException {
+    public R get() throws InterruptedException {
         checkTimeoutRequirement();
 
         try {
@@ -99,11 +99,11 @@ final class DefaultSubscription<T, R> implements Subscription<T, R> {
 
             while (!mode.isDone(received)) {
                 final var deliverable = queue.take();
-                deliver(results, deliverable);
+                deliverable.deliverTo(results);
                 received++;
             }
 
-            return verifyAndTransform(results, received, this::message);
+            return verifyAndTransform(results, received, this::format);
         } finally {
             unregister();
         }
@@ -114,7 +114,7 @@ final class DefaultSubscription<T, R> implements Subscription<T, R> {
     }
 
     @Override
-    public R get(final long timeout, final TimeUnit timeoutUnit) throws InterruptedException, ExecutionException, TimeoutException {
+    public R get(final long timeout, final TimeUnit timeoutUnit) throws InterruptedException, TimeoutException {
         try {
             final List<T> results = new ArrayList<>();
             var received = 0;
@@ -123,27 +123,26 @@ final class DefaultSubscription<T, R> implements Subscription<T, R> {
 
             while (!mode.isDone(received)) {
                 final var deliverable = queue.poll(deadline - System.nanoTime(), NANOSECONDS);
-                final var timedOut = deliverable == null;
+                final var elapsed = deliverable == null;
 
-                if (timedOut) {
-                    verifyTimeout(received, timeout, timeoutUnit);
-                    break;
+                if (elapsed) {
+                    if (mode.isSuccess(received)) {
+                        break;
+                    }
+
+                    throw new TimeoutException(format(received, timeout, timeoutUnit));
                 }
 
-                deliver(results, deliverable);
+                deliverable.deliverTo(results);
 
                 received++;
             }
 
             return verifyAndTransform(results, received, count ->
-                    message(count, timeout, timeoutUnit));
+                    format(count, timeout, timeoutUnit));
         } finally {
             unregister();
         }
-    }
-
-    private void deliver(final List<T> results, final Deliverable<T> deliverable) {
-        deliverable.deliverTo(results);
     }
 
     private R verifyAndTransform(final List<T> results, final int received, final Function<Integer, String> message) {
@@ -154,26 +153,19 @@ final class DefaultSubscription<T, R> implements Subscription<T, R> {
         }
     }
 
-    private void verifyTimeout(final int received, final long timeout, final TimeUnit timeoutUnit) throws TimeoutException {
-        if (!mode.isSuccess(received)) {
-            throw new TimeoutException(message(received, timeout, timeoutUnit));
-        }
+    private String format(final int received) {
+        return String.format("Expected to receive %s message(s) %s, but got %d",
+                getMessageName(), mode, received);
     }
 
-    private String message(final int received) {
-        return format("Expected %s %s message(s), but got %d", mode, getMessageName(), received);
-    }
-
-    private String message(final int received, final long timeout, final TimeUnit timeoutUnit) {
-        return format("Expected %s %s message(s), but got %d in %d %s", mode, getMessageName(), received, timeout, humanize(timeoutUnit));
+    private String format(final int received, final long timeout, final TimeUnit timeoutUnit) {
+        final String unit = timeoutUnit.name().toLowerCase(Locale.ENGLISH);
+        return String.format("Expected to receive %s message(s) %s within %d %s, but got %d",
+                getMessageName(), mode, timeout, unit, received);
     }
 
     private String getMessageName() {
         return specification.getMessageType().getSimpleName();
-    }
-
-    private String humanize(final TimeUnit timeoutUnit) {
-        return timeoutUnit.name().toLowerCase(Locale.ENGLISH);
     }
 
 }

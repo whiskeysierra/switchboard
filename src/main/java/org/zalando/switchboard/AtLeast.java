@@ -1,10 +1,6 @@
 package org.zalando.switchboard;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 final class AtLeast<S> implements SubscriptionMode<S, List<S>> {
 
@@ -12,12 +8,6 @@ final class AtLeast<S> implements SubscriptionMode<S, List<S>> {
 
     AtLeast(final int count) {
         this.count = count;
-    }
-
-    @Override
-    public List<S> block(final Future<List<S>> future, final long timeout, final TimeUnit timeoutUnit)
-            throws InterruptedException, ExecutionException, TimeoutException {
-        return future.get(timeout, timeoutUnit);
     }
 
     @Override
@@ -37,6 +27,6 @@ final class AtLeast<S> implements SubscriptionMode<S, List<S>> {
 
     @Override
     public String toString() {
-        return "at least " + count;
+        return "at least " + count + " times";
     }
 }

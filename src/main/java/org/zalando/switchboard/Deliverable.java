@@ -12,12 +12,10 @@ public interface Deliverable<T> {
      */
     void deliverTo(Collection<? super T> target);
 
-    T getMessage();
+    <R> boolean satisfies(Specification<R> specification);
 
-    DeliveryMode getDeliveryMode();
-
-    static <T> Deliverable<T> message(final T message, final DeliveryMode mode) {
-        return new Message<>(message, mode);
+    static <T> Deliverable<T> message(final T message) {
+        return new Message<>(message);
     }
 
 }

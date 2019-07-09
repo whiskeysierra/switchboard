@@ -2,49 +2,49 @@ package org.zalando.switchboard.contracts;
 
 import org.junit.jupiter.api.Test;
 import org.zalando.switchboard.Switchboard;
-import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import static java.time.temporal.ChronoUnit.NANOS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
-import static org.zalando.switchboard.Timeout.within;
 
-interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface AtLeastOnceContract<S> extends SubscriptionTrait<S> {
 
     @Test
     default void shouldFailIfExpectedAtLeastOneButReceivedNone() {
         final var unit = Switchboard.create();
 
-        final var exception = assertThrows(TimeoutException.class, () ->
-                unit.receive("foo"::equals, atLeastOnce(), within(1, NANOS)));
+        final var exception = assertThrows(TimeoutException.class,
+                () -> unit.subscribe("foo"::equals, atLeastOnce()).get(1, NANOSECONDS));
 
-        assertThat(exception.getMessage(), is("Expected at least one Object message(s), but got 0 in 1 nanoseconds"));
+        assertThat(exception.getMessage(), is("Expected to receive Object message(s) at least once within 1 nanoseconds, but got 0"));
     }
 
     @Test
     default void shouldNotFailIfExpectedAtLeastOneAndReceivedExactlyOne() throws TimeoutException, InterruptedException, ExecutionException {
         final var unit = Switchboard.create();
 
-        unit.send(message("foo", deliveryMode()));
+        unit.publish(message("foo"));
 
-        unit.receive("foo"::equals, atLeastOnce(), within(1, NANOS));
+
+        unit.subscribe("foo"::equals, atLeastOnce()).get(1, NANOSECONDS);
     }
 
     @Test
     default void shouldNotFailIfExpectedAtLeastOneAndReceivedTwo() throws TimeoutException, InterruptedException, ExecutionException {
         final var unit = Switchboard.create();
 
-        unit.send(message("foo", deliveryMode()));
-        unit.send(message("foo", deliveryMode()));
+        unit.publish(message("foo"));
+        unit.publish(message("foo"));
 
-        unit.receive("foo"::equals, atLeastOnce(), within(1, NANOS));
+
+        unit.subscribe("foo"::equals, atLeastOnce()).get(1, NANOSECONDS);
     }
 
 }

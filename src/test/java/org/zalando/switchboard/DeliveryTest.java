@@ -2,7 +2,6 @@ package org.zalando.switchboard;
 
 import org.junit.jupiter.api.Test;
 import org.zalando.switchboard.contracts.DeliveryContract;
-import org.zalando.switchboard.traits.BroadcastDeliveryTrait;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -11,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
-final class BroadcastDeliveryTest implements BroadcastDeliveryTrait, DeliveryContract {
+final class DeliveryTest implements DeliveryContract {
 
     private final Switchboard unit = Switchboard.create();
 
@@ -21,8 +20,8 @@ final class BroadcastDeliveryTest implements BroadcastDeliveryTrait, DeliveryCon
             final var firstResult = unit.subscribe(matchA(), atLeastOnce());
             final var secondResult = unit.subscribe(matchA(), atLeastOnce());
 
-            unit.send(message(messageA(), deliveryMode()));
-            unit.send(message(messageA(), deliveryMode()));
+            unit.publish(message(messageA()));
+            unit.publish(message(messageA()));
 
             final var first = firstResult.get();
             final var second = secondResult.get();

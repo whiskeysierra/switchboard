@@ -6,9 +6,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static java.util.stream.Collectors.toList;
 
-public final class QueueSubscriptions implements Subscriptions {
+public final class QueueRegistry implements Registry {
 
-    private final Queue<Subscription> subscriptions = new ConcurrentLinkedQueue<>();
+    private final Queue<Subscription<?, ?>> subscriptions = new ConcurrentLinkedQueue<>();
 
     @Override
     public <T, R> void register(final Subscription<T, R> subscription) {
@@ -16,12 +16,11 @@ public final class QueueSubscriptions implements Subscriptions {
     }
 
     @Override
-    public <T, R> List<Subscription<T, R>> find(final T message) {
+    public <T, R> List<Subscription<T, R>> find(final Deliverable<T> deliverable) {
         return subscriptions.stream()
-            .map(this::<T, R>cast)
-            .filter(subscription -> subscription.getMessageType().isInstance(message))
-            .filter(subscription -> subscription.test(message))
-            .collect(toList());
+                .filter(deliverable::satisfies)
+                .map(this::<T, R>cast)
+                .collect(toList());
     }
 
     @SuppressWarnings("unchecked")

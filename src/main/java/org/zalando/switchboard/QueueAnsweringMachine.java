@@ -25,15 +25,11 @@ public final class QueueAnsweringMachine implements AnsweringMachine {
         final var iterator = queue.iterator();
 
         while (iterator.hasNext()) {
-            final Deliverable<?> raw = iterator.next();
+            final Deliverable<?> deliverable = iterator.next();
 
-            if (specification.getMessageType().isInstance(raw.getMessage())) {
-                final Deliverable<T> deliverable = cast(raw);
-
-                if (specification.test(deliverable.getMessage())) {
-                    iterator.remove();
-                    return Optional.of(deliverable);
-                }
+            if (deliverable.satisfies(specification)) {
+                iterator.remove();
+                return Optional.of(cast(deliverable));
             }
         }
 
@@ -41,8 +37,8 @@ public final class QueueAnsweringMachine implements AnsweringMachine {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Deliverable<T> cast(final Deliverable deliverable) {
-        return deliverable;
+    private <T> Deliverable<T> cast(final Deliverable<?> deliverable) {
+        return (Deliverable<T>) deliverable;
     }
 
 }

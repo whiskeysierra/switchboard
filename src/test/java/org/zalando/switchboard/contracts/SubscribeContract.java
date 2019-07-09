@@ -3,12 +3,10 @@ package org.zalando.switchboard.contracts;
 import org.junit.jupiter.api.Test;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.TestTimeout;
-import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.TimeoutException;
 
-import static java.time.temporal.ChronoUnit.NANOS;
 import static java.util.Collections.frequency;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -21,9 +19,8 @@ import static org.zalando.switchboard.SubscriptionMode.atLeast;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.SubscriptionMode.times;
-import static org.zalando.switchboard.Timeout.within;
 
-interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface SubscribeContract<S> extends SubscriptionTrait<S> {
 
     @Test
     default void shouldDeliverMessageToSubscriptions() {
@@ -31,10 +28,10 @@ interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
             final var unit = Switchboard.create();
 
             final var firstResult = unit.subscribe(matchA(), atLeastOnce());
-            unit.send(message(messageA(), deliveryMode()));
+            unit.publish(message(messageA()));
 
             final var secondResult = unit.subscribe(matchA(), atLeastOnce());
-            unit.send(message(messageA(), deliveryMode()));
+            unit.publish(message(messageA()));
 
             final var first = firstResult.get();
             final var second = secondResult.get();
@@ -51,8 +48,8 @@ interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
             final var firstResult = unit.subscribe(matchA(), atLeastOnce());
 
-            unit.send(message(messageA(), deliveryMode()));
-            unit.send(message(messageB(), deliveryMode()));
+            unit.publish(message(messageA()));
+            unit.publish(message(messageB()));
 
             final var first = firstResult.get();
             assertThat(first, is(messageA()));
@@ -64,11 +61,10 @@ interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
-            unit.send(message(messageA(), deliveryMode()));
-            unit.send(message(messageA(), deliveryMode()));
+            unit.publish(message(messageA()));
+            unit.publish(message(messageA()));
 
-            assertThrows(TimeoutException.class, () ->
-                    unit.receive(matchB(), exactlyOnce(), within(1, NANOS)));
+            assertThrows(TimeoutException.class, () -> unit.subscribe(matchB(), exactlyOnce()).get(1, NANOSECONDS));
         });
     }
 
@@ -80,10 +76,11 @@ interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
             final var count = 5;
 
             for (var i = 0; i < count; i++) {
-                unit.send(message(messageA(), deliveryMode()));
+                unit.publish(message(messageA()));
             }
 
-            final var messages = unit.receive(matchA(), times(count), within(1, NANOS));
+
+            final var messages = unit.subscribe(matchA(), times(count)).get(1, NANOSECONDS);
 
             assertThat(messages, hasSize(count));
             assertThat(frequency(messages, messageA()), is(count));
@@ -100,7 +97,7 @@ interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
             final var future = unit.subscribe(matchA(), atLeast(count));
 
             for (var i = 0; i < count; i++) {
-                unit.send(message(messageA(), deliveryMode()));
+                unit.publish(message(messageA()));
             }
 
             final var messages = future.get();
@@ -120,7 +117,7 @@ interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
             final var future = unit.subscribe(matchA(), times(count));
 
             for (var i = 0; i < count; i++) {
-                unit.send(message(messageA(), deliveryMode()));
+                unit.publish(message(messageA()));
             }
 
             final var messages = future.get(1, NANOSECONDS);
