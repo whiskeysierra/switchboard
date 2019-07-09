@@ -20,7 +20,6 @@ interface NeverContract<S> extends SubscriptionTrait<S> {
     default void shouldNotFailIfExpectedNoneAndReceivedNone() throws InterruptedException, TimeoutException, ExecutionException {
         final var unit = Switchboard.create();
 
-
         unit.subscribe("foo"::equals, never()).get(1, NANOSECONDS);
     }
 

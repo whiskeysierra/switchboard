@@ -79,7 +79,6 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
                 unit.publish(message(messageA()));
             }
 
-
             final var messages = unit.subscribe(matchA(), times(count)).get(1, NANOSECONDS);
 
             assertThat(messages, hasSize(count));

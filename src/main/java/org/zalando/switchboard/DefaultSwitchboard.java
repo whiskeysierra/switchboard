@@ -1,11 +1,9 @@
 package org.zalando.switchboard;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.Future;
 
-@Slf4j
 @AllArgsConstructor
 final class DefaultSwitchboard implements Switchboard {
 
@@ -42,7 +40,6 @@ final class DefaultSwitchboard implements Switchboard {
         } else {
             for (final var subscription : matches) {
                 subscription.deliver(deliverable);
-                log.info("Successfully matched delivery [{}] to [{}]", deliverable, subscription);
             }
         }
     }

@@ -36,7 +36,6 @@ final class SpecificationTest {
         unit.publish(message("foo"));
         final Specification<String> specification = (String e) -> true;
 
-
         final var actual = unit.subscribe(specification, exactlyOnce()).get(1, NANOSECONDS);
         assertThat(actual, is("foo"));
     }
@@ -44,7 +43,6 @@ final class SpecificationTest {
     @Test
     void shouldSupportMethodReference() throws TimeoutException, InterruptedException, ExecutionException {
         unit.publish(message("foo"));
-
 
         final String actual = unit.subscribe("foo"::equals, SubscriptionMode.<String>exactlyOnce()).get(1, NANOSECONDS);
         assertThat(actual, is("foo"));
@@ -62,7 +60,6 @@ final class SpecificationTest {
         final var subscription = on(String.class, "foo"::equals);
 
         unit.publish(message("foo"));
-
 
         final var s = unit.subscribe(subscription, atLeastOnce()).get(1, NANOSECONDS);
 

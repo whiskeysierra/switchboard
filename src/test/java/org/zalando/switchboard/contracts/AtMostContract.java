@@ -24,7 +24,6 @@ interface AtMostContract<S> extends SubscriptionTrait<S> {
         unit.publish(message("foo"));
         unit.publish(message("foo"));
 
-
         unit.subscribe("foo"::equals, atMost(3)).get(1, NANOSECONDS);
     }
 
@@ -35,7 +34,6 @@ interface AtMostContract<S> extends SubscriptionTrait<S> {
         unit.publish(message("foo"));
         unit.publish(message("foo"));
         unit.publish(message("foo"));
-
 
         unit.subscribe("foo"::equals, atMost(3)).get(1, NANOSECONDS);
     }

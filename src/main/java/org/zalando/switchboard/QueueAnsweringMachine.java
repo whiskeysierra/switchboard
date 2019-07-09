@@ -1,20 +1,20 @@
 package org.zalando.switchboard;
 
-import com.google.common.collect.EvictingQueue;
-import com.google.common.collect.Queues;
+import com.google.common.cache.CacheBuilder;
 import lombok.AllArgsConstructor;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
-import java.util.Queue;
 
 @AllArgsConstructor
 public final class QueueAnsweringMachine implements AnsweringMachine {
 
-    private final Queue<Deliverable<?>> queue;
+    private final Collection<Deliverable<?>> queue;
 
-    @SuppressWarnings("UnstableApiUsage")
     public QueueAnsweringMachine() {
-        this(Queues.synchronizedQueue(EvictingQueue.create(1_000)));
+        this(Collections.newSetFromMap(CacheBuilder.newBuilder()
+                .maximumSize(100).<Deliverable<?>, Boolean>build().asMap()));
     }
 
     @Override

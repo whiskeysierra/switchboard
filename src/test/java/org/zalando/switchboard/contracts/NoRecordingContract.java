@@ -2,7 +2,7 @@ package org.zalando.switchboard.contracts;
 
 import org.junit.jupiter.api.Test;
 import org.zalando.switchboard.NoAnsweringMachine;
-import org.zalando.switchboard.QueueRegistry;
+import org.zalando.switchboard.DefaultRegistry;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
@@ -18,7 +18,7 @@ interface NoRecordingContract<S> extends SubscriptionTrait<S> {
     @Test
     default void shouldNotRecordMessages() {
         final var unit = Switchboard.builder()
-                .registry(new QueueRegistry()) // to fake coverage
+                .registry(new DefaultRegistry()) // to fake coverage
                 .answeringMachine(new NoAnsweringMachine())
                 .build();
 

@@ -13,7 +13,7 @@ final class Builder implements RegistryStage {
     private final AnsweringMachine machine;
 
     Builder() {
-        this(new QueueRegistry(), new QueueAnsweringMachine());
+        this(new DefaultRegistry(), new QueueAnsweringMachine());
     }
 
     @Override

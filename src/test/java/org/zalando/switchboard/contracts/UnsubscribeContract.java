@@ -24,11 +24,9 @@ interface UnsubscribeContract<S> extends SubscriptionTrait<S> {
 
         // expected to unsubscribe itself in 1 ns
 
-
         unit.subscribe("foo"::equals, never()).get(1, NANOSECONDS);
 
         unit.publish(message("foo"));
-
 
         final String actual = unit.subscribe("foo"::equals, SubscriptionMode.<String>exactlyOnce()).get(1, NANOSECONDS);
         assertThat(actual, is("foo"));

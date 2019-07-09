@@ -36,5 +36,4 @@ final class SubscriptionModeTest {
                         assertThat(entry.getKey(), hasToString(entry.getValue()))));
     }
 
-
 }

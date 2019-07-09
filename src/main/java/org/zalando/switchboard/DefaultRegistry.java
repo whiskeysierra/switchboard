@@ -1,14 +1,15 @@
 package org.zalando.switchboard;
 
+import com.google.common.collect.ConcurrentHashMultiset;
+import com.google.common.collect.Multiset;
+
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static java.util.stream.Collectors.toList;
 
-public final class QueueRegistry implements Registry {
+public final class DefaultRegistry implements Registry {
 
-    private final Queue<Subscription<?, ?>> subscriptions = new ConcurrentLinkedQueue<>();
+    private final Multiset<Subscription<?, ?>> subscriptions = ConcurrentHashMultiset.create();
 
     @Override
     public <T, R> void register(final Subscription<T, R> subscription) {

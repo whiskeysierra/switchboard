@@ -47,7 +47,6 @@ interface TimesContract<S> extends SubscriptionTrait<S> {
         unit.publish(message("foo"));
         unit.publish(message("foo"));
 
-
         unit.subscribe("foo"::equals, times(3)).get(1, NANOSECONDS);
     }
 
