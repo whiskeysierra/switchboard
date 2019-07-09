@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.copyOf;
 import static java.util.stream.Collectors.toList;
 
 final class DefaultSwitchboard implements Switchboard {
@@ -25,7 +24,7 @@ final class DefaultSwitchboard implements Switchboard {
 
     private final LockSupport lock = new LockSupport();
 
-    private <T, R> List<Answer<T, R, ?>> find(final Deliverable<T> deliverable) {
+    private <T, R> List<Answer<T, R>> find(final Deliverable<T> deliverable) {
         return answers.stream()
                 .filter(input -> input.test(deliverable.getMessage()))
                 .map(this::<T, R>cast)
@@ -39,7 +38,7 @@ final class DefaultSwitchboard implements Switchboard {
 
     private <T, R> void deliver(final Deliverable<T> deliverable) {
         lock.transactional(() -> {
-            final List<Answer<T, R, ?>> matches = find(deliverable);
+            final List<Answer<T, R>> matches = find(deliverable);
 
             if (matches.isEmpty()) {
                 recorded.add(deliverable);
@@ -51,18 +50,18 @@ final class DefaultSwitchboard implements Switchboard {
     }
 
     @SuppressWarnings("unchecked")
-    private <T, R> Answer<T, R, ?> cast(final Answer answer) {
+    private <T, R> Answer<T, R> cast(final Answer answer) {
         return answer;
     }
 
-    private <T, R> void deliverTo(final List<Answer<T, R, ?>> list, final Deliverable<T> deliverable) {
+    private <T, R> void deliverTo(final List<Answer<T, R>> list, final Deliverable<T> deliverable) {
         for (final var answer : list) {
             answer.deliver(deliverable);
             LOG.info("Successfully matched message [{}] to [{}]", deliverable.getMessage(), answer);
         }
     }
 
-    private <T, R> void unregister(final Answer<T, R, ?> answer) {
+    private <T, R> void unregister(final Answer<T, R> answer) {
         if (answers.remove(answer)) {
             LOG.trace("Unregistered [{}].", answer);
         }
@@ -76,8 +75,8 @@ final class DefaultSwitchboard implements Switchboard {
     }
 
     @Override
-    public <T, R> Answer<T, R, ?> subscribe(final Subscription<T> subscription, final SubscriptionMode<T, R> mode) {
-        final Answer<T, R, ?> answer = new Answer<>(subscription, mode, this::unregister);
+    public <T, R> Answer<T, R> subscribe(final Subscription<T> subscription, final SubscriptionMode<T, R> mode) {
+        final Answer<T, R> answer = new Answer<>(subscription, mode, this::unregister);
 
         registerForFutureMessages(answer);
         tryDeliverRecordedMessages(answer);
@@ -85,7 +84,7 @@ final class DefaultSwitchboard implements Switchboard {
         return answer;
     }
 
-    private <T, R> void registerForFutureMessages(final Answer<T, R, ?> answer) {
+    private <T, R> void registerForFutureMessages(final Answer<T, R> answer) {
         lock.transactional(() -> {
             checkState(!answers.contains(answer), "[%s] is already registered", answer);
             answers.add(answer);
@@ -93,7 +92,7 @@ final class DefaultSwitchboard implements Switchboard {
         });
     }
 
-    private <T, R> void tryDeliverRecordedMessages(final Answer<T, R, ?> answer) {
+    private <T, R> void tryDeliverRecordedMessages(final Answer<T, R> answer) {
         while (!answer.isDone()) {
             final var match = findAndRemove(answer);
 
@@ -108,7 +107,7 @@ final class DefaultSwitchboard implements Switchboard {
         }
     }
 
-    private <T, R> Optional<Deliverable<T>> findAndRemove(final Answer<T, R, ?> answer) {
+    private <T, R> Optional<Deliverable<T>> findAndRemove(final Answer<T, R> answer) {
         return lock.transactional(() -> {
             final var first = recorded.stream()
                     .filter(deliverable -> answer.test(deliverable.getMessage()))

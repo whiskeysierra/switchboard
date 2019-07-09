@@ -13,7 +13,7 @@ public interface Subscription<E> extends Predicate<E> {
         return resolve(this, Subscription.class, 0);
     }
 
-    static <E, H> Subscription<E> on(final Class<E> messageType, final Predicate<E> predicate) {
+    static <E> Subscription<E> on(final Class<E> messageType, final Predicate<E> predicate) {
         return new SimpleSubscription<>(messageType, predicate);
     }
 

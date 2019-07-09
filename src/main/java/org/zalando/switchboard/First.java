@@ -11,7 +11,7 @@ final class First implements DeliveryMode {
     }
 
     @Override
-    public <S, T> List<Answer<S, T, ?>> distribute(final List<Answer<S, T, ?>> deliveries) {
+    public <S, T> List<Answer<S, T>> distribute(final List<Answer<S, T>> deliveries) {
         return deliveries.subList(0, 1);
     }
 

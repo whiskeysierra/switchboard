@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
-final class Answer<T, R, H> implements Future<R>, Predicate<Object> {
+final class Answer<T, R> implements Future<R>, Predicate<Object> {
 
     enum State {
         WAITING, DONE, CANCELLED
@@ -31,14 +31,14 @@ final class Answer<T, R, H> implements Future<R>, Predicate<Object> {
 
     private final Subscription<T> subscription;
     private final SubscriptionMode<T, R> mode;
-    private final Consumer<Answer<T, R, H>> unregister;
+    private final Consumer<Answer<T, R>> unregister;
 
     private final BlockingQueue<Deliverable<T>> queue = new LinkedBlockingQueue<>();
     private final AtomicInteger delivered = new AtomicInteger();
 
     private final LockSupport lock = new LockSupport();
 
-    Answer(final Subscription<T> subscription, final SubscriptionMode<T, R> mode, final Consumer<Answer<T, R, H>> unregister) {
+    Answer(final Subscription<T> subscription, final SubscriptionMode<T, R> mode, final Consumer<Answer<T, R>> unregister) {
         this.subscription = subscription;
         this.mode = mode;
         this.unregister = unregister;
