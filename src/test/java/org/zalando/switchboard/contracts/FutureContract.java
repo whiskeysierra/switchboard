@@ -13,7 +13,7 @@ import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 
-public interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void successfulFutureShouldBeDone() {

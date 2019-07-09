@@ -5,25 +5,20 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @AllArgsConstructor
 final class DefaultSwitchboard implements Switchboard {
 
-    private final Queue<Answer> answers = new ConcurrentLinkedQueue<>();
-
+    private final Recipients recipients;
     private final AnsweringMachine machine;
 
     @Override
     public <T> void send(final Deliverable<T> deliverable) {
-        final var matches = find(deliverable);
+        final var matches = recipients.find(deliverable.getMessage());
 
         if (matches.isEmpty()) {
             machine.record(deliverable);
@@ -33,28 +28,10 @@ final class DefaultSwitchboard implements Switchboard {
         }
     }
 
-    private <T, R> List<Answer<T, R>> find(final Deliverable<T> deliverable) {
-        return answers.stream()
-                .filter(input -> input.test(deliverable.getMessage()))
-                .map(this::<T, R>cast)
-                .collect(toList());
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T, R> Answer<T, R> cast(final Answer answer) {
-        return answer;
-    }
-
     private <T, R> void deliverTo(final List<Answer<T, R>> list, final Deliverable<T> deliverable) {
         for (final var answer : list) {
             answer.deliver(deliverable);
             log.info("Successfully matched message [{}] to [{}]", deliverable.getMessage(), answer);
-        }
-    }
-
-    private <T, R> void unregister(final Answer<T, R> answer) {
-        if (answers.remove(answer)) {
-            log.trace("Unregistered [{}].", answer);
         }
     }
 
@@ -68,9 +45,9 @@ final class DefaultSwitchboard implements Switchboard {
 
     @Override
     public <T, R> Answer<T, R> subscribe(final Subscription<T> subscription, final SubscriptionMode<T, R> mode) {
-        final var answer = new Answer<>(subscription, mode, this::unregister);
+        final var answer = new DefaultAnswer<>(subscription, mode, recipients::unregister);
 
-        answers.add(answer);
+        recipients.register(answer);
         tryDeliverRecordedMessages(answer);
 
         return answer;

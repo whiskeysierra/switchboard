@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
-public interface RecordingContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface RecordingContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldDeliverRecordedMessagesToSubscriptions() throws ExecutionException, InterruptedException {

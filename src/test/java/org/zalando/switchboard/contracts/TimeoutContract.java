@@ -18,7 +18,7 @@ import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.times;
 import static org.zalando.switchboard.Timeout.within;
 
-public interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldTellThatThirdMessageDidNotOccur() {

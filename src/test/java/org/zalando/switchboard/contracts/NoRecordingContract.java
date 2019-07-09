@@ -2,6 +2,7 @@ package org.zalando.switchboard.contracts;
 
 import org.junit.jupiter.api.Test;
 import org.zalando.switchboard.NoAnsweringMachine;
+import org.zalando.switchboard.QueueRecipients;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
@@ -14,11 +15,14 @@ import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.Timeout.within;
 
-public interface NoRecordingContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface NoRecordingContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldNotRecordMessages() {
-        final var unit = Switchboard.create(new NoAnsweringMachine());
+        final var unit = Switchboard.builder()
+                .recipients(new QueueRecipients()) // to fake coverage
+                .answeringMachine(new NoAnsweringMachine())
+                .build();
 
         unit.send(message(messageA(), deliveryMode()));
 

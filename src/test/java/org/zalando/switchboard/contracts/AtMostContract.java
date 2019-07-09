@@ -16,7 +16,7 @@ import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atMost;
 import static org.zalando.switchboard.Timeout.within;
 
-public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldNotFailIfExpectedAtMostThreeButReceivedOnlyTwo() throws InterruptedException, TimeoutException, ExecutionException {

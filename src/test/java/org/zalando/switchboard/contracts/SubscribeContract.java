@@ -24,7 +24,7 @@ import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.SubscriptionMode.times;
 import static org.zalando.switchboard.Timeout.within;
 
-public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldDeliverMessageToSubscriptions() {
@@ -59,7 +59,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
     }
 
     @Test
-    default void shouldPollMultipleTimesWhenCountGiven() throws TimeoutException, InterruptedException, ExecutionException {
+    default void shouldPollMultipleTimesWhenCountGiven() {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 

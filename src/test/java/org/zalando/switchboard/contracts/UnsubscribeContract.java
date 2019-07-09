@@ -19,7 +19,7 @@ import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.SubscriptionMode.never;
 import static org.zalando.switchboard.Timeout.within;
 
-public interface UnsubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface UnsubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldUnsubscribe() throws TimeoutException, InterruptedException, ExecutionException {
@@ -34,7 +34,7 @@ public interface UnsubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTr
     }
 
     @Test
-    default void cancellingFutureShouldUnsubscribe() throws InterruptedException, ExecutionException, TimeoutException {
+    default void cancellingFutureShouldUnsubscribe() {
         final var unit = Switchboard.create();
 
         final var future = unit.subscribe(matchA(), exactlyOnce());

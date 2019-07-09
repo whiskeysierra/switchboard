@@ -4,11 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.zalando.switchboard.contracts.DeliveryContract;
-import org.zalando.switchboard.model.Message;
 import org.zalando.switchboard.traits.BroadcastDeliveryTrait;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -17,13 +15,12 @@ import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
-@RunWith(JUnitPlatform.class)
-public final class BroadcastDeliveryTest implements BroadcastDeliveryTrait, DeliveryContract {
+final class BroadcastDeliveryTest implements BroadcastDeliveryTrait, DeliveryContract {
 
     private final Switchboard unit = Switchboard.create();
 
     @Test
-    public void shouldDeliverFirstMessageToAllSubscriptions() throws ExecutionException, InterruptedException {
+    void shouldDeliverFirstMessageToAllSubscriptions() {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var firstResult = unit.subscribe(matchA(), atLeastOnce());
             final var secondResult = unit.subscribe(matchA(), atLeastOnce());

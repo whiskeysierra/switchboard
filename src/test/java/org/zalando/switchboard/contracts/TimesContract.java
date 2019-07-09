@@ -16,10 +16,10 @@ import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.times;
 import static org.zalando.switchboard.Timeout.within;
 
-public interface TimesContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface TimesContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
-    default void shouldFailIfExpectedThreeWithoutTimeout() throws ExecutionException, InterruptedException {
+    default void shouldFailIfExpectedThreeWithoutTimeout() {
         final var unit = Switchboard.create();
 
         final var exception = assertThrows(IllegalArgumentException.class, () ->

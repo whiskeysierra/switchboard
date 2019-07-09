@@ -16,7 +16,7 @@ import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.never;
 import static org.zalando.switchboard.Timeout.within;
 
-public interface NeverContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface NeverContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldNotFailIfExpectedNoneAndReceivedNone() throws InterruptedException, TimeoutException, ExecutionException {

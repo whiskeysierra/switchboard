@@ -11,13 +11,12 @@ import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 
-@RunWith(JUnitPlatform.class)
-public final class DirectDeliveryTest implements DirectDeliveryTrait, DeliveryContract {
+final class DirectDeliveryTest implements DirectDeliveryTrait, DeliveryContract {
 
     private final Switchboard unit = Switchboard.create();
 
     @Test
-    public void shouldThrowWhenDeliveringMessagesToSubscriptions() {
+    void shouldThrowWhenDeliveringMessagesToSubscriptions() {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             unit.subscribe(matchA(), exactlyOnce());
             unit.subscribe(matchA(), exactlyOnce());

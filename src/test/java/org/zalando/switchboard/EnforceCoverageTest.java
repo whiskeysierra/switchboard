@@ -18,7 +18,6 @@ import static org.mockito.Mockito.when;
 
 @Hack
 @OhNoYouDidnt
-@RunWith(JUnitPlatform.class)
 final class EnforceCoverageTest {
 
     @Test

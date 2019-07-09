@@ -19,11 +19,23 @@ public interface Switchboard {
     <T, R> Future<R> subscribe(Subscription<T> subscription, SubscriptionMode<T, R> mode);
 
     static Switchboard create() {
-        return create(new QueueAnsweringMachine());
+        return builder().build();
     }
 
-    static Switchboard create(final AnsweringMachine machine) {
-        return new DefaultSwitchboard(machine);
+    static RecipientsStage builder() {
+        return new DefaultSwitchboardBuilder();
+    }
+
+    interface RecipientsStage extends AnsweringMachineStage {
+        AnsweringMachineStage recipients(Recipients recipients);
+    }
+
+    interface AnsweringMachineStage extends BuildStage {
+        BuildStage answeringMachine(AnsweringMachine machine);
+    }
+
+    interface BuildStage {
+        Switchboard build();
     }
 
 }

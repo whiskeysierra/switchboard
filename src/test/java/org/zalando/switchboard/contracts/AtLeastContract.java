@@ -16,7 +16,7 @@ import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeast;
 import static org.zalando.switchboard.Timeout.within;
 
-public interface AtLeastContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface AtLeastContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldFailIfExpectedAtLeastThreeButReceivedOnlyTwo() {

@@ -15,8 +15,7 @@ import static org.zalando.switchboard.DeliveryMode.broadcast;
 import static org.zalando.switchboard.DeliveryMode.directly;
 import static org.zalando.switchboard.DeliveryMode.first;
 
-@RunWith(JUnitPlatform.class)
-public final class DeliveryModeTest {
+final class DeliveryModeTest {
 
     @TestFactory
     Stream<DynamicTest> createPointTests() {

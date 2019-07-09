@@ -16,10 +16,10 @@ import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.Timeout.within;
 
-public interface ExactlyOnceContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+interface ExactlyOnceContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
-    default void shouldFailIfExpectedOneWithoutTimeout() throws ExecutionException, InterruptedException {
+    default void shouldFailIfExpectedOneWithoutTimeout() {
         final var unit = Switchboard.create();
 
         final var exception = assertThrows(IllegalArgumentException.class, () ->

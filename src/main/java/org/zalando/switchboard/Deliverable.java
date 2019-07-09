@@ -11,7 +11,7 @@ public interface Deliverable<T> {
      * @param target target collection, potentially being passed to the receiver
      * @throws RuntimeException if delivery should fail
      */
-    void deliverTo(Collection<? super T> target) throws ExecutionException;
+    void deliverTo(Collection<? super T> target);
 
     T getMessage();
 

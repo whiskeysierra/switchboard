@@ -22,7 +22,6 @@ import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.Timeout.within;
 
-@RunWith(JUnitPlatform.class)
 final class SubscriptionTest {
 
     private final Switchboard unit = Switchboard.create();

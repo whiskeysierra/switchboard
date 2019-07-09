@@ -16,13 +16,12 @@ import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
-@RunWith(JUnitPlatform.class)
-public final class FirstDeliveryTest implements FirstDeliveryTrait, DeliveryContract {
+final class FirstDeliveryTest implements FirstDeliveryTrait, DeliveryContract {
 
     private final Switchboard unit = Switchboard.create();
 
     @Test
-    public void shouldDeliverMessagesToFirstSubscriptions() throws ExecutionException, InterruptedException {
+    void shouldDeliverMessagesToFirstSubscriptions() {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var firstResult = unit.subscribe(matchA(), atLeastOnce());
             final var secondResult = unit.subscribe(matchA(), atLeastOnce());
