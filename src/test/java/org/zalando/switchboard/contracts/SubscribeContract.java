@@ -33,7 +33,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
     default void shouldThrowWhenSubscribingTwice() {
         final Switchboard unit = Switchboard.create();
 
-        final Subscription<S, ?> subscription = matchA();
+        final Subscription<S> subscription = matchA();
         unit.subscribe(subscription, exactlyOnce());
 
         assertThrows(IllegalStateException.class, () ->

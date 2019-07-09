@@ -227,14 +227,6 @@ class UserWorker implements Runnable {
 }
 ```
 
-#### Hints
-
-The worker's task then is to inspect the switchboard to find all subscriptions for `User`s and fetch their hints, i.e. their names. The worker may then use 
-some optimized way to fetch multiple users at once and sends the results back to the switchboard. 
-
-Workers can utilize subscription hints to reduce the number of calls to retrieve message sources. This may be useful in some circumstances. Feel free to ignore 
-hints and bulk fetch and send messages into the switchboard.
-
 ### Recording messages
 
 Switchboard has an answering machine builtin. That means any message that arrives without anyone receiving it right away will be recorded and delivered as

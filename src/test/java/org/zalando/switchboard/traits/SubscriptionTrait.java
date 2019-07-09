@@ -4,9 +4,9 @@ import org.zalando.switchboard.Subscription;
 
 public interface SubscriptionTrait<S> {
 
-    Subscription<S, ?> matchA();
+    Subscription<S> matchA();
 
-    default Subscription<S, ?> matchB() {
+    default Subscription<S> matchB() {
         return e -> false;
     }
 

@@ -6,12 +6,10 @@ import org.junit.runner.RunWith;
 
 import javax.annotation.concurrent.Immutable;
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import static java.time.temporal.ChronoUnit.NANOS;
-import static java.util.Optional.empty;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -42,7 +40,7 @@ final class SubscriptionTest {
     @Test
     void shouldSupportLambdas() throws TimeoutException, InterruptedException, ExecutionException {
         unit.send(message("foo", directly()));
-        final Subscription<String, ?> subscription = (String e) -> true;
+        final Subscription<String> subscription = (String e) -> true;
         final String actual = unit.receive(subscription, exactlyOnce(), within(1, NANOS));
         assertThat(actual, is("foo"));
     }
@@ -55,27 +53,15 @@ final class SubscriptionTest {
     }
 
     @Test
-    void shouldProvideNoHintByDefault() {
-        final Subscription<String, Object> subscription = "foo"::equals;
-        assertThat(subscription.getHint(), is(empty()));
-    }
-
-    @Test
     void shouldProvideMessageType() {
-        final Subscription<String, Object> subscription = on(String.class, "foo"::equals);
+        final Subscription<String> subscription = on(String.class, "foo"::equals);
 
         assertThat(subscription.getMessageType(), equalTo(String.class));
     }
 
     @Test
-    void shouldProvideHint() {
-        final Subscription<String, String> subscription = on(String.class, "foo"::equals, "bar");
-        assertThat(subscription.getHint(), is(Optional.of("bar")));
-    }
-
-    @Test
     void shouldDelegateToPredicate() throws TimeoutException, InterruptedException, ExecutionException {
-        final Subscription<String, Object> subscription = on(String.class, "foo"::equals);
+        final Subscription<String> subscription = on(String.class, "foo"::equals);
 
         unit.send(message("foo", broadcast()));
         final String s = unit.receive(subscription, atLeastOnce(), within(1, NANOS));
@@ -102,7 +88,7 @@ final class SubscriptionTest {
     }
 
     @Immutable
-    static final class GenericallyTypedSubscription implements Subscription<String, Void> {
+    static final class GenericallyTypedSubscription implements Subscription<String> {
 
         @Override
         public boolean test(final String message) {

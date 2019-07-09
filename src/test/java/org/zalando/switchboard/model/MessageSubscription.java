@@ -3,20 +3,14 @@ package org.zalando.switchboard.model;
 import org.zalando.switchboard.Subscription;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.Optional;
 
 @Immutable
-public final class MessageSubscription implements Subscription<Message, String> {
+public final class MessageSubscription implements Subscription<Message> {
 
     private final String identifier;
 
     public MessageSubscription(final String identifier) {
         this.identifier = identifier;
-    }
-
-    @Override
-    public Optional<String> getHint() {
-        return Optional.of(identifier);
     }
 
     @Override

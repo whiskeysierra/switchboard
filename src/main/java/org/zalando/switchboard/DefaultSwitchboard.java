@@ -25,21 +25,6 @@ final class DefaultSwitchboard implements Switchboard {
 
     private final LockSupport lock = new LockSupport();
 
-    @Override
-    public <T, H> List<H> inspect(final Class<T> messageType, final Class<H> hintType) {
-        return copyOf(answers)
-                .stream()
-                .filter(delivery -> messageType.isAssignableFrom(delivery.getMessageType()))
-                .map(delivery -> this.<H>cast(delivery.getHint()))
-                .map(hint -> hint.filter(hintType::isInstance).orElse(null))
-                .collect(toList());
-    }
-
-    @SuppressWarnings("unchecked")
-    private <H> Optional<H> cast(final Optional hint) {
-        return hint;
-    }
-
     private <T, R> List<Answer<T, R, ?>> find(final Deliverable<T> deliverable) {
         return answers.stream()
                 .filter(input -> input.test(deliverable.getMessage()))
@@ -84,14 +69,14 @@ final class DefaultSwitchboard implements Switchboard {
     }
 
     @Override
-    public <T, R> R receive(final Subscription<T, ?> subscription, final SubscriptionMode<T, R> mode, final Duration timeout)
+    public <T, R> R receive(final Subscription<T> subscription, final SubscriptionMode<T, R> mode, final Duration timeout)
             throws InterruptedException, TimeoutException, ExecutionException {
         final Answer<T, R, ?> future = subscribe(subscription, mode);
         return mode.block(future, timeout.toNanos(), TimeUnit.NANOSECONDS);
     }
 
     @Override
-    public <T, R> Answer<T, R, ?> subscribe(final Subscription<T, ?> subscription, final SubscriptionMode<T, R> mode) {
+    public <T, R> Answer<T, R, ?> subscribe(final Subscription<T> subscription, final SubscriptionMode<T, R> mode) {
         final Answer<T, R, ?> answer = new Answer<>(subscription, mode, this::unregister);
 
         registerForFutureMessages(answer);

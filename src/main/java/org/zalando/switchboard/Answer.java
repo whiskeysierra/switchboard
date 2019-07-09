@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -30,7 +29,7 @@ final class Answer<T, R, H> implements Future<R>, Predicate<Object> {
 
     private final AtomicReference<State> state = new AtomicReference<>(State.WAITING);
 
-    private final Subscription<T, H> subscription;
+    private final Subscription<T> subscription;
     private final SubscriptionMode<T, R> mode;
     private final Consumer<Answer<T, R, H>> unregister;
 
@@ -39,7 +38,7 @@ final class Answer<T, R, H> implements Future<R>, Predicate<Object> {
 
     private final LockSupport lock = new LockSupport();
 
-    Answer(final Subscription<T, H> subscription, final SubscriptionMode<T, R> mode, final Consumer<Answer<T, R, H>> unregister) {
+    Answer(final Subscription<T> subscription, final SubscriptionMode<T, R> mode, final Consumer<Answer<T, R, H>> unregister) {
         this.subscription = subscription;
         this.mode = mode;
         this.unregister = unregister;
@@ -47,10 +46,6 @@ final class Answer<T, R, H> implements Future<R>, Predicate<Object> {
 
     Class<T> getMessageType() {
         return subscription.getMessageType();
-    }
-
-    Optional<H> getHint() {
-        return subscription.getHint();
     }
 
     @Override

@@ -7,12 +7,12 @@ import org.zalando.switchboard.model.MessageSubscription;
 public interface MessageSubscriptionTrait extends SubscriptionTrait<Message> {
 
     @Override
-    default Subscription<Message, ?> matchA() {
+    default Subscription<Message> matchA() {
         return new MessageSubscription("A");
     }
 
     @Override
-    default Subscription<Message, ?> matchB() {
+    default Subscription<Message> matchB() {
         return new MessageSubscription("B");
     }
 
