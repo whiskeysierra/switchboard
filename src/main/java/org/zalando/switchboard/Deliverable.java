@@ -1,7 +1,6 @@
 package org.zalando.switchboard;
 
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
 
 public interface Deliverable<T> {
 

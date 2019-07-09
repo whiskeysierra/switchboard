@@ -6,7 +6,6 @@ import org.zalando.switchboard.TestTimeout;
 import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import static java.time.temporal.ChronoUnit.NANOS;

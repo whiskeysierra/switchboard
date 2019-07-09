@@ -5,8 +5,6 @@ import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
-import java.util.concurrent.Future;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.zalando.switchboard.Deliverable.message;

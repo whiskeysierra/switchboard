@@ -1,8 +1,6 @@
 package org.zalando.switchboard;
 
 import org.junit.jupiter.api.Test;
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.runner.RunWith;
 
 import javax.annotation.concurrent.Immutable;
 import java.math.BigDecimal;

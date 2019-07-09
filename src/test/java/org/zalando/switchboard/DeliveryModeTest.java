@@ -3,8 +3,6 @@ package org.zalando.switchboard;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.runner.RunWith;
 
 import java.util.stream.Stream;
 
