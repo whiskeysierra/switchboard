@@ -8,11 +8,11 @@ import java.util.Collections;
 import java.util.Optional;
 
 @AllArgsConstructor
-public final class QueueAnsweringMachine implements AnsweringMachine {
+public final class InMemoryAnsweringMachine implements AnsweringMachine {
 
     private final Collection<Deliverable<?>> queue;
 
-    public QueueAnsweringMachine() {
+    public InMemoryAnsweringMachine() {
         this(Collections.newSetFromMap(CacheBuilder.newBuilder()
                 .maximumSize(100).<Deliverable<?>, Boolean>build().asMap()));
     }

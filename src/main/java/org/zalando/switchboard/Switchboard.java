@@ -1,11 +1,13 @@
 package org.zalando.switchboard;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.Future;
 
 /**
  * publish/subscribe, async, hand-over/broadcast
  * deliver previously received messages
  */
+@ThreadSafe
 public interface Switchboard {
 
     <T, R> Future<R> subscribe(Specification<T> specification, SubscriptionMode<T, R> mode);
