@@ -1,10 +1,11 @@
 package org.zalando.switchboard;
 
+import lombok.AllArgsConstructor;
+
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -21,6 +22,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
+@AllArgsConstructor
 final class Answer<T, R> implements Future<R>, Predicate<Object> {
 
     enum State {
@@ -35,14 +37,6 @@ final class Answer<T, R> implements Future<R>, Predicate<Object> {
 
     private final BlockingQueue<Deliverable<T>> queue = new LinkedBlockingQueue<>();
     private final AtomicInteger delivered = new AtomicInteger();
-
-    private final LockSupport lock = new LockSupport();
-
-    Answer(final Subscription<T> subscription, final SubscriptionMode<T, R> mode, final Consumer<Answer<T, R>> unregister) {
-        this.subscription = subscription;
-        this.mode = mode;
-        this.unregister = unregister;
-    }
 
     Class<T> getMessageType() {
         return subscription.getMessageType();
@@ -59,13 +53,12 @@ final class Answer<T, R> implements Future<R>, Predicate<Object> {
     }
 
     void deliver(final Deliverable<T> deliverable) {
-        lock.transactional(() -> {
-            queue.add(deliverable);
+        queue.add(deliverable);
 
-            if (mode.isDone(delivered.incrementAndGet())) {
-                finish(State.DONE);
-            }
-        });
+        // TODO is queue.add and delivered.increment a race condition?
+        if (mode.isDone(delivered.incrementAndGet())) {
+            finish(State.DONE);
+        }
     }
 
     private boolean finish(final State endState) {
@@ -188,28 +181,6 @@ final class Answer<T, R> implements Future<R>, Predicate<Object> {
 
     private String humanize(final TimeUnit timeoutUnit) {
         return timeoutUnit.name().toLowerCase(Locale.ENGLISH);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(subscription);
-    }
-
-    @Override
-    public boolean equals(@Nullable final Object that) {
-        if (this == that) {
-            return true;
-        } else if (that instanceof Answer) {
-            final var other = (Answer) that;
-            return Objects.equals(subscription, other.subscription);
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public String toString() {
-        return subscription.toString();
     }
 
 }

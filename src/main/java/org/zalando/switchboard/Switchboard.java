@@ -19,7 +19,11 @@ public interface Switchboard {
     <T, R> Future<R> subscribe(Subscription<T> subscription, SubscriptionMode<T, R> mode);
 
     static Switchboard create() {
-        return new DefaultSwitchboard();
+        return create(new QueueAnsweringMachine());
+    }
+
+    static Switchboard create(final AnsweringMachine machine) {
+        return new DefaultSwitchboard(machine);
     }
 
 }

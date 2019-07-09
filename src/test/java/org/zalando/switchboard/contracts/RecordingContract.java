@@ -7,7 +7,6 @@ import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -15,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 
-public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
+public interface RecordingContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldDeliverRecordedMessagesToSubscriptions() throws ExecutionException, InterruptedException {
@@ -35,7 +34,7 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     }
 
     @Test
-    default void shouldDeliverRecordedMessagesToConcurrentSubscriptions() throws InterruptedException, ExecutionException {
+    default void shouldDeliverRecordedMessagesToConcurrentSubscriptions() {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
@@ -54,7 +53,7 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     }
 
     @Test
-    default void shouldDeliverRecordedMessagesToSubscriptionsOneAtATime() throws InterruptedException, ExecutionException {
+    default void shouldDeliverRecordedMessagesToSubscriptionsOneAtATime() {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
@@ -74,7 +73,7 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     }
 
     @Test
-    default void shouldDeliverPartlyRecordedMessagesToSubscriptionsOneAtATime() throws InterruptedException, ExecutionException {
+    default void shouldDeliverPartlyRecordedMessagesToSubscriptionsOneAtATime() {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
@@ -95,7 +94,7 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     }
 
     @Test
-    default void shouldDeliverPartlyRecordedMessagesToConcurrentSubscriptions() throws InterruptedException, ExecutionException {
+    default void shouldDeliverPartlyRecordedMessagesToConcurrentSubscriptions() {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 

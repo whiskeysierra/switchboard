@@ -1,15 +1,12 @@
 package org.zalando.switchboard.contracts;
 
 import org.junit.jupiter.api.Test;
-import org.zalando.switchboard.Subscription;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.TestTimeout;
 import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
 import static java.time.temporal.ChronoUnit.NANOS;
@@ -30,18 +27,7 @@ import static org.zalando.switchboard.Timeout.within;
 public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
-    default void shouldThrowWhenSubscribingTwice() {
-        final var unit = Switchboard.create();
-
-        final var subscription = matchA();
-        unit.subscribe(subscription, exactlyOnce());
-
-        assertThrows(IllegalStateException.class, () ->
-                unit.subscribe(subscription, exactlyOnce()));
-    }
-    
-    @Test
-    default void shouldDeliverMessageToSubscriptions() throws InterruptedException, ExecutionException {
+    default void shouldDeliverMessageToSubscriptions() {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
@@ -91,7 +77,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
     }
 
     @Test
-    default void shouldPollAsyncMultipleTimesWhenCountGiven() throws ExecutionException, InterruptedException {
+    default void shouldPollAsyncMultipleTimesWhenCountGiven() {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
@@ -111,7 +97,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
     }
 
     @Test
-    default void shouldPollAsyncWithTimeoutMultipleTimesWhenCountGiven() throws ExecutionException, InterruptedException, TimeoutException {
+    default void shouldPollAsyncWithTimeoutMultipleTimesWhenCountGiven() {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
