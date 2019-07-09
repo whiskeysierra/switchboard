@@ -23,12 +23,12 @@ public interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait 
     @Test
     default void shouldTellThatThirdMessageDidNotOccur() {
         assertTimeout(TestTimeout.DEFAULT, () -> {
-            final Switchboard unit = Switchboard.create();
+            final var unit = Switchboard.create();
 
             unit.send(message(messageA(), deliveryMode()));
             unit.send(message(messageA(), deliveryMode()));
 
-            final TimeoutException exception = assertThrows(TimeoutException.class, () ->
+            final var exception = assertThrows(TimeoutException.class, () ->
                     unit.receive(matchA(), times(3), within(1, NANOS)));
 
             assertThat(exception.getMessage(), is("Expected exactly 3 Message message(s), but got 2 in 1 nanoseconds"));
@@ -38,12 +38,12 @@ public interface TimeoutContract<S> extends SubscriptionTrait<S>, DeliveryTrait 
     @Test
     default void shouldTellThatThirdMessageDidNotOccurWhenPollingAsync() {
         assertTimeout(TestTimeout.DEFAULT, () -> {
-            final Switchboard unit = Switchboard.create();
+            final var unit = Switchboard.create();
 
             unit.send(message(messageA(), deliveryMode()));
             unit.send(message(messageA(), deliveryMode()));
 
-            final TimeoutException exception = assertThrows(TimeoutException.class, () ->
+            final var exception = assertThrows(TimeoutException.class, () ->
                     unit.subscribe(matchA(), times(3)).get(1, NANOSECONDS));
 
             assertThat(exception.getMessage(), is("Expected exactly 3 Message message(s), but got 2 in 1 nanoseconds"));

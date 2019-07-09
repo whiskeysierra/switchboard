@@ -17,9 +17,9 @@ public interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void successfulFutureShouldBeDone() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
-        final Future<S> future = unit.subscribe(matchA(), atLeastOnce());
+        final var future = unit.subscribe(matchA(), atLeastOnce());
         unit.send(message(messageA(), deliveryMode()));
 
         assertThat(future.isDone(), is(true));
@@ -27,9 +27,9 @@ public interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void successfulFutureShouldNotBeCancelled() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
-        final Future<S> future = unit.subscribe(matchA(), atLeastOnce());
+        final var future = unit.subscribe(matchA(), atLeastOnce());
         unit.send(message(messageA(), deliveryMode()));
 
         assertThat(future.isCancelled(), is(false));
@@ -37,9 +37,9 @@ public interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void cancelledFutureShouldBeDone() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
-        final Future<S> future = unit.subscribe(matchA(), exactlyOnce());
+        final var future = unit.subscribe(matchA(), exactlyOnce());
         future.cancel(false);
 
         assertThat(future.isDone(), is(true));
@@ -47,9 +47,9 @@ public interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void cancelledFutureShouldBeCancelled() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
-        final Future<S> future = unit.subscribe(matchA(), exactlyOnce());
+        final var future = unit.subscribe(matchA(), exactlyOnce());
 
         future.cancel(false);
 
@@ -58,16 +58,16 @@ public interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void cancellingWaitingFutureShouldSucceed() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         assertThat(unit.subscribe(matchA(), exactlyOnce()).cancel(false), is(true));
     }
 
     @Test
     default void cancellingDoneFutureShouldNotSucceed() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
-        final Future<S> future = unit.subscribe(matchA(), atLeastOnce());
+        final var future = unit.subscribe(matchA(), atLeastOnce());
         unit.send(message(messageA(), deliveryMode()));
 
         assertThat(future.cancel(true), is(false));
@@ -75,9 +75,9 @@ public interface FutureContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void cancellingCancelledFutureShouldSucceed() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
-        final Future<S> future = unit.subscribe(matchA(), exactlyOnce());
+        final var future = unit.subscribe(matchA(), exactlyOnce());
         future.cancel(false);
 
         assertThat(future.cancel(false), is(true));

@@ -20,9 +20,9 @@ public interface TimesContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldFailIfExpectedThreeWithoutTimeout() throws ExecutionException, InterruptedException {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+        final var exception = assertThrows(IllegalArgumentException.class, () ->
                 unit.subscribe("foo"::equals, times(3)).get());
 
         assertThat(exception.getMessage(), is("Mode Times requires a timeout"));
@@ -30,12 +30,12 @@ public interface TimesContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldFailIfExpectedThreeButReceivedOnlyTwo() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        final TimeoutException exception = assertThrows(TimeoutException.class, () ->
+        final var exception = assertThrows(TimeoutException.class, () ->
                 unit.receive("foo"::equals, times(3), within(1, NANOS)));
 
         assertThat(exception.getMessage(), is("Expected exactly 3 Object message(s), but got 2 in 1 nanoseconds"));
@@ -43,7 +43,7 @@ public interface TimesContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldNotFailIfExpectedThreeAndReceivedExactlyThree() throws TimeoutException, InterruptedException, ExecutionException {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
@@ -54,14 +54,14 @@ public interface TimesContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldFailIfExpectedThreeButReceivedFour() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        final IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+        final var exception = assertThrows(IllegalStateException.class, () ->
                 unit.receive("foo"::equals, times(3), within(1, NANOS)));
 
         assertThat(exception.getMessage(), is("Expected exactly 3 Object message(s), but got 4 in 1 nanoseconds"));

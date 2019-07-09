@@ -25,14 +25,14 @@ public final class BroadcastDeliveryTest implements BroadcastDeliveryTrait, Deli
     @Test
     public void shouldDeliverFirstMessageToAllSubscriptions() throws ExecutionException, InterruptedException {
         assertTimeout(TestTimeout.DEFAULT, () -> {
-            final Future<Message> firstResult = unit.subscribe(matchA(), atLeastOnce());
-            final Future<Message> secondResult = unit.subscribe(matchA(), atLeastOnce());
+            final var firstResult = unit.subscribe(matchA(), atLeastOnce());
+            final var secondResult = unit.subscribe(matchA(), atLeastOnce());
 
             unit.send(message(messageA(), deliveryMode()));
             unit.send(message(messageA(), deliveryMode()));
 
-            final Message first = firstResult.get();
-            final Message second = secondResult.get();
+            final var first = firstResult.get();
+            final var second = secondResult.get();
 
             assertThat(first, is(messageA()));
             assertThat(first, is(sameInstance(second)));

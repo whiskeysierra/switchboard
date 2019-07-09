@@ -9,8 +9,8 @@ final class TypeResolver {
     }
 
     static <T> Class<T> resolve(final Object instance, final Class<?> type, final int index) {
-        final TypeToken<?> token = TypeToken.of(instance.getClass());
-        final TypeToken<?> resolved = token.resolveType(type.getTypeParameters()[index]);
+        final var token = TypeToken.of(instance.getClass());
+        final var resolved = token.resolveType(type.getTypeParameters()[index]);
         return cast(resolved.getRawType());
     }
 

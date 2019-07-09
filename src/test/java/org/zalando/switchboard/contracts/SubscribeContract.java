@@ -31,9 +31,9 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
 
     @Test
     default void shouldThrowWhenSubscribingTwice() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
-        final Subscription<S> subscription = matchA();
+        final var subscription = matchA();
         unit.subscribe(subscription, exactlyOnce());
 
         assertThrows(IllegalStateException.class, () ->
@@ -43,16 +43,16 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
     @Test
     default void shouldDeliverMessageToSubscriptions() throws InterruptedException, ExecutionException {
         assertTimeout(TestTimeout.DEFAULT, () -> {
-            final Switchboard unit = Switchboard.create();
+            final var unit = Switchboard.create();
 
             unit.send(message(messageA(), deliveryMode()));
-            final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
+            final var firstResult = unit.subscribe(matchA(), atLeastOnce());
 
             unit.send(message(messageA(), deliveryMode()));
-            final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
+            final var secondResult = unit.subscribe(matchA(), atLeastOnce());
 
-            final S first = firstResult.get();
-            final S second = secondResult.get();
+            final var first = firstResult.get();
+            final var second = secondResult.get();
 
             assertThat(first, is(messageA()));
             assertThat(second, is(messageA()));
@@ -62,7 +62,7 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
     @Test
     default void shouldTimeoutWhenThereAreNoMatchingMessages() {
         assertTimeout(TestTimeout.DEFAULT, () -> {
-            final Switchboard unit = Switchboard.create();
+            final var unit = Switchboard.create();
 
             unit.send(message(messageA(), deliveryMode()));
             unit.send(message(messageA(), deliveryMode()));
@@ -75,15 +75,15 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
     @Test
     default void shouldPollMultipleTimesWhenCountGiven() throws TimeoutException, InterruptedException, ExecutionException {
         assertTimeout(TestTimeout.DEFAULT, () -> {
-            final Switchboard unit = Switchboard.create();
+            final var unit = Switchboard.create();
 
-            final int count = 5;
+            final var count = 5;
 
-            for (int i = 0; i < count; i++) {
+            for (var i = 0; i < count; i++) {
                 unit.send(message(messageA(), deliveryMode()));
             }
 
-            final List<S> messages = unit.receive(matchA(), times(count), within(1, NANOS));
+            final var messages = unit.receive(matchA(), times(count), within(1, NANOS));
 
             assertThat(messages, hasSize(count));
             assertThat(frequency(messages, messageA()), is(count));
@@ -93,17 +93,17 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
     @Test
     default void shouldPollAsyncMultipleTimesWhenCountGiven() throws ExecutionException, InterruptedException {
         assertTimeout(TestTimeout.DEFAULT, () -> {
-            final Switchboard unit = Switchboard.create();
+            final var unit = Switchboard.create();
 
-            final int count = 5;
+            final var count = 5;
 
-            final Future<List<S>> future = unit.subscribe(matchA(), atLeast(count));
+            final var future = unit.subscribe(matchA(), atLeast(count));
 
-            for (int i = 0; i < count; i++) {
+            for (var i = 0; i < count; i++) {
                 unit.send(message(messageA(), deliveryMode()));
             }
 
-            final List<S> messages = future.get();
+            final var messages = future.get();
 
             assertThat(messages, hasSize(count));
             assertThat(frequency(messages, messageA()), is(count));
@@ -113,17 +113,17 @@ public interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrai
     @Test
     default void shouldPollAsyncWithTimeoutMultipleTimesWhenCountGiven() throws ExecutionException, InterruptedException, TimeoutException {
         assertTimeout(TestTimeout.DEFAULT, () -> {
-            final Switchboard unit = Switchboard.create();
+            final var unit = Switchboard.create();
 
-            final int count = 5;
+            final var count = 5;
 
-            final Future<List<S>> future = unit.subscribe(matchA(), times(count));
+            final var future = unit.subscribe(matchA(), times(count));
 
-            for (int i = 0; i < count; i++) {
+            for (var i = 0; i < count; i++) {
                 unit.send(message(messageA(), deliveryMode()));
             }
 
-            final List<S> messages = future.get(1, NANOSECONDS);
+            final var messages = future.get(1, NANOSECONDS);
 
             assertThat(messages, hasSize(count));
             assertThat(frequency(messages, messageA()), is(count));

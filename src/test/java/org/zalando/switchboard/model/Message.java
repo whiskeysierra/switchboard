@@ -21,7 +21,7 @@ public final class Message {
         if (this == that) {
             return true;
         } else if (that instanceof Message) {
-            final Message other = (Message) that;
+            final var other = (Message) that;
             return Objects.equals(identifier, other.identifier);
         } else {
             return false;

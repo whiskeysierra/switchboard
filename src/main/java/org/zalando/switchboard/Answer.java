@@ -109,10 +109,10 @@ final class Answer<T, R, H> implements Future<R>, Predicate<Object> {
 
         try {
             final List<T> results = new ArrayList<>();
-            int received = 0;
+            var received = 0;
 
             while (!mode.isDone(received)) {
-                final Deliverable<T> deliverable = queue.take();
+                final var deliverable = queue.take();
                 deliver(results, deliverable);
                 received++;
             }
@@ -131,13 +131,13 @@ final class Answer<T, R, H> implements Future<R>, Predicate<Object> {
     public R get(final long timeout, final TimeUnit timeoutUnit) throws InterruptedException, ExecutionException, TimeoutException {
         try {
             final List<T> results = new ArrayList<>();
-            int received = 0;
+            var received = 0;
 
-            final long deadline = System.nanoTime() + timeoutUnit.toNanos(timeout);
+            final var deadline = System.nanoTime() + timeoutUnit.toNanos(timeout);
 
             while (!mode.isDone(received)) {
-                final Deliverable<T> deliverable = queue.poll(deadline - System.nanoTime(), NANOSECONDS);
-                final boolean timedOut = deliverable == null;
+                final var deliverable = queue.poll(deadline - System.nanoTime(), NANOSECONDS);
+                final var timedOut = deliverable == null;
 
                 if (timedOut) {
                     verifyTimeout(received, timeout, timeoutUnit);
@@ -200,7 +200,7 @@ final class Answer<T, R, H> implements Future<R>, Predicate<Object> {
         if (this == that) {
             return true;
         } else if (that instanceof Answer) {
-            final Answer other = (Answer) that;
+            final var other = (Answer) that;
             return Objects.equals(subscription, other.subscription);
         } else {
             return false;

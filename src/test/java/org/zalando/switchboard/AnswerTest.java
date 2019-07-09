@@ -21,7 +21,7 @@ public final class AnswerTest {
     @Test
     public void shouldCreateHashCode() {
         final Subscription<String> subscription = "foo"::equals;
-        final Future<List<String>> future = unit.subscribe(subscription, times(1));
+        final var future = unit.subscribe(subscription, times(1));
         
         assertThat(future.hashCode(), is(hash(subscription)));
     }
@@ -29,7 +29,7 @@ public final class AnswerTest {
     @Test
     public void shouldNotBeEqualToDifferentType() {
         final Subscription<String> subscription = "foo"::equals;
-        final Future<List<String>> future = unit.subscribe(subscription, times(1));
+        final var future = unit.subscribe(subscription, times(1));
         
         assertThat(future, is(not(subscription)));
     }

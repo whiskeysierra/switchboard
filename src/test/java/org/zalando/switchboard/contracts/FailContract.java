@@ -34,11 +34,11 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldThrowWrappedException() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(failure("foo", deliveryMode(), new SpecialException()));
 
-        final ExecutionException executionException = assertThrows(ExecutionException.class, () ->
+        final var executionException = assertThrows(ExecutionException.class, () ->
                 unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS)));
 
         Assert.assertThat(executionException.getCause(), instanceOf(SpecialException.class));
@@ -46,11 +46,11 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldThrowWrappedCheckedException() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(failure("foo", deliveryMode(), new SpecialCheckedException()));
 
-        final ExecutionException executionException = assertThrows(ExecutionException.class, () ->
+        final var executionException = assertThrows(ExecutionException.class, () ->
                 unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS)));
 
         Assert.assertThat(executionException.getCause(), instanceOf(SpecialCheckedException.class));
@@ -58,11 +58,11 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldThrowWrappedThrowable() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(failure("foo", deliveryMode(), new SpecialThrowable()));
 
-        final ExecutionException executionException = assertThrows(ExecutionException.class, () ->
+        final var executionException = assertThrows(ExecutionException.class, () ->
                 unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS)));
 
         Assert.assertThat(executionException.getCause(), instanceOf(SpecialThrowable.class));
@@ -70,11 +70,11 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldThrowExceptionWithTimeout() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(failure("foo", deliveryMode(), new SpecialException()));
 
-        final ExecutionException exception = assertThrows(ExecutionException.class, () ->
+        final var exception = assertThrows(ExecutionException.class, () ->
                 unit.subscribe("foo"::equals, atLeastOnce()).get(1, NANOSECONDS));
 
         assertThat(exception.getCause(), instanceOf(SpecialException.class));
@@ -82,11 +82,11 @@ public interface FailContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldThrowExceptionWithoutTimeout() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(failure("foo", deliveryMode(), new SpecialException()));
 
-        final ExecutionException exception = assertThrows(ExecutionException.class, () ->
+        final var exception = assertThrows(ExecutionException.class, () ->
                 unit.subscribe("foo"::equals, atLeastOnce()).get());
 
         assertThat(exception.getCause(), instanceOf(SpecialException.class));

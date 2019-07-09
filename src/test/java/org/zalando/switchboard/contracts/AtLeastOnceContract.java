@@ -20,9 +20,9 @@ public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
 
     @Test
     default void shouldFailIfExpectedAtLeastOneButReceivedNone() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
-        final TimeoutException exception = assertThrows(TimeoutException.class, () ->
+        final var exception = assertThrows(TimeoutException.class, () ->
                 unit.receive("foo"::equals, atLeastOnce(), within(1, NANOS)));
 
         assertThat(exception.getMessage(), is("Expected at least one Object message(s), but got 0 in 1 nanoseconds"));
@@ -30,7 +30,7 @@ public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
 
     @Test
     default void shouldNotFailIfExpectedAtLeastOneAndReceivedExactlyOne() throws TimeoutException, InterruptedException, ExecutionException {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
 
@@ -39,7 +39,7 @@ public interface AtLeastOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
 
     @Test
     default void shouldNotFailIfExpectedAtLeastOneAndReceivedTwo() throws TimeoutException, InterruptedException, ExecutionException {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));

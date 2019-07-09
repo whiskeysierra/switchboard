@@ -20,9 +20,9 @@ public interface ExactlyOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
 
     @Test
     default void shouldFailIfExpectedOneWithoutTimeout() throws ExecutionException, InterruptedException {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+        final var exception = assertThrows(IllegalArgumentException.class, () ->
                 unit.subscribe("foo"::equals, exactlyOnce()).get());
 
         assertThat(exception.getMessage(), is("Mode ExactlyOnce requires a timeout"));
@@ -30,9 +30,9 @@ public interface ExactlyOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
 
     @Test
     default void shouldFailIfExpectedOneButReceivedNone() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
-        final TimeoutException exception = assertThrows(TimeoutException.class, () ->
+        final var exception = assertThrows(TimeoutException.class, () ->
                 unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS)));
 
         assertThat(exception.getMessage(), is("Expected exactly one Object message(s), but got 0 in 1 nanoseconds"));
@@ -40,7 +40,7 @@ public interface ExactlyOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
 
     @Test
     default void shouldNotFailIfExpectedOneAndReceivedExactlyOne() throws TimeoutException, InterruptedException, ExecutionException {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
 
@@ -49,12 +49,12 @@ public interface ExactlyOnceContract<S> extends SubscriptionTrait<S>, DeliveryTr
 
     @Test
     default void shouldFailIfExpectedOneButReceivedTwo() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        final IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+        final var exception = assertThrows(IllegalStateException.class, () ->
                 unit.receive("foo"::equals, exactlyOnce(), within(1, NANOS)));
 
         assertThat(exception.getMessage(), is("Expected exactly one Object message(s), but got 2 in 1 nanoseconds"));

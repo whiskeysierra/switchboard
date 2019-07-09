@@ -23,7 +23,7 @@ public interface UnsubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTr
 
     @Test
     default void shouldUnsubscribe() throws TimeoutException, InterruptedException, ExecutionException {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         // expected to unsubscribe itself in 1 ns
         unit.receive("foo"::equals, never(), within(1, NANOS));
@@ -35,9 +35,9 @@ public interface UnsubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTr
 
     @Test
     default void cancellingFutureShouldUnsubscribe() throws InterruptedException, ExecutionException, TimeoutException {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
-        final Future<S> future = unit.subscribe(matchA(), exactlyOnce());
+        final var future = unit.subscribe(matchA(), exactlyOnce());
         future.cancel(false);
 
         unit.send(message(messageA(), deliveryMode()));

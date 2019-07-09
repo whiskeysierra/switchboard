@@ -44,7 +44,7 @@ final class DefaultSwitchboard implements Switchboard {
             if (matches.isEmpty()) {
                 recorded.add(deliverable);
             } else {
-                final DeliveryMode deliveryMode = deliverable.getDeliveryMode();
+                final var deliveryMode = deliverable.getDeliveryMode();
                 deliverTo(deliveryMode.distribute(matches), deliverable);
             }
         });
@@ -56,7 +56,7 @@ final class DefaultSwitchboard implements Switchboard {
     }
 
     private <T, R> void deliverTo(final List<Answer<T, R, ?>> list, final Deliverable<T> deliverable) {
-        for (final Answer<T, R, ?> answer : list) {
+        for (final var answer : list) {
             answer.deliver(deliverable);
             LOG.info("Successfully matched message [{}] to [{}]", deliverable.getMessage(), answer);
         }
@@ -71,7 +71,7 @@ final class DefaultSwitchboard implements Switchboard {
     @Override
     public <T, R> R receive(final Subscription<T> subscription, final SubscriptionMode<T, R> mode, final Duration timeout)
             throws InterruptedException, TimeoutException, ExecutionException {
-        final Answer<T, R, ?> future = subscribe(subscription, mode);
+        final var future = subscribe(subscription, mode);
         return mode.block(future, timeout.toNanos(), TimeUnit.NANOSECONDS);
     }
 
@@ -95,12 +95,12 @@ final class DefaultSwitchboard implements Switchboard {
 
     private <T, R> void tryDeliverRecordedMessages(final Answer<T, R, ?> answer) {
         while (!answer.isDone()) {
-            final Optional<Deliverable<T>> match = findAndRemove(answer);
+            final var match = findAndRemove(answer);
 
             if (match.isPresent()) {
-                final Deliverable<T> deliverable = match.get();
+                final var deliverable = match.get();
                 send(deliverable);
-                final T message = deliverable.getMessage();
+                final var message = deliverable.getMessage();
                 LOG.info("Successfully matched previously unhandled message [{}] to [{}]", message, answer);
             } else {
                 break;
@@ -110,7 +110,7 @@ final class DefaultSwitchboard implements Switchboard {
 
     private <T, R> Optional<Deliverable<T>> findAndRemove(final Answer<T, R, ?> answer) {
         return lock.transactional(() -> {
-            final Optional<Deliverable<T>> first = recorded.stream()
+            final var first = recorded.stream()
                     .filter(deliverable -> answer.test(deliverable.getMessage()))
                     .map(this::<T>cast)
                     .findFirst();

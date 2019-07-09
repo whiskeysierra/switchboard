@@ -41,7 +41,7 @@ final class SubscriptionTest {
     void shouldSupportLambdas() throws TimeoutException, InterruptedException, ExecutionException {
         unit.send(message("foo", directly()));
         final Subscription<String> subscription = (String e) -> true;
-        final String actual = unit.receive(subscription, exactlyOnce(), within(1, NANOS));
+        final var actual = unit.receive(subscription, exactlyOnce(), within(1, NANOS));
         assertThat(actual, is("foo"));
     }
 
@@ -54,17 +54,17 @@ final class SubscriptionTest {
 
     @Test
     void shouldProvideMessageType() {
-        final Subscription<String> subscription = on(String.class, "foo"::equals);
+        final var subscription = on(String.class, "foo"::equals);
 
         assertThat(subscription.getMessageType(), equalTo(String.class));
     }
 
     @Test
     void shouldDelegateToPredicate() throws TimeoutException, InterruptedException, ExecutionException {
-        final Subscription<String> subscription = on(String.class, "foo"::equals);
+        final var subscription = on(String.class, "foo"::equals);
 
         unit.send(message("foo", broadcast()));
-        final String s = unit.receive(subscription, atLeastOnce(), within(1, NANOS));
+        final var s = unit.receive(subscription, atLeastOnce(), within(1, NANOS));
 
         assertThat(s, is("foo"));
     }

@@ -61,7 +61,7 @@ In our case those parties are threads and they *talk* to each other by passing m
 
 ## Dependencies
 
-- Java 8 or higher
+- Java 11 or higher
 
 ## Installation
 

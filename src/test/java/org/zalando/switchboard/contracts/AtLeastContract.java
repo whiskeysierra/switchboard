@@ -20,12 +20,12 @@ public interface AtLeastContract<S> extends SubscriptionTrait<S>, DeliveryTrait 
 
     @Test
     default void shouldFailIfExpectedAtLeastThreeButReceivedOnlyTwo() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        final TimeoutException exception = assertThrows(TimeoutException.class, () ->
+        final var exception = assertThrows(TimeoutException.class, () ->
                 unit.receive("foo"::equals, atLeast(3), within(1, NANOS)));
 
         assertThat(exception.getMessage(), is("Expected at least 3 Object message(s), but got 2 in 1 nanoseconds"));
@@ -33,7 +33,7 @@ public interface AtLeastContract<S> extends SubscriptionTrait<S>, DeliveryTrait 
 
     @Test
     default void shouldNotFailIfExpectedAtLeastThreeAndReceivedExactlyThree() throws TimeoutException, InterruptedException, ExecutionException {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
@@ -44,7 +44,7 @@ public interface AtLeastContract<S> extends SubscriptionTrait<S>, DeliveryTrait 
 
     @Test
     default void shouldNotFailIfExpectedAtLeastThreeAndReceivedFour() throws TimeoutException, InterruptedException, ExecutionException {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));

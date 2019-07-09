@@ -20,18 +20,18 @@ public interface NeverContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldNotFailIfExpectedNoneAndReceivedNone() throws InterruptedException, TimeoutException, ExecutionException {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.receive("foo"::equals, never(), within(1, NANOS));
     }
 
     @Test
     default void shouldFailIfExpectedNoneButReceivedOneWithTimeout() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
 
-        final IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+        final var exception = assertThrows(IllegalStateException.class, () ->
                 unit.receive("foo"::equals, never(), within(1, NANOS)));
 
         assertThat(exception.getMessage(), is("Expected no Object message(s), but got 1 in 1 nanoseconds"));
@@ -39,11 +39,11 @@ public interface NeverContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldFailIfExpectedNoneButReceivedOneWithoutTimeout() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
 
-        final IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+        final var exception = assertThrows(IllegalStateException.class, () ->
                 unit.subscribe("foo"::equals, never()).get());
 
         assertThat(exception.getMessage(), is("Expected no Object message(s), but got 1"));

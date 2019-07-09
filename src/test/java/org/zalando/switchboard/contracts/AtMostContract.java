@@ -20,7 +20,7 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldNotFailIfExpectedAtMostThreeButReceivedOnlyTwo() throws InterruptedException, TimeoutException, ExecutionException {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
@@ -30,7 +30,7 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldNotFailIfExpectedAtMostThreeAndReceivedExactlyThree() throws InterruptedException, TimeoutException, ExecutionException {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
@@ -41,14 +41,14 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldFailIfExpectedAtMostThreeButReceivedFourWithTimeout() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        final IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+        final var exception = assertThrows(IllegalStateException.class, () ->
                 unit.receive("foo"::equals, atMost(3), within(1, NANOS)));
 
         assertThat(exception.getMessage(), is("Expected at most 3 Object message(s), but got 4 in 1 nanoseconds"));
@@ -56,14 +56,14 @@ public interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldFailIfExpectedAtMostThreeButReceivedFourWithout() {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
         unit.send(message("foo", deliveryMode()));
 
-        final IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+        final var exception = assertThrows(IllegalStateException.class, () ->
                 unit.subscribe("foo"::equals, atMost(3)).get());
 
         assertThat(exception.getMessage(), is("Expected at most 3 Object message(s), but got 4"));

@@ -27,7 +27,7 @@ final class EnforceCoverageTest {
         final Future<Void> future = mock(Future.class);
         when(future.get(anyLong(), any())).thenThrow(new TimeoutException());
 
-        final Never<String> mode = new Never<>();
+        final var mode = new Never<String>();
         mode.block(future, 1, TimeUnit.NANOSECONDS);
     }
 

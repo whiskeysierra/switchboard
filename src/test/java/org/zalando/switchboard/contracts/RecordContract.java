@@ -19,16 +19,16 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
     default void shouldDeliverRecordedMessagesToSubscriptions() throws ExecutionException, InterruptedException {
-        final Switchboard unit = Switchboard.create();
+        final var unit = Switchboard.create();
 
         unit.send(message(messageA(), deliveryMode()));
         unit.send(message(messageA(), deliveryMode()));
 
-        final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
-        final S first = firstResult.get();
+        final var firstResult = unit.subscribe(matchA(), atLeastOnce());
+        final var first = firstResult.get();
 
-        final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
-        final S second = secondResult.get();
+        final var secondResult = unit.subscribe(matchA(), atLeastOnce());
+        final var second = secondResult.get();
 
         assertThat(first, is(messageA()));
         assertThat(second, is(messageA()));
@@ -37,16 +37,16 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     @Test
     default void shouldDeliverRecordedMessagesToConcurrentSubscriptions() throws InterruptedException, ExecutionException {
         assertTimeout(TestTimeout.DEFAULT, () -> {
-            final Switchboard unit = Switchboard.create();
+            final var unit = Switchboard.create();
 
             unit.send(message(messageA(), deliveryMode()));
             unit.send(message(messageA(), deliveryMode()));
 
-            final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
-            final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
+            final var firstResult = unit.subscribe(matchA(), atLeastOnce());
+            final var secondResult = unit.subscribe(matchA(), atLeastOnce());
 
-            final S first = firstResult.get();
-            final S second = secondResult.get();
+            final var first = firstResult.get();
+            final var second = secondResult.get();
 
             assertThat(first, is(messageA()));
             assertThat(second, is(messageA()));
@@ -56,17 +56,17 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     @Test
     default void shouldDeliverRecordedMessagesToSubscriptionsOneAtATime() throws InterruptedException, ExecutionException {
         assertTimeout(TestTimeout.DEFAULT, () -> {
-            final Switchboard unit = Switchboard.create();
+            final var unit = Switchboard.create();
 
             unit.send(message(messageA(), deliveryMode()));
 
-            final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
-            final S first = firstResult.get();
+            final var firstResult = unit.subscribe(matchA(), atLeastOnce());
+            final var first = firstResult.get();
 
             unit.send(message(messageA(), deliveryMode()));
 
-            final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
-            final S second = secondResult.get();
+            final var secondResult = unit.subscribe(matchA(), atLeastOnce());
+            final var second = secondResult.get();
 
             assertThat(first, is(messageA()));
             assertThat(second, is(messageA()));
@@ -76,18 +76,18 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     @Test
     default void shouldDeliverPartlyRecordedMessagesToSubscriptionsOneAtATime() throws InterruptedException, ExecutionException {
         assertTimeout(TestTimeout.DEFAULT, () -> {
-            final Switchboard unit = Switchboard.create();
+            final var unit = Switchboard.create();
 
             unit.send(message(messageA(), deliveryMode()));
 
-            final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
-            final S first = firstResult.get();
+            final var firstResult = unit.subscribe(matchA(), atLeastOnce());
+            final var first = firstResult.get();
 
-            final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
+            final var secondResult = unit.subscribe(matchA(), atLeastOnce());
 
             unit.send(message(messageA(), deliveryMode()));
 
-            final S second = secondResult.get();
+            final var second = secondResult.get();
 
             assertThat(first, is(messageA()));
             assertThat(second, is(messageA()));
@@ -97,17 +97,17 @@ public interface RecordContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
     @Test
     default void shouldDeliverPartlyRecordedMessagesToConcurrentSubscriptions() throws InterruptedException, ExecutionException {
         assertTimeout(TestTimeout.DEFAULT, () -> {
-            final Switchboard unit = Switchboard.create();
+            final var unit = Switchboard.create();
 
             unit.send(message(messageA(), deliveryMode()));
 
-            final Future<S> firstResult = unit.subscribe(matchA(), atLeastOnce());
-            final Future<S> secondResult = unit.subscribe(matchA(), atLeastOnce());
+            final var firstResult = unit.subscribe(matchA(), atLeastOnce());
+            final var secondResult = unit.subscribe(matchA(), atLeastOnce());
 
             unit.send(message(messageA(), deliveryMode()));
 
-            final S first = firstResult.get();
-            final S second = secondResult.get();
+            final var first = firstResult.get();
+            final var second = secondResult.get();
 
             assertThat(first, is(messageA()));
             assertThat(second, is(messageA()));
