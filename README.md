@@ -249,6 +249,10 @@ If you have questions, concerns, bug reports, etc., please file an issue in this
 To contribute, simply make a pull request and add a brief description (1-2 sentences) of your addition or change. For
 more details, check the [contribution guidelines](.github/CONTRIBUTING.md).
 
+## Alternatives
+
+- [Awaitility](https://github.com/awaitility/awaitility) is a small Java DSL for synchronizing asynchronous operations
+
 ## Credits and references
 
 ![Creative Commons License](http://i.creativecommons.org/l/by-nc-sa/2.0/80x15.png)
