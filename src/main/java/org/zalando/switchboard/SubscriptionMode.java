@@ -8,6 +8,7 @@ import java.util.concurrent.TimeoutException;
 
 public interface SubscriptionMode<T, R> {
 
+    // TODO would be nice to change the API to not even run into this case
     default boolean requiresTimeout() {
         return false;
     }

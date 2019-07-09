@@ -1,7 +1,6 @@
 package org.zalando.switchboard;
 
 import java.util.Optional;
-import java.util.function.Predicate;
 
 public final class NoAnsweringMachine implements AnsweringMachine {
 
@@ -11,7 +10,7 @@ public final class NoAnsweringMachine implements AnsweringMachine {
     }
 
     @Override
-    public <T> Optional<Deliverable<T>> removeIf(final Predicate<Object> predicate) {
+    public <T> Optional<Deliverable<T>> removeIf(final Specification<T> specification) {
         return Optional.empty();
     }
 

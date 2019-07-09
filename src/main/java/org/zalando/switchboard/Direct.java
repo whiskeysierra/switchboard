@@ -13,7 +13,7 @@ final class Direct implements DeliveryMode {
     }
 
     @Override
-    public <S, T> List<Answer<S, T>> distribute(final List<Answer<S, T>> deliveries) {
+    public <S, T> List<Subscription<S, T>> distribute(final List<Subscription<S, T>> deliveries) {
         checkState(deliveries.size() == 1,
                 "Too many subscriptions for message %s, expected one",
                 deliveries.get(0).getMessageType().getSimpleName());

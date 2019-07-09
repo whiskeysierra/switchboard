@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface DeliveryMode {
 
-    <S, T> List<Answer<S, T>> distribute(List<Answer<S, T>> deliveries);
+    <S, T> List<Subscription<S, T>> distribute(List<Subscription<S, T>> deliveries);
 
     static DeliveryMode directly() {
         return Direct.INSTANCE;

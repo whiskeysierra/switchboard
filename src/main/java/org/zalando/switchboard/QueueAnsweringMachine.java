@@ -3,9 +3,7 @@ package org.zalando.switchboard;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Predicate;
 
-// TODO package private?
 public final class QueueAnsweringMachine implements AnsweringMachine {
 
     private final Queue<Deliverable<?>> queue = new ConcurrentLinkedQueue<>();
@@ -16,15 +14,19 @@ public final class QueueAnsweringMachine implements AnsweringMachine {
     }
 
     @Override
-    public <T> Optional<Deliverable<T>> removeIf(final Predicate<Object> predicate) {
+    public <T> Optional<Deliverable<T>> removeIf(final Specification<T> specification) {
         final var iterator = queue.iterator();
 
         while (iterator.hasNext()) {
-            final Deliverable deliverable = iterator.next();
+            final Deliverable<?> raw = iterator.next();
 
-            if (predicate.test(deliverable.getMessage())) {
-                iterator.remove();
-                return Optional.of(cast(deliverable));
+            if (specification.getMessageType().isInstance(raw.getMessage())) {
+                final Deliverable<T> deliverable = cast(raw);
+
+                if (specification.test(deliverable.getMessage())) {
+                    iterator.remove();
+                    return Optional.of(deliverable);
+                }
             }
         }
 

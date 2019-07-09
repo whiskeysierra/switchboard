@@ -1,15 +1,16 @@
 package org.zalando.switchboard.traits;
 
-import org.zalando.switchboard.Subscription;
+import org.zalando.switchboard.Specification;
 
 public interface SubscriptionTrait<S> {
 
-    Subscription<S> matchA();
+    Specification<S> matchA();
 
-    default Subscription<S> matchB() {
+    default Specification<S> matchB() {
         return e -> false;
     }
 
     S messageA();
+    S messageB();
 
 }

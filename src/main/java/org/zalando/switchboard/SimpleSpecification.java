@@ -3,12 +3,12 @@ package org.zalando.switchboard;
 import javax.annotation.Nonnull;
 import java.util.function.Predicate;
 
-final class SimpleSubscription<T> implements Subscription<T> {
+final class SimpleSpecification<T> implements Specification<T> {
 
     private final Class<T> messageType;
     private final Predicate<T> predicate;
 
-    SimpleSubscription(final Class<T> messageType, final Predicate<T> predicate) {
+    SimpleSpecification(final Class<T> messageType, final Predicate<T> predicate) {
         this.messageType = messageType;
         this.predicate = predicate;
     }

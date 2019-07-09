@@ -13,12 +13,13 @@ import java.util.concurrent.TimeoutException;
 @AllArgsConstructor
 final class DefaultSwitchboard implements Switchboard {
 
-    private final Recipients recipients;
+    private final Subscriptions subscriptions;
     private final AnsweringMachine machine;
 
     @Override
     public <T> void send(final Deliverable<T> deliverable) {
-        final var matches = recipients.find(deliverable.getMessage());
+        final var message = deliverable.getMessage();
+        final var matches = subscriptions.find(message);
 
         if (matches.isEmpty()) {
             machine.record(deliverable);
@@ -28,7 +29,7 @@ final class DefaultSwitchboard implements Switchboard {
         }
     }
 
-    private <T, R> void deliverTo(final List<Answer<T, R>> list, final Deliverable<T> deliverable) {
+    private <T, R> void deliverTo(final List<Subscription<T, R>> list, final Deliverable<T> deliverable) {
         for (final var answer : list) {
             answer.deliver(deliverable);
             log.info("Successfully matched message [{}] to [{}]", deliverable.getMessage(), answer);
@@ -36,27 +37,26 @@ final class DefaultSwitchboard implements Switchboard {
     }
 
     @Override
-    public <T, R> R receive(final Subscription<T> subscription, final SubscriptionMode<T, R> mode,
-            final Duration timeout)
-            throws InterruptedException, TimeoutException, ExecutionException {
-        final var future = subscribe(subscription, mode);
+    public <T, R> R receive(final Specification<T> specification, final SubscriptionMode<T, R> mode,
+            final Duration timeout) throws InterruptedException, TimeoutException, ExecutionException {
+
+        final var future = subscribe(specification, mode);
         return mode.block(future, timeout.toNanos(), TimeUnit.NANOSECONDS);
     }
 
     @Override
-    public <T, R> Answer<T, R> subscribe(final Subscription<T> subscription, final SubscriptionMode<T, R> mode) {
-        final var answer = new DefaultAnswer<>(subscription, mode, recipients::unregister);
+    public <T, R> Subscription<T, R> subscribe(final Specification<T> specification, final SubscriptionMode<T, R> mode) {
+        final var answer = new DefaultSubscription<>(specification, mode, subscriptions::unregister);
 
-        recipients.register(answer);
+        subscriptions.register(answer);
         tryDeliverRecordedMessages(answer);
 
         return answer;
     }
 
-    private <T, R> void tryDeliverRecordedMessages(final Answer<T, R> answer) {
-        while (!answer.isDone()) {
-            final var match = machine.removeIf(answer);
-
+    private <T, R> void tryDeliverRecordedMessages(final Subscription<T, R> subscription) {
+        while (!subscription.isDone()) {
+            final var match = machine.removeIf(subscription);
             match.ifPresent(this::send);
 
             if (match.isEmpty()) {

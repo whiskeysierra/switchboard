@@ -30,17 +30,32 @@ interface SubscribeContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         assertTimeout(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
-            unit.send(message(messageA(), deliveryMode()));
             final var firstResult = unit.subscribe(matchA(), atLeastOnce());
-
             unit.send(message(messageA(), deliveryMode()));
+
             final var secondResult = unit.subscribe(matchA(), atLeastOnce());
+            unit.send(message(messageA(), deliveryMode()));
 
             final var first = firstResult.get();
             final var second = secondResult.get();
 
             assertThat(first, is(messageA()));
             assertThat(second, is(messageA()));
+        });
+    }
+
+    @Test
+    default void shouldSkipNonMatchingMessages() {
+        assertTimeout(TestTimeout.DEFAULT, () -> {
+            final var unit = Switchboard.create();
+
+            final var firstResult = unit.subscribe(matchA(), atLeastOnce());
+
+            unit.send(message(messageA(), deliveryMode()));
+            unit.send(message(messageB(), deliveryMode()));
+
+            final var first = firstResult.get();
+            assertThat(first, is(messageA()));
         });
     }
 

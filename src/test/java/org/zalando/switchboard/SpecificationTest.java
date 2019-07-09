@@ -15,30 +15,30 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.DeliveryMode.broadcast;
 import static org.zalando.switchboard.DeliveryMode.directly;
-import static org.zalando.switchboard.Subscription.on;
+import static org.zalando.switchboard.Specification.on;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.Timeout.within;
 
-final class SubscriptionTest {
+final class SpecificationTest {
 
     private final Switchboard unit = Switchboard.create();
 
     @Test
     void shouldExtractTypeFromGenericTypeArgument() {
-        assertThat(new GenericallyTypedSubscription().getMessageType(), is(equalTo(String.class)));
+        assertThat(new GenericallyTypedSpecification().getMessageType(), is(equalTo(String.class)));
     }
 
     @Test
     void shouldExtractObjectFromRawTypeArgument() {
-        assertThat(new RawTypedSubscription().getMessageType(), is(equalTo(Object.class)));
+        assertThat(new RawTypedSpecification().getMessageType(), is(equalTo(Object.class)));
     }
 
     @Test
     void shouldSupportLambdas() throws TimeoutException, InterruptedException, ExecutionException {
         unit.send(message("foo", directly()));
-        final Subscription<String> subscription = (String e) -> true;
-        final var actual = unit.receive(subscription, exactlyOnce(), within(1, NANOS));
+        final Specification<String> specification = (String e) -> true;
+        final var actual = unit.receive(specification, exactlyOnce(), within(1, NANOS));
         assertThat(actual, is("foo"));
     }
 
@@ -75,7 +75,7 @@ final class SubscriptionTest {
     }
 
     @Immutable
-    static final class RawTypedSubscription implements Subscription {
+    static final class RawTypedSpecification implements Specification {
 
         @Override
         public boolean test(final Object message) {
@@ -85,7 +85,7 @@ final class SubscriptionTest {
     }
 
     @Immutable
-    static final class GenericallyTypedSubscription implements Subscription<String> {
+    static final class GenericallyTypedSpecification implements Specification<String> {
 
         @Override
         public boolean test(final String message) {

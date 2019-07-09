@@ -1,15 +1,15 @@
 package org.zalando.switchboard.model;
 
-import org.zalando.switchboard.Subscription;
+import org.zalando.switchboard.Specification;
 
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public final class MessageSubscription implements Subscription<Message> {
+public final class MessageSpecification implements Specification<Message> {
 
     private final String identifier;
 
-    public MessageSubscription(final String identifier) {
+    public MessageSpecification(final String identifier) {
         this.identifier = identifier;
     }
 

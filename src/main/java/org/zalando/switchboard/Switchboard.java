@@ -13,10 +13,10 @@ public interface Switchboard {
 
     <T> void send(Deliverable<T> deliverable);
 
-    <T, R> R receive(Subscription<T> subscription, SubscriptionMode<T, R> mode, Duration timeout)
+    <T, R> R receive(Specification<T> specification, SubscriptionMode<T, R> mode, Duration timeout)
             throws ExecutionException, TimeoutException, InterruptedException;
 
-    <T, R> Future<R> subscribe(Subscription<T> subscription, SubscriptionMode<T, R> mode);
+    <T, R> Future<R> subscribe(Specification<T> specification, SubscriptionMode<T, R> mode);
 
     static Switchboard create() {
         return builder().build();
@@ -27,7 +27,7 @@ public interface Switchboard {
     }
 
     interface RecipientsStage extends AnsweringMachineStage {
-        AnsweringMachineStage recipients(Recipients recipients);
+        AnsweringMachineStage recipients(Subscriptions subscriptions);
     }
 
     interface AnsweringMachineStage extends BuildStage {

@@ -9,26 +9,26 @@ import static org.zalando.switchboard.Switchboard.BuildStage;
 @AllArgsConstructor
 final class DefaultSwitchboardBuilder implements RecipientsStage {
 
-    private final Recipients recipients;
+    private final Subscriptions subscriptions;
     private final AnsweringMachine machine;
 
     DefaultSwitchboardBuilder() {
-        this(new QueueRecipients(), new QueueAnsweringMachine());
+        this(new QueueSubscriptions(), new QueueAnsweringMachine());
     }
 
     @Override
-    public AnsweringMachineStage recipients(final Recipients recipients) {
-        return new DefaultSwitchboardBuilder(recipients, machine);
+    public AnsweringMachineStage recipients(final Subscriptions subscriptions) {
+        return new DefaultSwitchboardBuilder(subscriptions, machine);
     }
 
     @Override
     public BuildStage answeringMachine(final AnsweringMachine machine) {
-        return new DefaultSwitchboardBuilder(recipients, machine);
+        return new DefaultSwitchboardBuilder(subscriptions, machine);
     }
 
     @Override
     public Switchboard build() {
-        return new DefaultSwitchboard(recipients, machine);
+        return new DefaultSwitchboard(subscriptions, machine);
     }
 
 }

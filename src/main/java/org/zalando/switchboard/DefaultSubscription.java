@@ -2,7 +2,6 @@ package org.zalando.switchboard;
 
 import lombok.AllArgsConstructor;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -21,7 +20,7 @@ import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 @AllArgsConstructor
-final class DefaultAnswer<T, R> implements Answer<T, R> {
+final class DefaultSubscription<T, R> implements Subscription<T, R> {
 
     private enum State {
         WAITING, DONE, CANCELLED
@@ -29,33 +28,27 @@ final class DefaultAnswer<T, R> implements Answer<T, R> {
 
     private final AtomicReference<State> state = new AtomicReference<>(State.WAITING);
 
-    private final Subscription<T> subscription;
+    private final Specification<T> specification;
     private final SubscriptionMode<T, R> mode;
-    private final Consumer<Answer<T, R>> unregister;
+    private final Consumer<Subscription<T, R>> unregister;
 
     private final BlockingQueue<Deliverable<T>> queue = new LinkedBlockingQueue<>();
     private final AtomicInteger delivered = new AtomicInteger();
 
     @Override
     public Class<T> getMessageType() {
-        return subscription.getMessageType();
+        return specification.getMessageType();
     }
 
     @Override
-    public boolean test(@Nullable final Object input) {
-        return subscription.getMessageType().isInstance(input) && subscription.test(cast(input));
-    }
-
-    @SuppressWarnings("unchecked")
-    private T cast(final Object input) {
-        return (T) input;
+    public boolean test(final T input) {
+        return specification.test(input);
     }
 
     @Override
     public void deliver(final Deliverable<T> deliverable) {
         queue.add(deliverable);
 
-        // TODO is queue.add and delivered.increment a race condition?
         if (mode.isDone(delivered.incrementAndGet())) {
             finish(State.DONE);
         }
@@ -149,7 +142,7 @@ final class DefaultAnswer<T, R> implements Answer<T, R> {
         }
     }
 
-    private void deliver(final List<T> results, final Deliverable<T> deliverable) throws ExecutionException {
+    private void deliver(final List<T> results, final Deliverable<T> deliverable) {
         deliverable.deliverTo(results);
     }
 
@@ -176,7 +169,7 @@ final class DefaultAnswer<T, R> implements Answer<T, R> {
     }
 
     private String getMessageName() {
-        return subscription.getMessageType().getSimpleName();
+        return specification.getMessageType().getSimpleName();
     }
 
     private String humanize(final TimeUnit timeoutUnit) {
