@@ -1,18 +1,20 @@
 package org.zalando.switchboard;
 
+import com.google.common.collect.EvictingQueue;
+import com.google.common.collect.Queues;
 import lombok.AllArgsConstructor;
 
 import java.util.Optional;
 import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 @AllArgsConstructor
 public final class QueueAnsweringMachine implements AnsweringMachine {
 
     private final Queue<Deliverable<?>> queue;
 
+    @SuppressWarnings("UnstableApiUsage")
     public QueueAnsweringMachine() {
-        this(new LinkedBlockingQueue<>(1_000));
+        this(Queues.synchronizedQueue(EvictingQueue.create(1_000)));
     }
 
     @Override
