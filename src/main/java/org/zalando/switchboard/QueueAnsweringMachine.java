@@ -1,12 +1,19 @@
 package org.zalando.switchboard;
 
+import lombok.AllArgsConstructor;
+
 import java.util.Optional;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
+@AllArgsConstructor
 public final class QueueAnsweringMachine implements AnsweringMachine {
 
-    private final Queue<Deliverable<?>> queue = new ConcurrentLinkedQueue<>();
+    private final Queue<Deliverable<?>> queue;
+
+    public QueueAnsweringMachine() {
+        this(new LinkedBlockingQueue<>(1_000));
+    }
 
     @Override
     public <T> void record(final Deliverable<T> deliverable) {

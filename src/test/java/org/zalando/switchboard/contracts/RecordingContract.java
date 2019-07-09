@@ -7,6 +7,8 @@ import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -17,17 +19,17 @@ import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 interface RecordingContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
 
     @Test
-    default void shouldDeliverRecordedMessagesToSubscriptions() throws ExecutionException, InterruptedException {
+    default void shouldDeliverRecordedMessagesToSubscriptions() throws ExecutionException, InterruptedException, TimeoutException {
         final var unit = Switchboard.create();
 
         unit.send(message(messageA(), deliveryMode()));
         unit.send(message(messageA(), deliveryMode()));
 
         final var firstResult = unit.subscribe(matchA(), atLeastOnce());
-        final var first = firstResult.get();
+        final var first = firstResult.get(1, TimeUnit.NANOSECONDS);
 
         final var secondResult = unit.subscribe(matchA(), atLeastOnce());
-        final var second = secondResult.get();
+        final var second = secondResult.get(1, TimeUnit.NANOSECONDS);
 
         assertThat(first, is(messageA()));
         assertThat(second, is(messageA()));
@@ -44,8 +46,8 @@ interface RecordingContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
             final var firstResult = unit.subscribe(matchA(), atLeastOnce());
             final var secondResult = unit.subscribe(matchA(), atLeastOnce());
 
-            final var first = firstResult.get();
-            final var second = secondResult.get();
+            final var first = firstResult.get(1, TimeUnit.NANOSECONDS);
+            final var second = secondResult.get(1, TimeUnit.NANOSECONDS);
 
             assertThat(first, is(messageA()));
             assertThat(second, is(messageA()));

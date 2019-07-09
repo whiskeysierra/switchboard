@@ -6,11 +6,13 @@ import org.zalando.switchboard.traits.DeliveryTrait;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static java.time.temporal.ChronoUnit.NANOS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atMost;
@@ -64,9 +66,9 @@ interface AtMostContract<S> extends SubscriptionTrait<S>, DeliveryTrait {
         unit.send(message("foo", deliveryMode()));
 
         final var exception = assertThrows(IllegalStateException.class, () ->
-                unit.subscribe("foo"::equals, atMost(3)).get());
+                unit.subscribe("foo"::equals, atMost(3)).get(1, TimeUnit.NANOSECONDS));
 
-        assertThat(exception.getMessage(), is("Expected at most 3 Object message(s), but got 4"));
+        assertThat(exception.getMessage(), startsWith("Expected at most 3 Object message(s), but got 4"));
     }
 
 }
