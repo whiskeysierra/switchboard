@@ -202,31 +202,6 @@ subscriptions:
 *Direct delivery* is comparable to a normal phone call, i.e. one sender and one receiver. *Broadcast* on the other hand is more like a conference call, i.e.
 one sender but many receivers. *First* might be (*and this is stretching the metaphor quite a bit*) a sales agent which calls people from a list, one at a time.
 
-#### Workers, Resources and Queue Consumers
-
-```java
-class UserWorker implements Runnable {
-
-    private final Switchboard switchboard;
-
-    UserWorker(Switchboard switchboard) {
-        this.switchboard = switchboard;
-    }
-
-    @Override
-    public void run() {
-        final List<String> names = switchboard.inspect(User.class, String.class);
-        findUsersByNames(names).stream().forEach(switchboard::send);
-    }
-
-    private List<User> findUsersByNames(List<String> names) {
-        // obviously fake
-        return Collections.emptyList();
-    }
-
-}
-```
-
 ### Recording messages
 
 Switchboard has an answering machine builtin. That means any message that arrives without anyone receiving it right away will be recorded and delivered as
