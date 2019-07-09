@@ -21,8 +21,4 @@ public interface Deliverable<T> {
         return new Message<>(message, mode);
     }
 
-    static <T> Deliverable<T> failure(final T message, final DeliveryMode mode, final Throwable throwable) {
-        return new Failure<>(message, mode, throwable);
-    }
-
 }

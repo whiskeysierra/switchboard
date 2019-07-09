@@ -76,7 +76,7 @@ final class DefaultSwitchboard implements Switchboard {
 
     @Override
     public <T, R> Answer<T, R> subscribe(final Subscription<T> subscription, final SubscriptionMode<T, R> mode) {
-        final Answer<T, R> answer = new Answer<>(subscription, mode, this::unregister);
+        final var answer = new Answer<>(subscription, mode, this::unregister);
 
         registerForFutureMessages(answer);
         tryDeliverRecordedMessages(answer);
