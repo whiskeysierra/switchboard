@@ -13,7 +13,7 @@ public interface Specification<T> extends Predicate<T> {
         return resolve(this, Specification.class, 0);
     }
 
-    static <E> Specification<E> on(final Class<E> messageType, final Predicate<E> predicate) {
+    static <T> Specification<T> on(final Class<T> messageType, final Predicate<T> predicate) {
         return new SimpleSpecification<>(messageType, predicate);
     }
 

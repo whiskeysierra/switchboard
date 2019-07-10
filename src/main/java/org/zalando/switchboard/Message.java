@@ -3,6 +3,7 @@ package org.zalando.switchboard;
 import lombok.AllArgsConstructor;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @AllArgsConstructor
 final class Message<T> implements Deliverable<T> {
@@ -11,10 +12,12 @@ final class Message<T> implements Deliverable<T> {
 
     @Override
     public <R> boolean satisfies(final Specification<R> specification) {
-        if (specification.getMessageType().isInstance(message)) {
-            @SuppressWarnings("unchecked") final R typed = (R) this.message;
-            return specification.test(typed);
+        final Class<R> type = specification.getMessageType();
+
+        if (type.isInstance(message)) {
+            return specification.test(type.cast(message));
         }
+
         return false;
     }
 

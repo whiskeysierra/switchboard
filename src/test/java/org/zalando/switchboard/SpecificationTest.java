@@ -32,27 +32,43 @@ final class SpecificationTest {
     }
 
     @Test
+    void shouldExtractTypeFromMethodReference() {
+        final Specification<String> unit = "test"::equalsIgnoreCase;
+        assertThat(unit.getMessageType(), is(equalTo(String.class)));
+    }
+
+    @Test
+    void shouldExtractTypeFromMethodReferenceWithExplicitHint() {
+        final var unit = on(String.class, "foo"::equals);
+        assertThat(unit.getMessageType(), equalTo(String.class));
+    }
+
+    @Test
+    void shouldExtractTypeFromLambda() {
+        final Specification<String> unit = (String s) -> s.equalsIgnoreCase("test");
+        assertThat(unit.getMessageType(), is(equalTo(String.class)));
+    }
+
+    @Test
     void shouldSupportLambdas() throws TimeoutException, InterruptedException, ExecutionException {
         unit.publish(message("foo"));
-        final Specification<String> specification = (String e) -> true;
+        unit.publish(message(123));
 
+        final Specification<String> specification = (String e) -> true;
         final var actual = unit.subscribe(specification, exactlyOnce()).get(1, NANOSECONDS);
+
         assertThat(actual, is("foo"));
     }
 
     @Test
     void shouldSupportMethodReference() throws TimeoutException, InterruptedException, ExecutionException {
         unit.publish(message("foo"));
+        unit.publish(message(123));
 
-        final String actual = unit.subscribe("foo"::equals, SubscriptionMode.<String>exactlyOnce()).get(1, NANOSECONDS);
+        final Specification<String> spec = "foo"::equals;
+        final String actual = unit.subscribe(spec, exactlyOnce()).get(1, NANOSECONDS);
+
         assertThat(actual, is("foo"));
-    }
-
-    @Test
-    void shouldProvideMessageType() {
-        final var subscription = on(String.class, "foo"::equals);
-
-        assertThat(subscription.getMessageType(), equalTo(String.class));
     }
 
     @Test
