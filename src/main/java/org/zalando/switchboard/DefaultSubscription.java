@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 @AllArgsConstructor
@@ -91,30 +91,25 @@ final class DefaultSubscription<T, R> implements Subscription<T, R> {
 
     @Override
     public R get() throws InterruptedException {
-        checkTimeoutRequirement();
+        checkArgument(!mode.requiresTimeout(),
+                "Mode %s requires a timeout", mode.getClass().getSimpleName());
 
-        try {
-            final List<T> results = new ArrayList<>();
-            var received = 0;
-
-            while (!mode.isDone(received)) {
-                final var deliverable = queue.take();
-                deliverable.deliverTo(results);
-                received++;
-            }
-
-            return verifyAndTransform(results, received, this::format);
-        } finally {
-            unregister();
-        }
-    }
-
-    private void checkTimeoutRequirement() {
-        checkArgument(!mode.requiresTimeout(), "Mode %s requires a timeout", mode.getClass().getSimpleName());
+        return await(Long.MAX_VALUE, DAYS, this::format);
     }
 
     @Override
     public R get(final long timeout, final TimeUnit timeoutUnit) throws InterruptedException, TimeoutException {
+        try {
+            return await(timeout, timeoutUnit, count ->
+                    format(count, timeout, timeoutUnit));
+        } catch (final TimedOutException e) {
+            throw new TimeoutException(e.getMessage());
+        }
+    }
+
+    private R await(final long timeout, final TimeUnit timeoutUnit, final Function<Integer, String> message)
+            throws InterruptedException {
+
         try {
             final List<T> results = new ArrayList<>();
             var received = 0;
@@ -130,7 +125,7 @@ final class DefaultSubscription<T, R> implements Subscription<T, R> {
                         break;
                     }
 
-                    throw new TimeoutException(format(received, timeout, timeoutUnit));
+                    throw new TimedOutException(format(received, timeout, timeoutUnit));
                 }
 
                 deliverable.deliverTo(results);
@@ -138,10 +133,15 @@ final class DefaultSubscription<T, R> implements Subscription<T, R> {
                 received++;
             }
 
-            return verifyAndTransform(results, received, count ->
-                    format(count, timeout, timeoutUnit));
+            return verifyAndTransform(results, received, message);
         } finally {
             unregister();
+        }
+    }
+
+    private static final class TimedOutException extends RuntimeException {
+        TimedOutException(final String message) {
+            super(message);
         }
     }
 
@@ -153,15 +153,15 @@ final class DefaultSubscription<T, R> implements Subscription<T, R> {
         }
     }
 
-    private String format(final int received) {
-        return String.format("Expected to receive %s message(s) %s, but got %d",
-                getMessageName(), mode, received);
-    }
-
     private String format(final int received, final long timeout, final TimeUnit timeoutUnit) {
         final String unit = timeoutUnit.name().toLowerCase(Locale.ENGLISH);
         return String.format("Expected to receive %s message(s) %s within %d %s, but got %d",
                 getMessageName(), mode, timeout, unit, received);
+    }
+
+    private String format(final int received) {
+        return String.format("Expected to receive %s message(s) %s, but got %d",
+                getMessageName(), mode, received);
     }
 
     private String getMessageName() {
