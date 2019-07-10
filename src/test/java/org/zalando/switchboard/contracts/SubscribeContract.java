@@ -33,8 +33,8 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
             final var secondResult = unit.subscribe(matchA(), atLeastOnce());
             unit.publish(message(messageA()));
 
-            final var first = firstResult.get();
-            final var second = secondResult.get();
+            final var first = firstResult.get(1, NANOSECONDS);
+            final var second = secondResult.get(1, NANOSECONDS);
 
             assertThat(first, is(messageA()));
             assertThat(second, is(messageA()));
@@ -51,7 +51,7 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
             unit.publish(message(messageA()));
             unit.publish(message(messageB()));
 
-            final var first = firstResult.get();
+            final var first = firstResult.get(1, NANOSECONDS);
             assertThat(first, is(messageA()));
         });
     }
@@ -99,7 +99,7 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
                 unit.publish(message(messageA()));
             }
 
-            final var messages = future.get();
+            final var messages = future.get(1, NANOSECONDS);
 
             assertThat(messages, hasSize(count));
             assertThat(frequency(messages, messageA()), is(count));

@@ -28,7 +28,7 @@ interface TimeoutContract<S> extends SubscriptionTrait<S> {
             final var exception = assertThrows(TimeoutException.class,
                     () -> unit.subscribe(matchA(), times(3)).get(1, NANOSECONDS));
 
-            assertThat(exception.getMessage(), is("Expected to receive Message message(s) 3 times within 1 nanoseconds, but got 2"));
+            assertThat(exception.getMessage(), is("Expected to receive exactly 3 message(s) within 1 nanoseconds, but got 2"));
         });
     }
 
@@ -43,7 +43,7 @@ interface TimeoutContract<S> extends SubscriptionTrait<S> {
             final var exception = assertThrows(TimeoutException.class, () ->
                     unit.subscribe(matchA(), times(3)).get(1, NANOSECONDS));
 
-            assertThat(exception.getMessage(), is("Expected to receive Message message(s) 3 times within 1 nanoseconds, but got 2"));
+            assertThat(exception.getMessage(), is("Expected to receive exactly 3 message(s) within 1 nanoseconds, but got 2"));
         });
     }
 

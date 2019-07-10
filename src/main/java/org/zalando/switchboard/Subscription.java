@@ -1,8 +1,6 @@
 package org.zalando.switchboard;
 
-import java.util.concurrent.Future;
-
-public interface Subscription<T, R> extends Specification<T>, Future<R> {
+public interface Subscription<T, R> extends Specification<T>, Promise<R> {
 
     void deliver(Deliverable<T> deliverable);
 

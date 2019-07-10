@@ -22,7 +22,7 @@ final class Never<S> implements SubscriptionMode<S, Void> {
 
     @Override
     public String toString() {
-        return "not even once";
+        return "not even one";
     }
 
 }

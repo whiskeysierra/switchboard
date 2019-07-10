@@ -17,16 +17,6 @@ import static org.zalando.switchboard.SubscriptionMode.times;
 interface TimesContract<S> extends SubscriptionTrait<S> {
 
     @Test
-    default void shouldFailIfExpectedThreeWithoutTimeout() {
-        final var unit = Switchboard.create();
-
-        final var exception = assertThrows(IllegalArgumentException.class, () ->
-                unit.subscribe("foo"::equals, times(3)).get());
-
-        assertThat(exception.getMessage(), is("Mode Times requires a timeout"));
-    }
-
-    @Test
     default void shouldFailIfExpectedThreeButReceivedOnlyTwo() {
         final var unit = Switchboard.create();
 
@@ -36,11 +26,11 @@ interface TimesContract<S> extends SubscriptionTrait<S> {
         final var exception = assertThrows(TimeoutException.class,
                 () -> unit.subscribe("foo"::equals, times(3)).get(1, NANOSECONDS));
 
-        assertThat(exception.getMessage(), is("Expected to receive Object message(s) 3 times within 1 nanoseconds, but got 2"));
+        assertThat(exception.getMessage(), is("Expected to receive exactly 3 message(s) within 1 nanoseconds, but got 2"));
     }
 
     @Test
-    default void shouldNotFailIfExpectedThreeAndReceivedExactlyThree() throws TimeoutException, InterruptedException, ExecutionException {
+    default void shouldNotFailIfExpectedThreeAndReceivedExactlyThree() throws TimeoutException, InterruptedException {
         final var unit = Switchboard.create();
 
         unit.publish(message("foo"));
@@ -62,7 +52,7 @@ interface TimesContract<S> extends SubscriptionTrait<S> {
         final var exception = assertThrows(IllegalStateException.class,
                 () -> unit.subscribe("foo"::equals, times(3)).get(1, NANOSECONDS));
 
-        assertThat(exception.getMessage(), is("Expected to receive Object message(s) 3 times within 1 nanoseconds, but got 4"));
+        assertThat(exception.getMessage(), is("Expected to receive exactly 3 message(s) within 1 nanoseconds, but got 4"));
     }
 
 }

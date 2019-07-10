@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -17,7 +16,7 @@ import static org.zalando.switchboard.SubscriptionMode.never;
 interface NeverContract<S> extends SubscriptionTrait<S> {
 
     @Test
-    default void shouldNotFailIfExpectedNoneAndReceivedNone() throws InterruptedException, TimeoutException, ExecutionException {
+    default void shouldNotFailIfExpectedNoneAndReceivedNone() throws InterruptedException, TimeoutException {
         final var unit = Switchboard.create();
 
         unit.subscribe("foo"::equals, never()).get(1, NANOSECONDS);
@@ -32,19 +31,7 @@ interface NeverContract<S> extends SubscriptionTrait<S> {
         final var exception = assertThrows(IllegalStateException.class,
                 () -> unit.subscribe("foo"::equals, never()).get(1, NANOSECONDS));
 
-        assertThat(exception.getMessage(), is("Expected to receive Object message(s) not even once within 1 nanoseconds, but got 1"));
-    }
-
-    @Test
-    default void shouldFailIfExpectedNoneButReceivedOneWithoutTimeout() {
-        final var unit = Switchboard.create();
-
-        unit.publish(message("foo"));
-
-        final var exception = assertThrows(IllegalStateException.class, () ->
-                unit.subscribe("foo"::equals, never()).get());
-
-        assertThat(exception.getMessage(), is("Expected to receive Object message(s) not even once, but got 1"));
+        assertThat(exception.getMessage(), is("Expected to receive not even one message(s) within 1 nanoseconds, but got 1"));
     }
 
 }

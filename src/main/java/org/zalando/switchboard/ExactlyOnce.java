@@ -5,11 +5,6 @@ import java.util.List;
 final class ExactlyOnce<S> implements SubscriptionMode<S, S> {
 
     @Override
-    public boolean requiresTimeout() {
-        return true;
-    }
-
-    @Override
     public boolean isDone(final int received) {
         return received > 1;
     }
@@ -26,7 +21,7 @@ final class ExactlyOnce<S> implements SubscriptionMode<S, S> {
 
     @Override
     public String toString() {
-        return "exactly once";
+        return "exactly one";
     }
 
 }

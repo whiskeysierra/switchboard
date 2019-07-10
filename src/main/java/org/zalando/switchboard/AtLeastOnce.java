@@ -21,6 +21,6 @@ final class AtLeastOnce<S> implements SubscriptionMode<S, S> {
 
     @Override
     public String toString() {
-        return "at least once";
+        return "at least one";
     }
 }

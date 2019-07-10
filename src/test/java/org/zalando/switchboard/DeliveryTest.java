@@ -3,6 +3,7 @@ package org.zalando.switchboard;
 import org.junit.jupiter.api.Test;
 import org.zalando.switchboard.contracts.DeliveryContract;
 
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
@@ -23,8 +24,8 @@ final class DeliveryTest implements DeliveryContract {
             unit.publish(message(messageA()));
             unit.publish(message(messageA()));
 
-            final var first = firstResult.get();
-            final var second = secondResult.get();
+            final var first = firstResult.get(1, NANOSECONDS);
+            final var second = secondResult.get(1, NANOSECONDS);
 
             assertThat(first, is(messageA()));
             assertThat(first, is(sameInstance(second)));

@@ -1,7 +1,6 @@
 package org.zalando.switchboard;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.concurrent.Future;
 
 /**
  * publish/subscribe, async, hand-over/broadcast
@@ -10,7 +9,7 @@ import java.util.concurrent.Future;
 @ThreadSafe
 public interface Switchboard {
 
-    <T, R> Future<R> subscribe(Specification<T> specification, SubscriptionMode<T, R> mode);
+    <T, R> Promise<R> subscribe(Specification<T> specification, SubscriptionMode<T, R> mode);
 
     <T> void publish(Deliverable<T> deliverable);
 

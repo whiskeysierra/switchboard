@@ -27,7 +27,7 @@ final class AtMost<S> implements SubscriptionMode<S, List<S>> {
 
     @Override
     public String toString() {
-        return "at most " + count + " times";
+        return "at most " + count;
     }
 
 }

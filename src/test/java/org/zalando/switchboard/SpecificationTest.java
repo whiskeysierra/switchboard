@@ -53,7 +53,7 @@ final class SpecificationTest {
     }
 
     @Test
-    void shouldSupportLambdas() throws TimeoutException, InterruptedException, ExecutionException {
+    void shouldSupportLambdas() throws TimeoutException, InterruptedException {
         final Specification<String> specification = (String e) -> true;
         final var actual = unit.subscribe(specification, exactlyOnce());
 
@@ -64,7 +64,7 @@ final class SpecificationTest {
     }
 
     @Test
-    void shouldSupportMethodReference() throws TimeoutException, InterruptedException, ExecutionException {
+    void shouldSupportMethodReference() throws TimeoutException, InterruptedException {
         final Specification<String> spec = "foo"::equals;
         final var actual = unit.subscribe(spec, exactlyOnce());
 
@@ -75,7 +75,7 @@ final class SpecificationTest {
     }
 
     @Test
-    void shouldDelegateToPredicate() throws TimeoutException, InterruptedException, ExecutionException {
+    void shouldDelegateToPredicate() throws TimeoutException, InterruptedException {
         final var subscription = on(String.class, "foo"::equals);
 
         unit.publish(message("foo"));

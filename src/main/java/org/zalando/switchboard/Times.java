@@ -11,11 +11,6 @@ public class Times<S> implements SubscriptionMode<S, List<S>> {
     }
 
     @Override
-    public boolean requiresTimeout() {
-        return true;
-    }
-
-    @Override
     public boolean isDone(final int received) {
         return received > count;
     }
@@ -32,14 +27,7 @@ public class Times<S> implements SubscriptionMode<S, List<S>> {
 
     @Override
     public String toString() {
-        switch (count) {
-            case 1:
-                return "once";
-            case 2:
-                return "twice";
-            default:
-                return count + " times";
-        }
+        return "exactly " + count;
     }
 
 }

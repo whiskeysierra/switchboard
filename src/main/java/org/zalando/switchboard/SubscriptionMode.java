@@ -4,13 +4,7 @@ import java.util.List;
 
 public interface SubscriptionMode<T, R> {
 
-    // TODO would be nice to change the API to not even run into this case
-    default boolean requiresTimeout() {
-        return false;
-    }
-
     boolean isDone(int received);
-
     boolean isSuccess(int received);
 
     R collect(List<T> results);

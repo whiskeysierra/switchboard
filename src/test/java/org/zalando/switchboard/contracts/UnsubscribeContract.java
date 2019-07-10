@@ -19,7 +19,7 @@ import static org.zalando.switchboard.SubscriptionMode.never;
 interface UnsubscribeContract<S> extends SubscriptionTrait<S> {
 
     @Test
-    default void shouldUnsubscribe() throws TimeoutException, InterruptedException, ExecutionException {
+    default void shouldUnsubscribe() throws TimeoutException, InterruptedException {
         final var unit = Switchboard.create();
 
         // expected to unsubscribe itself in 1 ns

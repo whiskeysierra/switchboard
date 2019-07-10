@@ -21,15 +21,13 @@ final class SubscriptionModeTest {
     @TestFactory
     Stream<DynamicTest> createPointTests() {
         return ImmutableMap.<SubscriptionMode, String>builder()
-                .put(atLeast(17), "at least 17 times")
-                .put(atLeastOnce(), "at least once")
-                .put(atMost(17), "at most 17 times")
-                .put(exactlyOnce(), "exactly once")
-                .put(never(), "not even once")
-                .put(times(0), "0 times")
-                .put(times(1), "once")
-                .put(times(2), "twice")
-                .put(times(17), "17 times")
+                .put(atLeast(17), "at least 17")
+                .put(atLeastOnce(), "at least one")
+                .put(atMost(17), "at most 17")
+                .put(exactlyOnce(), "exactly one")
+                .put(never(), "not even one")
+                .put(times(0), "exactly 0")
+                .put(times(17), "exactly 17")
                 .build()
                 .entrySet().stream()
                 .map(entry -> dynamicTest(entry.getValue(), () ->

@@ -27,6 +27,6 @@ final class AtLeast<S> implements SubscriptionMode<S, List<S>> {
 
     @Override
     public String toString() {
-        return "at least " + count + " times";
+        return "at least " + count;
     }
 }

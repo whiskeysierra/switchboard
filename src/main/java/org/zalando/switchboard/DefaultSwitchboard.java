@@ -2,8 +2,6 @@ package org.zalando.switchboard;
 
 import lombok.AllArgsConstructor;
 
-import java.util.concurrent.Future;
-
 @AllArgsConstructor
 final class DefaultSwitchboard implements Switchboard {
 
@@ -11,7 +9,7 @@ final class DefaultSwitchboard implements Switchboard {
     private final AnsweringMachine machine;
 
     @Override
-    public <T, R> Future<R> subscribe(final Specification<T> specification, final SubscriptionMode<T, R> mode) {
+    public <T, R> Promise<R> subscribe(final Specification<T> specification, final SubscriptionMode<T, R> mode) {
         final var subscription = new DefaultSubscription<>(specification, mode, registry::unregister);
 
         registry.register(subscription);

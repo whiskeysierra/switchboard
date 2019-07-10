@@ -18,7 +18,7 @@ import static org.zalando.switchboard.SubscriptionMode.atMost;
 interface AtMostContract<S> extends SubscriptionTrait<S> {
 
     @Test
-    default void shouldNotFailIfExpectedAtMostThreeButReceivedOnlyTwo() throws InterruptedException, TimeoutException, ExecutionException {
+    default void shouldNotFailIfExpectedAtMostThreeButReceivedOnlyTwo() throws InterruptedException, TimeoutException {
         final var unit = Switchboard.create();
 
         unit.publish(message("foo"));
@@ -28,7 +28,7 @@ interface AtMostContract<S> extends SubscriptionTrait<S> {
     }
 
     @Test
-    default void shouldNotFailIfExpectedAtMostThreeAndReceivedExactlyThree() throws InterruptedException, TimeoutException, ExecutionException {
+    default void shouldNotFailIfExpectedAtMostThreeAndReceivedExactlyThree() throws InterruptedException, TimeoutException {
         final var unit = Switchboard.create();
 
         unit.publish(message("foo"));
@@ -50,7 +50,7 @@ interface AtMostContract<S> extends SubscriptionTrait<S> {
         final var exception = assertThrows(IllegalStateException.class,
                 () -> unit.subscribe("foo"::equals, atMost(3)).get(1, NANOSECONDS));
 
-        assertThat(exception.getMessage(), is("Expected to receive Object message(s) at most 3 times within 1 nanoseconds, but got 4"));
+        assertThat(exception.getMessage(), is("Expected to receive at most 3 message(s) within 1 nanoseconds, but got 4"));
     }
 
     @Test
@@ -65,7 +65,7 @@ interface AtMostContract<S> extends SubscriptionTrait<S> {
         final var exception = assertThrows(IllegalStateException.class, () ->
                 unit.subscribe("foo"::equals, atMost(3)).get(1, TimeUnit.NANOSECONDS));
 
-        assertThat(exception.getMessage(), is("Expected to receive Object message(s) at most 3 times within 1 nanoseconds, but got 4"));
+        assertThat(exception.getMessage(), is("Expected to receive at most 3 message(s) within 1 nanoseconds, but got 4"));
     }
 
 }

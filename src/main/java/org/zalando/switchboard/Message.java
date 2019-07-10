@@ -2,8 +2,7 @@ package org.zalando.switchboard;
 
 import lombok.AllArgsConstructor;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.util.function.Consumer;
 
 @AllArgsConstructor
 final class Message<T> implements Deliverable<T> {
@@ -22,8 +21,8 @@ final class Message<T> implements Deliverable<T> {
     }
 
     @Override
-    public void deliverTo(final Collection<? super T> target) {
-        target.add(message);
+    public void deliverTo(final Consumer<? super T> target) {
+        target.accept(message);
     }
 
 }

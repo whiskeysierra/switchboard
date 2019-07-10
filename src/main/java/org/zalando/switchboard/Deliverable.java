@@ -1,6 +1,6 @@
 package org.zalando.switchboard;
 
-import java.util.Collection;
+import java.util.function.Consumer;
 
 public interface Deliverable<T> {
 
@@ -10,7 +10,7 @@ public interface Deliverable<T> {
      * @param target target collection, potentially being passed to the receiver
      * @throws RuntimeException if delivery should fail
      */
-    void deliverTo(Collection<? super T> target);
+    void deliverTo(Consumer<? super T> target);
 
     <R> boolean satisfies(Specification<R> specification);
 
