@@ -2,6 +2,8 @@ package org.zalando.switchboard;
 
 import lombok.AllArgsConstructor;
 
+import java.time.Duration;
+
 @AllArgsConstructor
 final class DefaultSwitchboard implements Switchboard {
 
@@ -9,8 +11,14 @@ final class DefaultSwitchboard implements Switchboard {
     private final AnsweringMachine machine;
 
     @Override
-    public <T, R> Promise<R> subscribe(final Specification<T> specification, final SubscriptionMode<T, R> mode) {
-        final var subscription = new DefaultSubscription<>(specification, mode, registry::unregister);
+    public <T, R> Promise<R> subscribe(
+            final Specification<T> specification,
+            final SubscriptionMode<T, R> mode,
+            final Duration timeout) {
+
+        final var spec = new Spec<>(specification, mode, timeout);
+        final var subscription = new DefaultSubscription<>(spec, registry::unregister);
+        // TODO unregister when done!
 
         registry.register(subscription);
         tryToDeliverRecordedMessages(subscription);
@@ -18,12 +26,21 @@ final class DefaultSwitchboard implements Switchboard {
         return subscription;
     }
 
-    private <T, R> void tryToDeliverRecordedMessages(final Subscription<T, R> subscription) {
+    private <T> void tryToDeliverRecordedMessages(final Subscription<T> subscription) {
         while (true) {
-            final var deliverable = machine.removeIf(subscription);
-            deliverable.ifPresent(subscription::deliver);
+            final var optional = machine.removeIf(subscription);
 
-            if (deliverable.isEmpty() || subscription.isDone()) {
+            if (optional.isPresent()) {
+                final var deliverable = optional.get();
+
+                // TODO this is needed because the subscription might be unregistered in between and we wouldn't notice
+                // TODO find a better way to do this, e.g. re-quering or asking the registry?!
+                if (subscription.deliver(deliverable)) {
+                    return;
+                }
+            }
+
+            if (optional.isEmpty()) {
                 return;
             }
         }

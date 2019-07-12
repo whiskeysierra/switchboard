@@ -1,48 +1,51 @@
 package org.zalando.switchboard.contracts;
 
 import org.junit.jupiter.api.Test;
-import org.zalando.switchboard.SubscriptionMode;
+import org.zalando.switchboard.Specification;
 import org.zalando.switchboard.Switchboard;
+import org.zalando.switchboard.TestTimeout;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
+import java.time.Duration;
+import java.util.concurrent.CancellationException;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.zalando.switchboard.Deliverable.message;
+import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.SubscriptionMode.never;
 
 interface UnsubscribeContract<S> extends SubscriptionTrait<S> {
 
     @Test
-    default void shouldUnsubscribe() throws TimeoutException, InterruptedException {
-        final var unit = Switchboard.create();
+    default void shouldUnsubscribe() {
+        assertTimeoutPreemptively(TestTimeout.DEFAULT, () -> {
+            final var unit = Switchboard.create();
 
-        // expected to unsubscribe itself in 1 ns
+            // expected to unsubscribe itself in 1 ns
+            unit.subscribe("foo"::equals, never(), Duration.ofNanos(1)).join();
 
-        unit.subscribe("foo"::equals, never()).get(1, NANOSECONDS);
+            unit.publish(message("foo"));
 
-        unit.publish(message("foo"));
-
-        final String actual = unit.subscribe("foo"::equals, SubscriptionMode.<String>exactlyOnce()).get(1, NANOSECONDS);
-        assertThat(actual, is("foo"));
+            final Specification<String> equals = "foo"::equals;
+            final String actual = unit.subscribe(equals, atLeastOnce(), Duration.ofMinutes(1)).join();
+            assertThat(actual, is("foo"));
+        });
     }
 
     @Test
     default void cancellingFutureShouldUnsubscribe() {
         final var unit = Switchboard.create();
 
-        final var future = unit.subscribe(matchA(), exactlyOnce());
+        final var future = unit.subscribe(matchA(), exactlyOnce(), Duration.ofMillis(50));
         future.cancel(false);
 
         unit.publish(message(messageA()));
 
-        assertThrows(TimeoutException.class, () ->
-                future.get(1, NANOSECONDS));
+        assertThrows(CancellationException.class, future::join);
     }
 
 }

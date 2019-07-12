@@ -1,7 +1,6 @@
 package org.zalando.switchboard;
 
-import java.util.List;
-import java.util.concurrent.Future;
+import java.util.Collection;
 
 final class Never<S> implements SubscriptionMode<S, Void> {
 
@@ -16,7 +15,7 @@ final class Never<S> implements SubscriptionMode<S, Void> {
     }
 
     @Override
-    public Void collect(final List<S> results) {
+    public Void collect(final Collection<S> results) {
         return null;
     }
 

@@ -1,7 +1,7 @@
 package org.zalando.switchboard;
 
-public interface Subscription<T, R> extends Specification<T>, Promise<R> {
+public interface Subscription<T> extends Specification<T> {
 
-    void deliver(Deliverable<T> deliverable);
+    boolean deliver(Deliverable<T> deliverable);
 
 }

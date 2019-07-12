@@ -1,8 +1,8 @@
 package org.zalando.switchboard;
 
-import java.util.List;
+import java.util.Collection;
 
-public class Times<S> implements SubscriptionMode<S, List<S>> {
+public class Times<S> implements SubscriptionMode<S, Collection<S>> {
 
     private final int count;
 
@@ -21,7 +21,7 @@ public class Times<S> implements SubscriptionMode<S, List<S>> {
     }
 
     @Override
-    public List<S> collect(final List<S> results) {
+    public Collection<S> collect(final Collection<S> results) {
         return results;
     }
 

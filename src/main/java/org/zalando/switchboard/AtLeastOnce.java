@@ -1,6 +1,6 @@
 package org.zalando.switchboard;
 
-import java.util.List;
+import java.util.Collection;
 
 final class AtLeastOnce<S> implements SubscriptionMode<S, S> {
 
@@ -15,8 +15,8 @@ final class AtLeastOnce<S> implements SubscriptionMode<S, S> {
     }
 
     @Override
-    public S collect(final List<S> results) {
-        return results.get(0);
+    public S collect(final Collection<S> results) {
+        return results.iterator().next();
     }
 
     @Override

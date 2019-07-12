@@ -73,6 +73,16 @@
             <version>1.18.8</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>faux-pas</artifactId>
+            <version>0.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.organicdesign</groupId>
+            <artifactId>Paguro</artifactId>
+            <version>3.1.2</version>
+        </dependency>
 
         <!-- testing: common -->
         <dependency>

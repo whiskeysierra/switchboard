@@ -1,13 +1,13 @@
 package org.zalando.switchboard;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface SubscriptionMode<T, R> {
 
     boolean isDone(int received);
     boolean isSuccess(int received);
 
-    R collect(List<T> results);
+    R collect(Collection<T> results);
 
     // TODO document: non blocking, at most until end of timeout
     static <S> SubscriptionMode<S, Void> never() {
@@ -15,7 +15,7 @@ public interface SubscriptionMode<T, R> {
     }
 
     // TODO document: non blocking, at most until end of timeout
-    static <S> SubscriptionMode<S, List<S>> atMost(final int count) {
+    static <S> SubscriptionMode<S, Collection<S>> atMost(final int count) {
         return new AtMost<>(count);
     }
 
@@ -25,7 +25,7 @@ public interface SubscriptionMode<T, R> {
     }
 
     // TODO document: exactly, blocking
-    static <S> SubscriptionMode<S, List<S>> times(final int count) {
+    static <S> SubscriptionMode<S, Collection<S>> times(final int count) {
         return new Times<>(count);
     }
 
@@ -35,7 +35,7 @@ public interface SubscriptionMode<T, R> {
     }
 
     // TODO document: non blocking, at most until end of timeout
-    static <S> SubscriptionMode<S, List<S>> atLeast(final int count) {
+    static <S> SubscriptionMode<S, Collection<S>> atLeast(final int count) {
         return new AtLeast<>(count);
     }
 

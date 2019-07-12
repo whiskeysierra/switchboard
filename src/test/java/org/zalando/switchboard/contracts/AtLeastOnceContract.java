@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
+import java.time.Duration;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -20,29 +22,29 @@ interface AtLeastOnceContract<S> extends SubscriptionTrait<S> {
     default void shouldFailIfExpectedAtLeastOneButReceivedNone() {
         final var unit = Switchboard.create();
 
-        final var exception = assertThrows(TimeoutException.class,
-                () -> unit.subscribe("foo"::equals, atLeastOnce()).get(1, NANOSECONDS));
+        final var exception = assertThrows(CompletionException.class,
+                () -> unit.subscribe("foo"::equals, atLeastOnce(), Duration.ofMillis(50)).join());
 
-        assertThat(exception.getMessage(), is("Expected to receive at least one message(s) within 1 nanoseconds, but got 0"));
+        assertThat(exception.getCause().getMessage(), is("Expected to receive at least one message(s) within PT0.05S, but got 0"));
     }
 
     @Test
-    default void shouldNotFailIfExpectedAtLeastOneAndReceivedExactlyOne() throws TimeoutException, InterruptedException {
+    default void shouldNotFailIfExpectedAtLeastOneAndReceivedExactlyOne() {
         final var unit = Switchboard.create();
 
         unit.publish(message("foo"));
 
-        unit.subscribe("foo"::equals, atLeastOnce()).get(1, NANOSECONDS);
+        unit.subscribe("foo"::equals, atLeastOnce(), Duration.ofMillis(50)).join();
     }
 
     @Test
-    default void shouldNotFailIfExpectedAtLeastOneAndReceivedTwo() throws TimeoutException, InterruptedException {
+    default void shouldNotFailIfExpectedAtLeastOneAndReceivedTwo() {
         final var unit = Switchboard.create();
 
         unit.publish(message("foo"));
         unit.publish(message("foo"));
 
-        unit.subscribe("foo"::equals, atLeastOnce()).get(1, NANOSECONDS);
+        unit.subscribe("foo"::equals, atLeastOnce(), Duration.ofMillis(50)).join();
     }
 
 }

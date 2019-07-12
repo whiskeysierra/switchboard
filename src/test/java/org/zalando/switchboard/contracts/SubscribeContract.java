@@ -5,15 +5,20 @@ import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.TestTimeout;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.Collections.frequency;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTimeout;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.zalando.switchboard.Deliverable.message;
 import static org.zalando.switchboard.SubscriptionMode.atLeast;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
@@ -24,17 +29,17 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
 
     @Test
     default void shouldDeliverMessageToSubscriptions() {
-        assertTimeout(TestTimeout.DEFAULT, () -> {
+        assertTimeoutPreemptively(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
-            final var firstResult = unit.subscribe(matchA(), atLeastOnce());
+            final var firstResult = unit.subscribe(matchA(), atLeastOnce(), Duration.ofMillis(50));
             unit.publish(message(messageA()));
 
-            final var secondResult = unit.subscribe(matchA(), atLeastOnce());
+            final var secondResult = unit.subscribe(matchA(), atLeastOnce(), Duration.ofMillis(50));
             unit.publish(message(messageA()));
 
-            final var first = firstResult.get(1, NANOSECONDS);
-            final var second = secondResult.get(1, NANOSECONDS);
+            final var first = firstResult.join();
+            final var second = secondResult.join();
 
             assertThat(first, is(messageA()));
             assertThat(second, is(messageA()));
@@ -43,34 +48,38 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
 
     @Test
     default void shouldSkipNonMatchingMessages() {
-        assertTimeout(TestTimeout.DEFAULT, () -> {
+        assertTimeoutPreemptively(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
-            final var firstResult = unit.subscribe(matchA(), atLeastOnce());
+            final var firstResult = unit.subscribe(matchA(), atLeastOnce(), Duration.ofMillis(50));
 
             unit.publish(message(messageA()));
             unit.publish(message(messageB()));
 
-            final var first = firstResult.get(1, NANOSECONDS);
+            final var first = firstResult.join();
             assertThat(first, is(messageA()));
         });
     }
 
     @Test
     default void shouldTimeoutWhenThereAreNoMatchingMessages() {
-        assertTimeout(TestTimeout.DEFAULT, () -> {
+        assertTimeoutPreemptively(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
             unit.publish(message(messageA()));
             unit.publish(message(messageA()));
 
-            assertThrows(TimeoutException.class, () -> unit.subscribe(matchB(), exactlyOnce()).get(1, NANOSECONDS));
+            final var exception = assertThrows(CompletionException.class, () ->
+                    unit.subscribe(matchB(), exactlyOnce(), Duration.ofMillis(50)).join());
+
+            final var cause = exception.getCause();
+            assertThat(cause, is(instanceOf(TimeoutException.class)));
         });
     }
 
     @Test
     default void shouldPollMultipleTimesWhenCountGiven() {
-        assertTimeout(TestTimeout.DEFAULT, () -> {
+        assertTimeoutPreemptively(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
             final var count = 5;
@@ -79,7 +88,7 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
                 unit.publish(message(messageA()));
             }
 
-            final var messages = unit.subscribe(matchA(), times(count)).get(1, NANOSECONDS);
+            final var messages = unit.subscribe(matchA(), times(count), Duration.ofMillis(50)).join();
 
             assertThat(messages, hasSize(count));
             assertThat(frequency(messages, messageA()), is(count));
@@ -88,18 +97,18 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
 
     @Test
     default void shouldPollAsyncMultipleTimesWhenCountGiven() {
-        assertTimeout(TestTimeout.DEFAULT, () -> {
+        assertTimeoutPreemptively(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
             final var count = 5;
 
-            final var future = unit.subscribe(matchA(), atLeast(count));
+            final var future = unit.subscribe(matchA(), atLeast(count), Duration.ofMillis(50));
 
             for (var i = 0; i < count; i++) {
                 unit.publish(message(messageA()));
             }
 
-            final var messages = future.get(1, NANOSECONDS);
+            final var messages = future.join();
 
             assertThat(messages, hasSize(count));
             assertThat(frequency(messages, messageA()), is(count));
@@ -108,18 +117,18 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
 
     @Test
     default void shouldPollAsyncWithTimeoutMultipleTimesWhenCountGiven() {
-        assertTimeout(TestTimeout.DEFAULT, () -> {
+        assertTimeoutPreemptively(TestTimeout.DEFAULT, () -> {
             final var unit = Switchboard.create();
 
             final var count = 5;
 
-            final var future = unit.subscribe(matchA(), times(count));
+            final var future = unit.subscribe(matchA(), times(count), Duration.ofMillis(50));
 
             for (var i = 0; i < count; i++) {
                 unit.publish(message(messageA()));
             }
 
-            final var messages = future.get(1, NANOSECONDS);
+            final var messages = future.join();
 
             assertThat(messages, hasSize(count));
             assertThat(frequency(messages, messageA()), is(count));

@@ -27,7 +27,7 @@ public final class InMemoryAnsweringMachine implements AnsweringMachine {
         final var iterator = queue.iterator();
 
         while (iterator.hasNext()) {
-            final Deliverable<?> deliverable = iterator.next();
+            final var deliverable = iterator.next();
 
             if (deliverable.satisfies(specification)) {
                 iterator.remove();

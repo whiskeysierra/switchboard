@@ -5,12 +5,13 @@ import org.junit.jupiter.api.Test;
 
 import javax.annotation.concurrent.Immutable;
 import java.math.BigDecimal;
-import java.util.concurrent.ExecutionException;
+import java.time.Duration;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeoutException;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.zalando.switchboard.Deliverable.message;
@@ -53,34 +54,34 @@ final class SpecificationTest {
     }
 
     @Test
-    void shouldSupportLambdas() throws TimeoutException, InterruptedException {
+    void shouldSupportLambdas() {
         final Specification<String> specification = (String e) -> true;
-        final var actual = unit.subscribe(specification, exactlyOnce());
+        final var actual = unit.subscribe(specification, exactlyOnce(), Duration.ofMillis(50));
 
         // TODO unit.publish(message(123));
         unit.publish(message("foo"));
 
-        assertThat(actual.get(1, NANOSECONDS), is("foo"));
+        assertThat(actual.join(), is("foo"));
     }
 
     @Test
-    void shouldSupportMethodReference() throws TimeoutException, InterruptedException {
+    void shouldSupportMethodReference() {
         final Specification<String> spec = "foo"::equals;
-        final var actual = unit.subscribe(spec, exactlyOnce());
+        final var actual = unit.subscribe(spec, exactlyOnce(), Duration.ofMillis(50));
 
         // TODO unit.publish(message(123));
         unit.publish(message("foo"));
 
-        assertThat(actual.get(1, NANOSECONDS), is("foo"));
+        assertThat(actual.join(), is("foo"));
     }
 
     @Test
-    void shouldDelegateToPredicate() throws TimeoutException, InterruptedException {
+    void shouldDelegateToPredicate() {
         final var subscription = on(String.class, "foo"::equals);
 
         unit.publish(message("foo"));
 
-        final var s = unit.subscribe(subscription, atLeastOnce()).get(1, NANOSECONDS);
+        final var s = unit.subscribe(subscription, atLeastOnce(), Duration.ofMillis(50)).join();
 
         assertThat(s, is("foo"));
     }
@@ -89,8 +90,12 @@ final class SpecificationTest {
     void shouldNotMatchDifferentType() {
         unit.publish(message(123));
 
-        assertThrows(TimeoutException.class,
-                () -> unit.subscribe(on(BigDecimal.class, Number.class::isInstance), atLeastOnce()).get(1, NANOSECONDS));
+        final CompletionException exception = assertThrows(CompletionException.class, () ->
+                unit.subscribe(on(BigDecimal.class, Number.class::isInstance), atLeastOnce(),
+                        Duration.ofMillis(50)).join());
+
+        final Throwable cause = exception.getCause();
+        assertThat(cause, is(instanceOf(TimeoutException.class)));
     }
 
     @Immutable

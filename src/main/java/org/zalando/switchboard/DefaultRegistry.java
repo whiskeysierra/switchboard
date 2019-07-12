@@ -9,28 +9,28 @@ import static java.util.stream.Collectors.toList;
 
 public final class DefaultRegistry implements Registry {
 
-    private final Multiset<Subscription<?, ?>> subscriptions = ConcurrentHashMultiset.create();
+    private final Multiset<Subscription<?>> subscriptions = ConcurrentHashMultiset.create();
 
     @Override
-    public <T, R> void register(final Subscription<T, R> subscription) {
+    public <T> void register(final Subscription<T> subscription) {
         subscriptions.add(subscription);
     }
 
     @Override
-    public <T, R> List<Subscription<T, R>> find(final Deliverable<T> deliverable) {
+    public <T> List<Subscription<T>> find(final Deliverable<T> deliverable) {
         return subscriptions.stream()
                 .filter(deliverable::satisfies)
-                .map(this::<T, R>cast)
+                .map(this::<T>cast)
                 .collect(toList());
     }
 
     @SuppressWarnings("unchecked")
-    private <T, R> Subscription<T, R> cast(final Subscription subscription) {
+    private <T> Subscription<T> cast(final Subscription subscription) {
         return subscription;
     }
 
     @Override
-    public <T, R> void unregister(final Subscription<T, R> subscription) {
+    public <T> void unregister(final Subscription<T> subscription) {
         subscriptions.remove(subscription);
     }
 

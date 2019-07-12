@@ -4,10 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
-import java.util.concurrent.TimeoutException;
+import java.time.Duration;
+import java.util.concurrent.CompletionException;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.zalando.switchboard.Deliverable.message;
@@ -16,10 +17,10 @@ import static org.zalando.switchboard.SubscriptionMode.never;
 interface NeverContract<S> extends SubscriptionTrait<S> {
 
     @Test
-    default void shouldNotFailIfExpectedNoneAndReceivedNone() throws InterruptedException, TimeoutException {
+    default void shouldNotFailIfExpectedNoneAndReceivedNone() {
         final var unit = Switchboard.create();
 
-        unit.subscribe("foo"::equals, never()).get(1, NANOSECONDS);
+        unit.subscribe("foo"::equals, never(), Duration.ofMillis(50)).join();
     }
 
     @Test
@@ -28,10 +29,12 @@ interface NeverContract<S> extends SubscriptionTrait<S> {
 
         unit.publish(message("foo"));
 
-        final var exception = assertThrows(IllegalStateException.class,
-                () -> unit.subscribe("foo"::equals, never()).get(1, NANOSECONDS));
+        final var exception = assertThrows(CompletionException.class,
+                () -> unit.subscribe("foo"::equals, never(), Duration.ofMillis(50)).join());
 
-        assertThat(exception.getMessage(), is("Expected to receive not even one message(s) within 1 nanoseconds, but got 1"));
+        final var cause = exception.getCause();
+        assertThat(cause, is(instanceOf(IllegalStateException.class)));
+        assertThat(cause.getMessage(), is("Expected to receive not even one message(s) within PT0.05S, but got 1"));
     }
 
 }
