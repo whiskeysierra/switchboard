@@ -5,7 +5,7 @@ import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.time.Duration;
-import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -24,8 +24,8 @@ interface TimesContract<S> extends SubscriptionTrait<S> {
         unit.publish(message("foo"));
         unit.publish(message("foo"));
 
-        final var exception = assertThrows(CompletionException.class,
-                () -> unit.subscribe("foo"::equals, times(3), Duration.ofMillis(50)).join());
+        final var exception = assertThrows(ExecutionException.class,
+                () -> unit.subscribe("foo"::equals, times(3), Duration.ofMillis(50)).get());
 
         final var cause = exception.getCause();
         assertThat(cause, is(instanceOf(TimeoutException.class)));
@@ -33,14 +33,14 @@ interface TimesContract<S> extends SubscriptionTrait<S> {
     }
 
     @Test
-    default void shouldNotFailIfExpectedThreeAndReceivedExactlyThree() {
+    default void shouldNotFailIfExpectedThreeAndReceivedExactlyThree() throws ExecutionException, InterruptedException {
         final var unit = Switchboard.create();
 
         unit.publish(message("foo"));
         unit.publish(message("foo"));
         unit.publish(message("foo"));
 
-        unit.subscribe("foo"::equals, times(3), Duration.ofMillis(50)).join();
+        unit.subscribe("foo"::equals, times(3), Duration.ofMillis(50)).get();
     }
 
     @Test
@@ -52,8 +52,8 @@ interface TimesContract<S> extends SubscriptionTrait<S> {
         unit.publish(message("foo"));
         unit.publish(message("foo"));
 
-        final var exception = assertThrows(CompletionException.class,
-                () -> unit.subscribe("foo"::equals, times(3), Duration.ofMillis(50)).join());
+        final var exception = assertThrows(ExecutionException.class,
+                () -> unit.subscribe("foo"::equals, times(3), Duration.ofMillis(50)).get());
 
         final var cause = exception.getCause();
         assertThat(cause, is(instanceOf(IllegalStateException.class)));

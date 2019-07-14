@@ -5,7 +5,7 @@ import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.time.Duration;
-import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
@@ -17,10 +17,10 @@ import static org.zalando.switchboard.SubscriptionMode.never;
 interface NeverContract<S> extends SubscriptionTrait<S> {
 
     @Test
-    default void shouldNotFailIfExpectedNoneAndReceivedNone() {
+    default void shouldNotFailIfExpectedNoneAndReceivedNone() throws ExecutionException, InterruptedException {
         final var unit = Switchboard.create();
 
-        unit.subscribe("foo"::equals, never(), Duration.ofMillis(50)).join();
+        unit.subscribe("foo"::equals, never(), Duration.ofMillis(50)).get();
     }
 
     @Test
@@ -29,8 +29,8 @@ interface NeverContract<S> extends SubscriptionTrait<S> {
 
         unit.publish(message("foo"));
 
-        final var exception = assertThrows(CompletionException.class,
-                () -> unit.subscribe("foo"::equals, never(), Duration.ofMillis(50)).join());
+        final var exception = assertThrows(ExecutionException.class,
+                () -> unit.subscribe("foo"::equals, never(), Duration.ofMillis(50)).get());
 
         final var cause = exception.getCause();
         assertThat(cause, is(instanceOf(IllegalStateException.class)));

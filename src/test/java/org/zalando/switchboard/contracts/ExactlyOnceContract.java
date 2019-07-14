@@ -5,10 +5,9 @@ import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.time.Duration;
-import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -22,8 +21,8 @@ interface ExactlyOnceContract<S> extends SubscriptionTrait<S> {
     default void shouldFailIfExpectedOneButReceivedNone() {
         final var unit = Switchboard.create();
 
-        final var exception = assertThrows(CompletionException.class,
-                () -> unit.subscribe("foo"::equals, exactlyOnce(), Duration.ofMillis(50)).join());
+        final var exception = assertThrows(ExecutionException.class,
+                () -> unit.subscribe("foo"::equals, exactlyOnce(), Duration.ofMillis(50)).get());
 
         final var cause = exception.getCause();
         assertThat(cause, is(instanceOf(TimeoutException.class)));
@@ -31,12 +30,12 @@ interface ExactlyOnceContract<S> extends SubscriptionTrait<S> {
     }
 
     @Test
-    default void shouldNotFailIfExpectedOneAndReceivedExactlyOne() {
+    default void shouldNotFailIfExpectedOneAndReceivedExactlyOne() throws ExecutionException, InterruptedException {
         final var unit = Switchboard.create();
 
         unit.publish(message("foo"));
 
-        unit.subscribe("foo"::equals, exactlyOnce(), Duration.ofMillis(50)).join();
+        unit.subscribe("foo"::equals, exactlyOnce(), Duration.ofMillis(50)).get();
     }
 
     @Test
@@ -46,8 +45,8 @@ interface ExactlyOnceContract<S> extends SubscriptionTrait<S> {
         unit.publish(message("foo"));
         unit.publish(message("foo"));
 
-        final var exception = assertThrows(CompletionException.class,
-                () -> unit.subscribe("foo"::equals, exactlyOnce(), Duration.ofMillis(50)).join());
+        final var exception = assertThrows(ExecutionException.class,
+                () -> unit.subscribe("foo"::equals, exactlyOnce(), Duration.ofMillis(50)).get());
 
         final Throwable cause = exception.getCause();
         assertThat(cause, is(instanceOf(IllegalStateException.class)));

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import javax.annotation.concurrent.Immutable;
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -54,34 +54,34 @@ final class SpecificationTest {
     }
 
     @Test
-    void shouldSupportLambdas() {
+    void shouldSupportLambdas() throws ExecutionException, InterruptedException {
         final Specification<String> specification = (String e) -> true;
         final var actual = unit.subscribe(specification, exactlyOnce(), Duration.ofMillis(50));
 
         // TODO unit.publish(message(123));
         unit.publish(message("foo"));
 
-        assertThat(actual.join(), is("foo"));
+        assertThat(actual.get(), is("foo"));
     }
 
     @Test
-    void shouldSupportMethodReference() {
+    void shouldSupportMethodReference() throws ExecutionException, InterruptedException {
         final Specification<String> spec = "foo"::equals;
         final var actual = unit.subscribe(spec, exactlyOnce(), Duration.ofMillis(50));
 
         // TODO unit.publish(message(123));
         unit.publish(message("foo"));
 
-        assertThat(actual.join(), is("foo"));
+        assertThat(actual.get(), is("foo"));
     }
 
     @Test
-    void shouldDelegateToPredicate() {
+    void shouldDelegateToPredicate() throws ExecutionException, InterruptedException {
         final var subscription = on(String.class, "foo"::equals);
 
         unit.publish(message("foo"));
 
-        final var s = unit.subscribe(subscription, atLeastOnce(), Duration.ofMillis(50)).join();
+        final var s = unit.subscribe(subscription, atLeastOnce(), Duration.ofMillis(50)).get();
 
         assertThat(s, is("foo"));
     }
@@ -90,9 +90,9 @@ final class SpecificationTest {
     void shouldNotMatchDifferentType() {
         unit.publish(message(123));
 
-        final CompletionException exception = assertThrows(CompletionException.class, () ->
-                unit.subscribe(on(BigDecimal.class, Number.class::isInstance), atLeastOnce(),
-                        Duration.ofMillis(50)).join());
+        final Exception exception = assertThrows(ExecutionException.class,
+                () -> unit.subscribe(on(BigDecimal.class, Number.class::isInstance), atLeastOnce(),
+                                Duration.ofMillis(50)).get());
 
         final Throwable cause = exception.getCause();
         assertThat(cause, is(instanceOf(TimeoutException.class)));

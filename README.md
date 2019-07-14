@@ -15,7 +15,7 @@
 
 An in-process message router that helps to write simple, asynchronous, state-based and collaboration tests. 
     
-- **Technology stack**: Java 8+, long running integration tests
+- **Technology stack**: Java 11+
 - **Status**:  Beta, ported from an internal implementation that is used in production
 
 ## Example

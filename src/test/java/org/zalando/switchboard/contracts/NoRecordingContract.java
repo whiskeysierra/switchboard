@@ -1,16 +1,15 @@
 package org.zalando.switchboard.contracts;
 
 import org.junit.jupiter.api.Test;
-import org.zalando.switchboard.NoAnsweringMachine;
 import org.zalando.switchboard.DefaultRegistry;
+import org.zalando.switchboard.NoAnsweringMachine;
 import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.time.Duration;
-import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -29,8 +28,8 @@ interface NoRecordingContract<S> extends SubscriptionTrait<S> {
 
         unit.publish(message(messageA()));
 
-        final var exception = assertThrows(CompletionException.class, () ->
-                unit.subscribe(matchA(), atLeastOnce(), Duration.ofMillis(50)).join());
+        final var exception = assertThrows(ExecutionException.class,
+                () -> unit.subscribe(matchA(), atLeastOnce(), Duration.ofMillis(50)).get());
 
         assertThat(exception.getCause(), is(instanceOf(TimeoutException.class)));
     }

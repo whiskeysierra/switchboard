@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.zalando.switchboard.SubscriptionMode.atLeast;
 import static org.zalando.switchboard.SubscriptionMode.atLeastOnce;
 import static org.zalando.switchboard.SubscriptionMode.atMost;
+import static org.zalando.switchboard.SubscriptionMode.atMostOnce;
 import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.SubscriptionMode.never;
 import static org.zalando.switchboard.SubscriptionMode.times;
@@ -24,6 +25,7 @@ final class SubscriptionModeTest {
                 .put(atLeast(17), "at least 17")
                 .put(atLeastOnce(), "at least one")
                 .put(atMost(17), "at most 17")
+                .put(atMostOnce(), "at most one")
                 .put(exactlyOnce(), "exactly one")
                 .put(never(), "not even one")
                 .put(times(0), "exactly 0")

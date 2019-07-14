@@ -18,6 +18,7 @@ public final class DefaultRegistry implements Registry {
 
     @Override
     public <T> List<Subscription<T>> find(final Deliverable<T> deliverable) {
+        // TODO could this be made more efficient?
         return subscriptions.stream()
                 .filter(deliverable::satisfies)
                 .map(this::<T>cast)

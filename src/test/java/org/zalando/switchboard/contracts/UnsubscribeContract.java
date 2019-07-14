@@ -26,12 +26,12 @@ interface UnsubscribeContract<S> extends SubscriptionTrait<S> {
             final var unit = Switchboard.create();
 
             // expected to unsubscribe itself in 1 ns
-            unit.subscribe("foo"::equals, never(), Duration.ofNanos(1)).join();
+            unit.subscribe("foo"::equals, never(), Duration.ofNanos(1)).get();
 
             unit.publish(message("foo"));
 
             final Specification<String> equals = "foo"::equals;
-            final String actual = unit.subscribe(equals, atLeastOnce(), Duration.ofMinutes(1)).join();
+            final String actual = unit.subscribe(equals, atLeastOnce(), Duration.ofMinutes(1)).get();
             assertThat(actual, is("foo"));
         });
     }
@@ -45,7 +45,7 @@ interface UnsubscribeContract<S> extends SubscriptionTrait<S> {
 
         unit.publish(message(messageA()));
 
-        assertThrows(CancellationException.class, future::join);
+        assertThrows(CancellationException.class, () -> future.get());
     }
 
 }

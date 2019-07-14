@@ -5,7 +5,7 @@ import java.util.Collection;
 final class ExactlyOnce<S> implements SubscriptionMode<S, S> {
 
     @Override
-    public boolean isDone(final int received) {
+    public boolean isDoneEarly(final int received) {
         return received > 1;
     }
 
@@ -15,7 +15,7 @@ final class ExactlyOnce<S> implements SubscriptionMode<S, S> {
     }
 
     @Override
-    public S collect(final Collection<S> results) {
+    public S transform(final Collection<S> results) {
         return results.iterator().next();
     }
 

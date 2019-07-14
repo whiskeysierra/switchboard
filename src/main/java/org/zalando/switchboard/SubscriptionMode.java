@@ -1,13 +1,27 @@
 package org.zalando.switchboard;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface SubscriptionMode<T, R> {
 
-    boolean isDone(int received);
+    // TODO find better name!
+
+    /**
+     *
+     * @param received the amount of received messages, greater than or equal to 1
+     * @return true if this mode can determine it's success condition already
+     */
+    boolean isDoneEarly(int received);
+
+    /**
+     *
+     * @param received the amount of received messages, greater than or equal to 0
+     * @return true if this mode considers the amount of messages successful
+     */
     boolean isSuccess(int received);
 
-    R collect(Collection<T> results);
+    R transform(Collection<T> results);
 
     // TODO document: non blocking, at most until end of timeout
     static <S> SubscriptionMode<S, Void> never() {
@@ -17,6 +31,10 @@ public interface SubscriptionMode<T, R> {
     // TODO document: non blocking, at most until end of timeout
     static <S> SubscriptionMode<S, Collection<S>> atMost(final int count) {
         return new AtMost<>(count);
+    }
+
+    static <S> SubscriptionMode<S, Optional<S>> atMostOnce() {
+        return new AtMostOnce<>();
     }
 
     // TODO document: exactly, blocking

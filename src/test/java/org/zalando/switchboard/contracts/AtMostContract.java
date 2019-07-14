@@ -5,11 +5,7 @@ import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
@@ -21,24 +17,24 @@ import static org.zalando.switchboard.SubscriptionMode.atMost;
 interface AtMostContract<S> extends SubscriptionTrait<S> {
 
     @Test
-    default void shouldNotFailIfExpectedAtMostThreeButReceivedOnlyTwo() {
+    default void shouldNotFailIfExpectedAtMostThreeButReceivedOnlyTwo() throws ExecutionException, InterruptedException {
         final var unit = Switchboard.create();
 
         unit.publish(message("foo"));
         unit.publish(message("foo"));
 
-        unit.subscribe("foo"::equals, atMost(3), Duration.ofMillis(50)).join();
+        unit.subscribe("foo"::equals, atMost(3), Duration.ofMillis(50)).get();
     }
 
     @Test
-    default void shouldNotFailIfExpectedAtMostThreeAndReceivedExactlyThree() {
+    default void shouldNotFailIfExpectedAtMostThreeAndReceivedExactlyThree() throws ExecutionException, InterruptedException {
         final var unit = Switchboard.create();
 
         unit.publish(message("foo"));
         unit.publish(message("foo"));
         unit.publish(message("foo"));
 
-        unit.subscribe("foo"::equals, atMost(3), Duration.ofMillis(50)).join();
+        unit.subscribe("foo"::equals, atMost(3), Duration.ofMillis(50)).get();
     }
 
     @Test
@@ -50,8 +46,8 @@ interface AtMostContract<S> extends SubscriptionTrait<S> {
         unit.publish(message("foo"));
         unit.publish(message("foo"));
 
-        final var exception = assertThrows(CompletionException.class,
-                () -> unit.subscribe("foo"::equals, atMost(3), Duration.ofMillis(50)).join());
+        final var exception = assertThrows(ExecutionException.class,
+                () -> unit.subscribe("foo"::equals, atMost(3), Duration.ofMillis(50)).get());
 
         final var cause = exception.getCause();
         assertThat(cause, is(instanceOf(IllegalStateException.class)));
@@ -67,8 +63,8 @@ interface AtMostContract<S> extends SubscriptionTrait<S> {
         unit.publish(message("foo"));
         unit.publish(message("foo"));
 
-        final var exception = assertThrows(CompletionException.class,
-                () -> (unit.subscribe("foo"::equals, atMost(3), Duration.ofMillis(50))).join());
+        final var exception = assertThrows(ExecutionException.class,
+                () -> (unit.subscribe("foo"::equals, atMost(3), Duration.ofMillis(50))).get());
 
         final var cause = exception.getCause();
         assertThat(cause, is(instanceOf(IllegalStateException.class)));

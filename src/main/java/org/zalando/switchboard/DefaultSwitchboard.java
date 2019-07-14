@@ -3,6 +3,7 @@ package org.zalando.switchboard;
 import lombok.AllArgsConstructor;
 
 import java.time.Duration;
+import java.util.concurrent.Future;
 
 @AllArgsConstructor
 final class DefaultSwitchboard implements Switchboard {
@@ -11,24 +12,23 @@ final class DefaultSwitchboard implements Switchboard {
     private final AnsweringMachine machine;
 
     @Override
-    public <T, R> Promise<R> subscribe(
+    public <T, R> Future<R> subscribe(
             final Specification<T> specification,
             final SubscriptionMode<T, R> mode,
             final Duration timeout) {
 
-        final var spec = new Spec<>(specification, mode, timeout);
-        final var subscription = new DefaultSubscription<>(spec, registry::unregister);
-        // TODO unregister when done!
+        final var spec = new Spec<>(mode, timeout);
+        final var subscription = new DefaultSubscription<>(specification, spec, registry::unregister);
 
         registry.register(subscription);
-        tryToDeliverRecordedMessages(subscription);
+        tryToDeliverRecordedMessages(specification, subscription);
 
         return subscription;
     }
 
-    private <T> void tryToDeliverRecordedMessages(final Subscription<T> subscription) {
+    private <T> void tryToDeliverRecordedMessages(final Specification<T> specification, final Subscription<T> subscription) {
         while (true) {
-            final var optional = machine.removeIf(subscription);
+            final var optional = machine.removeIf(specification);
 
             if (optional.isPresent()) {
                 final var deliverable = optional.get();

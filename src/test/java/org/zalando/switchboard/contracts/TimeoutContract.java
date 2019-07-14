@@ -6,7 +6,7 @@ import org.zalando.switchboard.TestTimeout;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.time.Duration;
-import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -27,8 +27,8 @@ interface TimeoutContract<S> extends SubscriptionTrait<S> {
             unit.publish(message(messageA()));
             unit.publish(message(messageA()));
 
-            final var exception = assertThrows(CompletionException.class,
-                    () -> unit.subscribe(matchA(), times(3), Duration.ofMillis(50)).join());
+            final var exception = assertThrows(ExecutionException.class,
+                    () -> unit.subscribe(matchA(), times(3), Duration.ofMillis(50)).get());
 
             final var cause = exception.getCause();
             assertThat(cause, is(instanceOf(TimeoutException.class)));
@@ -44,8 +44,8 @@ interface TimeoutContract<S> extends SubscriptionTrait<S> {
             unit.publish(message(messageA()));
             unit.publish(message(messageA()));
 
-            final var exception = assertThrows(CompletionException.class, () ->
-                    unit.subscribe(matchA(), times(3), Duration.ofMillis(50)).join());
+            final var exception = assertThrows(ExecutionException.class,
+                    () -> unit.subscribe(matchA(), times(3), Duration.ofMillis(50)).get());
 
             final var cause = exception.getCause();
             assertThat(cause, is(instanceOf(TimeoutException.class)));

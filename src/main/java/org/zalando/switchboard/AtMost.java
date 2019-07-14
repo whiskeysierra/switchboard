@@ -11,7 +11,7 @@ final class AtMost<S> implements SubscriptionMode<S, Collection<S>> {
     }
 
     @Override
-    public boolean isDone(final int received) {
+    public boolean isDoneEarly(final int received) {
         return received > count;
     }
 
@@ -21,7 +21,7 @@ final class AtMost<S> implements SubscriptionMode<S, Collection<S>> {
     }
 
     @Override
-    public Collection<S> collect(final Collection<S> results) {
+    public Collection<S> transform(final Collection<S> results) {
         return results;
     }
 

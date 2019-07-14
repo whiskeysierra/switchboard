@@ -5,11 +5,8 @@ import org.zalando.switchboard.Switchboard;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.time.Duration;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,29 +19,29 @@ interface AtLeastOnceContract<S> extends SubscriptionTrait<S> {
     default void shouldFailIfExpectedAtLeastOneButReceivedNone() {
         final var unit = Switchboard.create();
 
-        final var exception = assertThrows(CompletionException.class,
-                () -> unit.subscribe("foo"::equals, atLeastOnce(), Duration.ofMillis(50)).join());
+        final var exception = assertThrows(ExecutionException.class,
+                () -> unit.subscribe("foo"::equals, atLeastOnce(), Duration.ofMillis(50)).get());
 
         assertThat(exception.getCause().getMessage(), is("Expected to receive at least one message(s) within PT0.05S, but got 0"));
     }
 
     @Test
-    default void shouldNotFailIfExpectedAtLeastOneAndReceivedExactlyOne() {
+    default void shouldNotFailIfExpectedAtLeastOneAndReceivedExactlyOne() throws ExecutionException, InterruptedException {
         final var unit = Switchboard.create();
 
         unit.publish(message("foo"));
 
-        unit.subscribe("foo"::equals, atLeastOnce(), Duration.ofMillis(50)).join();
+        unit.subscribe("foo"::equals, atLeastOnce(), Duration.ofMillis(50)).get();
     }
 
     @Test
-    default void shouldNotFailIfExpectedAtLeastOneAndReceivedTwo() {
+    default void shouldNotFailIfExpectedAtLeastOneAndReceivedTwo() throws ExecutionException, InterruptedException {
         final var unit = Switchboard.create();
 
         unit.publish(message("foo"));
         unit.publish(message("foo"));
 
-        unit.subscribe("foo"::equals, atLeastOnce(), Duration.ofMillis(50)).join();
+        unit.subscribe("foo"::equals, atLeastOnce(), Duration.ofMillis(50)).get();
     }
 
 }

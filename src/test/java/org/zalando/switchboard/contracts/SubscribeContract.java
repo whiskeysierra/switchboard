@@ -6,13 +6,12 @@ import org.zalando.switchboard.TestTimeout;
 import org.zalando.switchboard.traits.SubscriptionTrait;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.Collections.frequency;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
@@ -38,8 +37,8 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
             final var secondResult = unit.subscribe(matchA(), atLeastOnce(), Duration.ofMillis(50));
             unit.publish(message(messageA()));
 
-            final var first = firstResult.join();
-            final var second = secondResult.join();
+            final var first = firstResult.get();
+            final var second = secondResult.get();
 
             assertThat(first, is(messageA()));
             assertThat(second, is(messageA()));
@@ -56,7 +55,7 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
             unit.publish(message(messageA()));
             unit.publish(message(messageB()));
 
-            final var first = firstResult.join();
+            final var first = firstResult.get();
             assertThat(first, is(messageA()));
         });
     }
@@ -69,8 +68,8 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
             unit.publish(message(messageA()));
             unit.publish(message(messageA()));
 
-            final var exception = assertThrows(CompletionException.class, () ->
-                    unit.subscribe(matchB(), exactlyOnce(), Duration.ofMillis(50)).join());
+            final var exception = assertThrows(ExecutionException.class,
+                    () -> unit.subscribe(matchB(), exactlyOnce(), Duration.ofMillis(50)).get());
 
             final var cause = exception.getCause();
             assertThat(cause, is(instanceOf(TimeoutException.class)));
@@ -88,7 +87,7 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
                 unit.publish(message(messageA()));
             }
 
-            final var messages = unit.subscribe(matchA(), times(count), Duration.ofMillis(50)).join();
+            final var messages = unit.subscribe(matchA(), times(count), Duration.ofMillis(50)).get();
 
             assertThat(messages, hasSize(count));
             assertThat(frequency(messages, messageA()), is(count));
@@ -108,7 +107,7 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
                 unit.publish(message(messageA()));
             }
 
-            final var messages = future.join();
+            final var messages = future.get();
 
             assertThat(messages, hasSize(count));
             assertThat(frequency(messages, messageA()), is(count));
@@ -128,10 +127,24 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
                 unit.publish(message(messageA()));
             }
 
-            final var messages = future.join();
+            final var messages = future.get();
 
             assertThat(messages, hasSize(count));
             assertThat(frequency(messages, messageA()), is(count));
+        });
+    }
+
+    @Test
+    default void shouldStopEarly() {
+        final var unit = Switchboard.create();
+
+        final var executor = Executors.newSingleThreadScheduledExecutor();
+
+        executor.schedule(() ->
+                unit.publish(message(messageA())), 200, MILLISECONDS);
+
+        assertTimeoutPreemptively(Duration.ofMillis(500), () -> {
+            unit.subscribe(matchA(), atLeastOnce(), Duration.ofSeconds(1)).get();
         });
     }
 
