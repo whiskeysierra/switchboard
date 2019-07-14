@@ -13,7 +13,7 @@
 
 > **Switchboard** noun, /swɪtʃ bɔːɹd/: The electronic panel that is used to direct telephone calls to the desired recipient.
 
-An in-process message router that helps to write simple, asynchronous, state-based and collaboration tests. 
+An in-process message router that helps block on asynchronous events.
     
 - **Technology stack**: Java 11+
 - **Status**:  Beta, ported from an internal implementation that is used in production
@@ -22,14 +22,13 @@ An in-process message router that helps to write simple, asynchronous, state-bas
 
 ```java
 server.save("bob");
-User user = switchboard.receive(userCreated("bob"), atLeastOnce(), within(10, SECONDS));
+User user = switchboard.subscribe(userCreated("bob"), atLeastOnce(), ofSeconds(10)).get();
 ```
 
 ## Features
 
-- test asynchronous interactions more easily
-- allows extreme parallelization of long running tests
-- extensible, powerful API
+- makes asynchronous interactions more easily
+- simple, extensible API
     
 ## Origin
 
@@ -88,11 +87,11 @@ fashion. Additionally one specifies a [*subscription mode*](#subscription-modes)
 Think of *blocking subscriptions* as *actively sitting in front of the phone and waiting* while *non-blocking* could be seen as having *call forwarding* from
 your home to your cell so you can do something else, while waiting for a call.
 
-#### Subscriptions
+#### Specifications
 
-A subscription is basically a predicate that filters based on your requirements:
+A specification is basically a predicate that filters based on your requirements:
 
-Subscriptions can be lambda expression:
+Specifications can be lambda expression:
 
 ```java
 user -> "Bob".equals(user.getName());
@@ -108,112 +107,70 @@ or of course concrete implementations:
 
 ```java
 private UserSubscription user(String name) {
-    return new UserSubscription(name);
+    return new UserSpecification(name);
 }
 
-private static class UserSubscription implements Subscription<User, Object> {
+private static final class UserSubscription implements Specification<User> {
 
     private final String name;
 
-    public UserSubscription(String name) {
+    public UserSubscription(final String name) {
         this.name = name;
     }
 
     @Override
-    public boolean apply(User user) {
+    public boolean apply(final User user) {
         return user.getName().equals(name);
     }
     
 }
 ```
 
-#### Blocking
-
-Receiving messages in a blocking way is usually the easiest in terms of readability:
-
-```java
-User user = switchboard.receive(user("bob"), atLeastOnce(), within(10, SECONDS));
-```
-
-If a user called *Bob* is received within 10 seconds it will be returned otherwise a `TimeoutException` is thrown.
-Additionally, since `receive` is a blocking operation, it is allowed to throw `InterruptedException`.
-
-#### Non-blocking
-
 Receiving messages in a non-blocking way is usually required if you need to subscribe to multiple different messages:
 
 ```java
-Future<User> future = switchboard.subscribe(user("bob"), atLeastOnce());
+Future<User> future = switchboard.subscribe(user("bob"), atLeastOnce(), ofSeconds(10));
 
-future.get(); // wait forever
-future.get(10, SECONDS); // wait at most 10 seconds
+future.get(); // wait 10 seconds
+future.get(5, SECONDS); // wait at most 5 seconds
 ```
 
 #### Subscription Modes
 
-When subscribing to message you can specify one of the following modes. They have different characteristics in terms of termination and success conditions:
+When subscribing to message you can specify one of the following modes. They have different characteristics in terms of
+termination and success conditions:
 
-| Mode            | Termination | Success  |
+| Mode            | Termination | Success  | 
 |-----------------|-------------|----------|
 | `atLeast(n)`    | `m >= n`    | `m >= n` |
 | `atLeastOnce()` | `m >= 1`    | `m >= 1` |
 | `atMost(n)`     | `m > n`     | `m <= n` |
+| `atMostOnce()`  | `m > 1`     | `m <= 1` |
 | `exactlyOnce()` | `m > 1`     | `m == 1` |
 | `never()`       | `m > 0`     | `m == 0` |
 | `times(n)`      | `m > n`     | `m == n` |
 
-**Note**: Be ware that `exactlyOnce()` and `times(n)` have termination conditions that require to wait till the end of the timeout to ensure its success 
-condition holds true, e.g. `switchboard.receive(user("Bob"), exactlyOnce(), within(2, MINUTES))` will wait full 2 minutes in case it received 0 or 1 user 
-called *Bob*. In case two or more users are received, it will terminate early and fail.
+**Note**: Be ware that only `atLeast(n)` and `atLeastOnce()` have conditions that allow early termination for success
+cases before the timeout is reached. All others will wait for the timeout to ensure its success condition holds true. 
 
 ### Sending messages
 
-You send messages by placing a *Deliverable* on the switchboard, either a [*message*](#message) or a [*failure*](#failure). Additionally one specifies a
-[*delivery mode*](#delivery-modes) to indicate how the message will be distributed across relevant subscriptions.
-
-#### Message
-
-A message will be returned to active subscriptions:
+You send messages by placing a *Deliverable* on the switchboard, e.g. a [*message*](#message):
 
 ```java
-switchboard.send(message(bob, broadcast()));
+switchboard.publish(message(bob));
 ```
-
-#### Failure
-
-Failures will throw their corresponding exception on the receiving thread. This can be useful to indicate a broken event channel or a missing feature which
-should fail all relevant tests:
-
-```java
-switchboard.send(failure(bob, first(), new UnsupportedOperationException()));
-```
-
-#### Delivery Modes
-
-Sending messages of any kind can be customized using the following delivery modes. It's their task to select the correct number of receivers among all current
-subscriptions:
-
-| Mode          | Delivers to            |
-|---------------|------------------------|
-| `directly()`  | the only subscription  |
-| `broadcast()` | all subscriptions      |
-| `first()`     | the first subscription |
-
-*Direct delivery* is comparable to a normal phone call, i.e. one sender and one receiver. *Broadcast* on the other hand is more like a conference call, i.e.
-one sender but many receivers. *First* might be (*and this is stretching the metaphor quite a bit*) a sales agent which calls people from a list, one at a time.
-
-### Recording messages
 
 Switchboard has an answering machine builtin. That means any message that arrives without anyone receiving it right away will be recorded and delivered as
 soon as at least one receiver starts listening. This is especially useful if your tests need to listen to multiple messages and their order is not guaranteed.
 
 ```java
-switchboard.send(message("foo", directly()));
+switchboard.publish(message("foo", directly()));
 
-String string = switchboard.receive("foo"::equals, atLeastOnce(), within(10, SECONDS));
+String string = switchboard.subscribe("foo"::equals, atLeastOnce(), ofSeconds(10));
 ```
 
-The receiver will get the message immediately upon subscription.
+The subscriber will get the message immediately upon subscription.
 
 ## Getting Help
 
@@ -227,6 +184,8 @@ more details, check the [contribution guidelines](.github/CONTRIBUTING.md).
 ## Alternatives
 
 - [Awaitility](https://github.com/awaitility/awaitility) is a small Java DSL for synchronizing asynchronous operations
+- [Guava's EventBus](https://github.com/google/guava/wiki/EventBusExplained)  
+   See [example implementation](src/test/java/org/zalando/switchboard/eventbus) with *at-least-once* semantics
 
 ## Credits and references
 

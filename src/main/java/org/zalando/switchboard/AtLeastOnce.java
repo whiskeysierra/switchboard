@@ -6,12 +6,12 @@ final class AtLeastOnce<S> implements SubscriptionMode<S, S> {
 
     @Override
     public boolean isDoneEarly(final int received) {
-        return received > 0;
+        return received >= 1;
     }
 
     @Override
     public boolean isSuccess(final int received) {
-        return received > 0;
+        return received >= 1;
     }
 
     @Override

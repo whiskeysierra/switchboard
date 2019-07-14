@@ -17,7 +17,7 @@ import static org.zalando.switchboard.SubscriptionMode.exactlyOnce;
 import static org.zalando.switchboard.SubscriptionMode.never;
 import static org.zalando.switchboard.SubscriptionMode.times;
 
-final class SubscriptionModeTest {
+final class MessageSubscriptionModeTest {
 
     @TestFactory
     Stream<DynamicTest> createPointTests() {
