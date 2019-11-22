@@ -94,6 +94,20 @@ interface FutureContract<S> extends SubscriptionTrait<S> {
     }
 
     @Test
+    default void blockingOnFutureWithTimeoutTwiceShouldWork() throws ExecutionException, InterruptedException, TimeoutException {
+        final var unit = Switchboard.create();
+
+        final var future = unit.subscribe(matchA(), atLeastOnce(), Duration.ofMillis(50));
+        unit.publish(message(messageA()));
+
+        final var first = future.get(10, MILLISECONDS);
+        final var second = future.get(10, MILLISECONDS);
+
+        assertThat(first, is(messageA()));
+        assertThat(second, is(messageA()));
+    }
+
+    @Test
     default void shouldTimeoutWhenWaitingWithASmallerTimeout() {
         final var unit = Switchboard.create();
 

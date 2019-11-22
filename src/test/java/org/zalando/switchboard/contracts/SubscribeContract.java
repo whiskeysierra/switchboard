@@ -148,4 +148,14 @@ interface SubscribeContract<S> extends SubscriptionTrait<S> {
         });
     }
 
+    @Test
+    default void shouldNotOverDeliver() {
+        final var unit = Switchboard.create();
+
+        unit.publish(message(messageA()));
+        unit.subscribe(matchA(), exactlyOnce(), Duration.ofMillis(50));
+
+        unit.publish(message(messageA()));
+    }
+
 }
