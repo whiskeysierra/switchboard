@@ -29,5 +29,8 @@ jobs:
       run: ./mvnw clean test-compile -B
     - name: Test
       run: ./mvnw verify -B
+    - name: Print coverage
+      if: failure()
+      run: cat target/site/jacoco/org.zalando.switchboard/State.java.html
     - name: Coverage
       run: ./mvnw coveralls:report -B -D repoToken=${{ secrets.COVERALLS_TOKEN }}
