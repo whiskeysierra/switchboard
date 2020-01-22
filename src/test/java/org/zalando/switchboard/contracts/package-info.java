@@ -1,4 +1,0 @@
-@ParametersAreNonnullByDefault
-package org.zalando.switchboard.contracts;
-
-import javax.annotation.ParametersAreNonnullByDefault;
