@@ -24,16 +24,18 @@ final class DefaultSubscription<T, A, R> implements Subscription<T, A>, Future<R
 
     DefaultSubscription(
             final Key<T, A> key,
-            final Spec<T, R> spec,
+            final SubscriptionMode<T, R> mode,
+            final Timeout timeout,
             final Consumer<Subscription<T, A>> unregister) {
 
         this.key = key;
-        this.state = new AtomicReference<>(new Waiting<>(spec, () -> unregister.accept(this)));
+        this.state = new AtomicReference<>(
+                new Waiting<>(mode, timeout, () -> unregister.accept(this)));
     }
 
     @Override
-    public boolean deliver(final Deliverable<T, A> deliverable) {
-        return state.updateAndGet(current -> current.deliver(deliverable)).isDone();
+    public void deliver(final Deliverable<T, A> deliverable) {
+        state.updateAndGet(current -> current.deliver(deliverable));
     }
 
     @Override

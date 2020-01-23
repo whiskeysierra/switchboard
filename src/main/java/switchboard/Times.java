@@ -10,7 +10,7 @@ final class Times<S> implements SubscriptionMode<S, Collection<S>> {
     private final int count;
 
     @Override
-    public boolean isDoneEarly(final int received) {
+    public boolean isDone(final int received) {
         return received > count;
     }
 

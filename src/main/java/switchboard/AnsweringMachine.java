@@ -1,12 +1,12 @@
 package switchboard;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Optional;
+import java.util.Collection;
 
 @ThreadSafe
 interface AnsweringMachine {
 
     <T, A> void record(Deliverable<T, A> deliverable);
-    <T, A> Optional<Deliverable<T, A>> removeIf(Key<T, A> key);
+    <T, A> Collection<Deliverable<T, A>> listen(Key<T, A> key);
 
 }

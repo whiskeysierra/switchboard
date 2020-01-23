@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.With;
 import switchboard.Switchboard.RegistryStage;
 
+import java.time.Duration;
+
 import static lombok.AccessLevel.PRIVATE;
 import static switchboard.Switchboard.AnsweringMachineStage;
 import static switchboard.Switchboard.BuildStage;
@@ -16,7 +18,7 @@ final class Builder implements RegistryStage {
     private final AnsweringMachine machine;
 
     Builder() {
-        this(new DefaultRegistry(), new InMemoryAnsweringMachine());
+        this(new DefaultRegistry(), new InMemoryAnsweringMachine(Duration.ofMinutes(1)));
     }
 
     @Override

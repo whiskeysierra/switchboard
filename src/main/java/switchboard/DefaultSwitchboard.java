@@ -1,15 +1,19 @@
 package switchboard;
 
+import com.google.common.util.concurrent.Striped;
 import lombok.AllArgsConstructor;
 
 import java.time.Duration;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.Lock;
 
+@SuppressWarnings("UnstableApiUsage")
 @AllArgsConstructor
 final class DefaultSwitchboard implements Switchboard {
 
     private final Registry registry;
     private final AnsweringMachine machine;
+    private final Striped<Lock> striped = Striped.lazyWeakLock(64);
 
     @Override
     public <T, A, R> Future<R> subscribe(
@@ -17,49 +21,36 @@ final class DefaultSwitchboard implements Switchboard {
             final SubscriptionMode<T, R> mode,
             final Duration timeout) {
 
-        final var spec = new Spec<>(mode, timeout);
-        final var subscription =
-                new DefaultSubscription<>(key, spec, registry::unregister);
+        final var subscription = new DefaultSubscription<>(
+                key, mode, new Timeout(timeout), registry::unregister);
 
-        registry.register(key, subscription);
-        tryToDeliverRecordedMessages(key, subscription);
+        registry.register(subscription);
+        deliveryTo(subscription);
 
         return subscription;
     }
 
-    private <T, A> void tryToDeliverRecordedMessages(
-            final Key<T, A> key, final Subscription<T, A> subscription) {
+    private <T, A> void deliveryTo(final Subscription<T, A> subscription) {
+        final var key = subscription.getKey();
+        final var locking = locking(key);
 
-        while (true) {
-            final var optional = machine.removeIf(key);
-
-            if (optional.isPresent()) {
-                final var deliverable = optional.get();
-
-                // TODO this is needed because the subscription might be unregistered in between and we wouldn't notice
-                // TODO find a better way to do this, e.g. re-quering or asking the registry?!
-                if (subscription.deliver(deliverable)) {
-                    return;
-                }
-            }
-
-            if (optional.isEmpty()) {
-                return;
-            }
-        }
+        locking.run(() -> machine.listen(key)
+                .forEach(subscription::deliver));
     }
 
     @Override
     public <T, A> void publish(final Deliverable<T, A> deliverable) {
-        final var matches = registry.find(deliverable);
+        machine.record(deliverable);
 
-        if (matches.isEmpty()) {
-            machine.record(deliverable);
-        } else {
-            for (final var subscription : matches) {
-                subscription.deliver(deliverable);
-            }
-        }
+        final Key<T, A> key = deliverable.getKey();
+        final var locking = locking(key);
+
+        locking.run(() -> registry.find(key)
+                .forEach(subscription -> subscription.deliver(deliverable)));
+    }
+
+    private <T, A> Locking locking(final Key<T, A> key) {
+        return Locking.of(striped.get(key));
     }
 
 }

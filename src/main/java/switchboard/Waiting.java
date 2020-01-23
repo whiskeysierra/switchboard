@@ -3,6 +3,7 @@ package switchboard;
 import lombok.AllArgsConstructor;
 import org.organicdesign.fp.collections.ImList;
 
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -26,34 +27,33 @@ final class Waiting<T, R> implements State<T, R> {
     private final AtomicReference<ImList<T>> ref = new AtomicReference<>(vec());
 
     private final Lock lock = new ReentrantLock();
-    private final Condition doneEarly = lock.newCondition();
+    private final Condition done = lock.newCondition();
+    private final Locking locking = Locking.of(lock);
 
-    private final Spec<T, R> spec;
+    private final SubscriptionMode<T, R> mode;
+    private final Timeout timeout;
     private final Runnable unregister;
 
     @Override
     public State<T, R> deliver(final Deliverable<T, ?> deliverable) {
-        lock.lock();
-
-        try {
+        return locking.run(() -> {
             final var message = deliverable.getMessage();
-            final ImList<T> queue = ref.updateAndGet(current -> current.append(message));
+            final Collection<T> queue = ref.updateAndGet(
+                    current -> current.append(message));
             final var received = queue.size();
 
-            if (spec.isDoneEarly(received)) {
+            if (mode.isDone(received)) {
                 unregister();
-                doneEarly.signalAll();
+                done.signalAll();
 
-                if (spec.isSuccess(received)) {
-                    return new Success<>(spec, queue);
+                if (mode.isSuccess(received)) {
+                    return success(queue);
                 }
-                return new Failed<>(spec, received);
+                return failed(received);
             }
 
             return this;
-        } finally {
-            lock.unlock();
-        }
+        });
     }
 
     @Override
@@ -63,47 +63,52 @@ final class Waiting<T, R> implements State<T, R> {
 
     @Override
     public State<T, R> await() throws InterruptedException {
-        // TODO this branch should be able to rely on the return value of doneEarly.await
-        // TODO this method shouldn't technically be possible to return the Waiting state
-        return await(spec.getRemainingTimeout(), NANOSECONDS);
+        return await(timeout.remaining().toNanos(), NANOSECONDS);
     }
 
     @Override
-    public State<T, R> await(final long timeout, final TimeUnit timeoutUnit) throws InterruptedException {
-        lock.lock();
+    public State<T, R> await(final long timeout, final TimeUnit timeoutUnit)
+            throws InterruptedException {
+        return locking.run(() -> {
+            done.await(timeout, timeoutUnit);
 
-        try {
-            doneEarly.await(timeout, timeoutUnit);
-
-            // TODO is there a race condition in here?!
-
-            final var timedOut = spec.isTimedOut();
+            final var timedOut = this.timeout.isTimedOut();
 
             final var queue = ref.get();
             final var received = queue.size();
 
-            final var isDoneEarly = spec.isDoneEarly(received);
+            final var isDoneEarly = mode.isDone(received);
 
             if (isDoneEarly || timedOut) {
                 unregister();
 
-                final var success = spec.isSuccess(received);
+                final var success = mode.isSuccess(received);
 
                 if (success) {
-                    return new Success<>(spec, queue);
+                    return success(queue);
                 }
 
                 if (timedOut) {
-                    return new TimedOut<>(spec, received);
+                    return timedOut(received);
                 }
 
-                return new Failed<>(spec, received);
+                return failed(received);
             } else {
                 return this;
             }
-        } finally {
-            lock.unlock();
-        }
+        });
+    }
+
+    private Success<T, R> success(final Collection<T> queue) {
+        return new Success<>(mode, queue);
+    }
+
+    private TimedOut<T, R> timedOut(final int received) {
+        return new TimedOut<>(timeout.format(mode, received));
+    }
+
+    private Failed<T, R> failed(final int received) {
+        return new Failed<>(timeout.format(mode, received));
     }
 
     @Override

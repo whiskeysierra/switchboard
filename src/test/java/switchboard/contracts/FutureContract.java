@@ -31,6 +31,15 @@ interface FutureContract<S, A> extends SubscriptionTrait<S, A> {
     }
 
     @Test
+    default void waitingFutureShouldNotBeDone() {
+        final var unit = Switchboard.create();
+
+        final var future = unit.subscribe(matchA(), atLeastOnce(), Duration.ofMillis(50));
+
+        assertThat(future.isDone(), is(false));
+    }
+
+    @Test
     default void successfulFutureShouldNotBeCancelled() {
         final var unit = Switchboard.create();
 

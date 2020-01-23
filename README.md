@@ -6,9 +6,9 @@
 ![Build Status](https://github.com/whiskeysierra/switchboard/workflows/build/badge.svg)
 [![Coverage Status](https://img.shields.io/coveralls/whiskeysierra/switchboard/master.svg)](https://coveralls.io/r/whiskeysierra/switchboard)
 [![Code Quality](https://img.shields.io/codacy/grade/c6117b0da34448b4823c37d53cec9109/master.svg)](https://www.codacy.com/app/whiskeysierra/switchboard)
-[![Javadoc](http://javadoc.io/badge/org.zalando/switchboard.svg)](http://www.javadoc.io/doc/org.zalando/switchboard)
+[![Javadoc](http://javadoc.io/badge/io.github.whiskeysierra/switchboard.svg)](http://www.javadoc.io/doc/io.github.whiskeysierra/switchboard)
 [![Release](https://img.shields.io/github/release/whiskeysierra/switchboard.svg)](https://github.com/whiskeysierra/switchboard/releases)
-[![Maven Central](https://img.shields.io/maven-central/v/org.zalando/switchboard.svg)](https://maven-badges.herokuapp.com/maven-central/org.zalando/switchboard)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.whiskeysierra/switchboard.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.whiskeysierra/switchboard)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/whiskeysierra/switchboard/master/LICENSE)
 
 > **Switchboard** noun, /swɪtʃ bɔːɹd/: The electronic panel that is used to direct telephone calls to the desired recipient.
@@ -68,7 +68,7 @@ Add the following dependency to your project:
 
 ```xml
 <dependency>
-    <groupId>org.zalando</groupId>
+    <groupId>io.github.whiskeysierra</groupId>
     <artifactId>switchboard</artifactId>
     <version>${switchboard.version}</version>
     <scope>test</scope>
@@ -87,49 +87,19 @@ fashion. Additionally one specifies a [*subscription mode*](#subscription-modes)
 Think of *blocking subscriptions* as *actively sitting in front of the phone and waiting* while *non-blocking* could be seen as having *call forwarding* from
 your home to your cell so you can do something else, while waiting for a call.
 
-#### Specifications
+#### Subscriptions
 
-A specification is basically a predicate that filters based on your requirements:
-
-Specifications can be lambda expression:
+A subscription is basically a key that specifies your requirements:
 
 ```java
-user -> "Bob".equals(user.getName());
-```
-
-or method references
-
-```java
-User.BOB::equals
-```
-
-or of course concrete implementations:
-
-```java
-private UserSubscription user(String name) {
-    return new UserSpecification(name);
-}
-
-private static final class UserSubscription implements Specification<User> {
-
-    private final String name;
-
-    public UserSubscription(final String name) {
-        this.name = name;
-    }
-
-    @Override
-    public boolean apply(final User user) {
-        return user.getName().equals(name);
-    }
-    
+Key<UserCreated, String> userCreated(String name) {
+    return Key.of(UserCreated.class, name);
 }
 ```
-
 Receiving messages in a non-blocking way is usually required if you need to subscribe to multiple different messages:
 
 ```java
-Future<User> future = switchboard.subscribe(user("bob"), atLeastOnce(), ofSeconds(10));
+Future<User> future = switchboard.subscribe(userCreated("bob"), atLeastOnce(), ofSeconds(10));
 
 future.get(); // wait 10 seconds
 future.get(5, SECONDS); // wait at most 5 seconds
@@ -150,24 +120,22 @@ termination and success conditions:
 | `never()`       | `m > 0`     | `m == 0` |
 | `times(n)`      | `m > n`     | `m == n` |
 
-**Note**: Be ware that only `atLeast(n)` and `atLeastOnce()` have conditions that allow early termination for success
-cases before the timeout is reached. All others will wait for the timeout to ensure its success condition holds true. 
+**Note**: Be ware that only `atLeast(n)` and `atLeastOnce()` have conditions that allow early termination for success cases before the timeout is reached. All others will wait for the timeout to ensure its success condition holds true. 
 
 ### Sending messages
 
 You send messages by placing a *Deliverable* on the switchboard, e.g. a [*message*](#message):
 
 ```java
-switchboard.publish(message(bob));
+switchboard.publish(message(Key.of(UserCreated.class, user.id), user));
 ```
 
-Switchboard has an answering machine builtin. That means any message that arrives without anyone receiving it right away will be recorded and delivered as
-soon as at least one receiver starts listening. This is especially useful if your tests need to listen to multiple messages and their order is not guaranteed.
+Switchboard has an answering machine builtin. That means any message that arrives without anyone receiving it right away will be recorded and delivered as soon as at least one receiver starts listening. This is especially useful if your tests need to listen to multiple messages and their order is not guaranteed.
 
 ```java
-switchboard.publish(message("foo", directly()));
+switchboard.publish(foo);
 
-String string = switchboard.subscribe("foo"::equals, atLeastOnce(), ofSeconds(10));
+String string = switchboard.subscribe(fooKey, atLeastOnce(), ofSeconds(10));
 ```
 
 The subscriber will get the message immediately upon subscription.
@@ -185,7 +153,7 @@ more details, check the [contribution guidelines](.github/CONTRIBUTING.md).
 
 - [Awaitility](https://github.com/awaitility/awaitility) is a small Java DSL for synchronizing asynchronous operations
 - [Guava's EventBus](https://github.com/google/guava/wiki/EventBusExplained)  
-   See [example implementation](src/test/java/org/zalando/switchboard/eventbus) with *at-least-once* semantics
+   See [example implementation](src/test/java/switchboard/eventbus) with *at-least-once* semantics
 
 ## Credits and references
 

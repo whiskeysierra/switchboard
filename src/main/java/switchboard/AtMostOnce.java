@@ -8,7 +8,7 @@ import static com.google.common.collect.Iterables.getOnlyElement;
 final class AtMostOnce<S> implements SubscriptionMode<S, Optional<S>> {
 
     @Override
-    public boolean isDoneEarly(final int received) {
+    public boolean isDone(final int received) {
         return received > 1;
     }
 

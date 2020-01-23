@@ -5,7 +5,7 @@ import java.util.Collection;
 final class Never<S> implements SubscriptionMode<S, Void> {
 
     @Override
-    public boolean isDoneEarly(final int received) {
+    public boolean isDone(final int received) {
         return received > 0;
     }
 

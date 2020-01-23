@@ -5,7 +5,7 @@ import java.util.Collection;
 final class ExactlyOnce<S> implements SubscriptionMode<S, S> {
 
     @Override
-    public boolean isDoneEarly(final int received) {
+    public boolean isDone(final int received) {
         return received > 1;
     }
 

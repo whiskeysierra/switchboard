@@ -1,6 +1,7 @@
 package switchboard;
 
-import java.util.Optional;
+import java.util.Collection;
+import java.util.Collections;
 
 public final class NoAnsweringMachine implements AnsweringMachine {
 
@@ -10,7 +11,8 @@ public final class NoAnsweringMachine implements AnsweringMachine {
     }
 
     @Override
-    public <T, A> Optional<Deliverable<T, A>> removeIf(final Key<T, A> key) {
-        return Optional.empty();
+    public <T, A> Collection<Deliverable<T, A>> listen(final Key<T, A> key) {
+        return Collections.emptySet();
     }
+
 }

@@ -113,4 +113,24 @@ interface RecordingContract<S, A> extends SubscriptionTrait<S, A> {
         });
     }
 
+    @Test
+    default void shouldDeliverRecordedMessagesToFutureSubscriptions() {
+        assertTimeoutPreemptively(TestTimeout.DEFAULT, () -> {
+            final var unit = Switchboard.create();
+
+            final var firstResult = unit.subscribe(matchA(), atLeastOnce(), Duration.ofMillis(50));
+
+            unit.publish(message(matchA(), messageA()));
+
+            final var secondResult = unit.subscribe(matchA(), atLeastOnce(), Duration.ofMillis(50));
+
+            final var first = firstResult.get();
+            final var second = secondResult.get();
+
+            assertThat(first, is(messageA()));
+            assertThat(second, is(messageA()));
+        });
+
+    }
+
 }
