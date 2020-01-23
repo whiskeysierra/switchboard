@@ -127,15 +127,16 @@ termination and success conditions:
 You send messages by placing a *Deliverable* on the switchboard, e.g. a [*message*](#message):
 
 ```java
-switchboard.publish(message(Key.of(UserCreated.class, user.id), user));
+var key = Key.of(UserCreated.class, user.id);
+switchboard.publish(message(key, user));
 ```
 
 Switchboard has an answering machine builtin. That means any message that arrives without anyone receiving it right away will be recorded and delivered as soon as at least one receiver starts listening. This is especially useful if your tests need to listen to multiple messages and their order is not guaranteed.
 
 ```java
-switchboard.publish(foo);
+switchboard.publish(message);
 
-String string = switchboard.subscribe(fooKey, atLeastOnce(), ofSeconds(10));
+String string = switchboard.subscribe(key, atLeastOnce(), ofSeconds(10));
 ```
 
 The subscriber will get the message immediately upon subscription.
