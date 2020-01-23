@@ -70,6 +70,7 @@ public interface SubscriptionMode<T, R> {
      * Returns a mode that succeeds if the number of messages received within
      * the specified timeout is exactly the given count.
      *
+     * @param count the exact number of expected messages
      * @param <T> message type
      * @return a new subscription mode
      */
@@ -92,6 +93,7 @@ public interface SubscriptionMode<T, R> {
      * Returns a mode that succeeds if the number of messages received within
      * the specified timeout is at least the given count.
      *
+     * @param count the minimum number of expected messages
      * @param <T> message type
      * @return a new subscription mode
      */
