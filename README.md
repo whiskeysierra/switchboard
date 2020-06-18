@@ -4,12 +4,12 @@
 
 [![Stability: Active](https://masterminds.github.io/stability/active.svg)](https://masterminds.github.io/stability/active.html)
 ![Build Status](https://github.com/whiskeysierra/switchboard/workflows/build/badge.svg)
-[![Coverage Status](https://img.shields.io/coveralls/whiskeysierra/switchboard/master.svg)](https://coveralls.io/r/whiskeysierra/switchboard)
-[![Code Quality](https://img.shields.io/codacy/grade/c6117b0da34448b4823c37d53cec9109/master.svg)](https://www.codacy.com/app/whiskeysierra/switchboard)
+[![Coverage Status](https://img.shields.io/coveralls/whiskeysierra/switchboard/main.svg)](https://coveralls.io/r/whiskeysierra/switchboard)
+[![Code Quality](https://img.shields.io/codacy/grade/c6117b0da34448b4823c37d53cec9109/main.svg)](https://www.codacy.com/app/whiskeysierra/switchboard)
 [![Javadoc](http://javadoc.io/badge/io.github.whiskeysierra/switchboard.svg)](http://www.javadoc.io/doc/io.github.whiskeysierra/switchboard)
 [![Release](https://img.shields.io/github/release/whiskeysierra/switchboard.svg)](https://github.com/whiskeysierra/switchboard/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.whiskeysierra/switchboard.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.whiskeysierra/switchboard)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/whiskeysierra/switchboard/master/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/whiskeysierra/switchboard/main/LICENSE)
 
 > **Switchboard** noun, /swɪtʃ bɔːɹd/: The electronic panel that is used to direct telephone calls to the desired recipient.
 
